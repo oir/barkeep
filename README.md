@@ -2,7 +2,10 @@
   <img src="docs/meanwhile.png" width="300">
 </p>
 
-Small header to display async counters and progress bars
+Small header to display async counters and progress bars. Use it by
+including `meanwhile.h` in your project.
+
+[![Build Status](https://travis-ci.com/oir/meanwhile.svg?branch=main)](https://travis-ci.com/oir/meanwhile)
 
 ---
 
