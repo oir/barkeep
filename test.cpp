@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 #include <catch.hpp>
-#include <meanwhile.h>
+#include <meanwhile/meanwhile.h>
 
 using namespace std::chrono_literals;
 using namespace mew;
@@ -71,7 +71,7 @@ using ProgressTypeList =
 TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = typename ProgressTraits<TestType>::value_type;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   auto sp = GENERATE(Speed::None, Speed::Last);
@@ -92,7 +92,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   auto parts = check_and_get_parts(out.str());
 
   std::stringstream ss;
-  if (std::is_floating_point<TestType>::value) {
+  if (std::is_floating_point_v<TestType>) {
     ss << std::fixed << std::setprecision(2);
   }
   ss << amount;
@@ -127,7 +127,7 @@ auto extract_counts(const std::string& prefix,
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = typename ProgressTraits<TestType>::value_type;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   ValueType initial = amount;
@@ -157,7 +157,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
 
   // Final result should always be displayed
   ValueType expected = initial;
-  if (std::is_floating_point<ValueType>::value) {
+  if (std::is_floating_point_v<ValueType>) {
     expected += ValueType(121.2);
   } else {
     expected += ValueType(101);
@@ -169,27 +169,26 @@ template <typename Display>
 Display factory_helper();
 
 template <>
-Animation factory_helper<>() {
+Animation factory_helper<Animation>() {
   static std::stringstream hide;
   return Animation(hide);
 }
 
 template <>
-CounterDisplay<> factory_helper<>() {
+Counter<> factory_helper<Counter<>>() {
   static size_t progress;
   static std::stringstream hide;
   return Counter(progress, hide);
 }
 
 template <>
-ProgressBarDisplay<float> factory_helper<>() {
+ProgressBar<float> factory_helper<ProgressBar<float>>() {
   static float progress;
   static std::stringstream hide;
   return ProgressBar(progress, hide);
 }
 
-using DisplayTypeList =
-    std::tuple<Animation, CounterDisplay<>, ProgressBarDisplay<float>>;
+using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   auto orig = factory_helper<TestType>();
@@ -289,7 +288,11 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(sents, out).total(505).message("Sents").style(Bars).interval(0.01) |
+  auto bar = ProgressBar(sents, out)
+                 .total(505)
+                 .message("Sents")
+                 .style(Bars)
+                 .interval(0.01) |
              Counter(toks, out).message("Toks").unit_of_speed("tok/s").speed(
                  Speed::Last);
   bar.start();

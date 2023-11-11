@@ -2,14 +2,14 @@
 
 #include <atomic>
 #include <iostream>
-#include "meanwhile.h"
+#include <meanwhile/meanwhile.h>
 
 int main(int argc, char** argv) {
   using namespace std::chrono_literals;
   using namespace mew;
 
   for (auto sty : {Ellipsis, Bar, Moon, Square}) {
-    auto anim = Animation().message("Working").style(sty);
+    auto anim = Animation().message("Working").style(sty).interval(0.5s);
     anim.start();
     std::this_thread::sleep_for(10s);
     anim.done();
@@ -37,6 +37,20 @@ int main(int argc, char** argv) {
       work += 0.213;
     }
     c.done();
+  }
+
+  for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
+    unsigned long long work{677};
+    auto c = Counter(work)
+                 .message("Decreasing")
+                 .unit_of_speed("")
+                 .speed(Speed::Overall);
+    c.start();
+    while (work > 0) {
+      std::this_thread::sleep_for(13ms);
+      work--;
+    }
+    // Let destructor do the c.done() this time
   }
 
   for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
