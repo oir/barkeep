@@ -67,7 +67,7 @@ enum class Speed : unsigned short { None, Last, Overall, Both };
 // Class: AsyncDisplay
 // Base class to handle asynchronous displays.
 class AsyncDisplay {
- protected:
+ private:
   Duration interval_{0.0};
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
