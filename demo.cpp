@@ -38,10 +38,13 @@ int main(int argc, char** argv) {
     }
     c.done();
   }
-  
+
   for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
     unsigned long long work{677};
-    auto c = Counter(work).message("Decreasing").unit_of_speed("").speed(Speed::Overall);
+    auto c = Counter(work)
+                 .message("Decreasing")
+                 .unit_of_speed("")
+                 .speed(Speed::Overall);
     c.start();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);

@@ -194,7 +194,7 @@ class AsyncDisplay {
   void interval(double pd) { interval_ = Duration(pd); }
   void no_tty() { no_tty_ = true; }
 
- friend class Composite;
+  friend class Composite;
 };
 
 // Class: Animation
@@ -272,7 +272,6 @@ class Animation : public AsyncDisplay {
   }
 };
 
-
 // Class: Composite
 // Creates a composite display out of two display that shows them side by side.
 // For instance, you can combine two <Counter>s to monitor two variables.
@@ -287,7 +286,9 @@ class Composite : public AsyncDisplay {
     return len + 1;
   }
 
-  Duration default_interval_() const override { return left_->default_interval_(); }
+  Duration default_interval_() const override {
+    return left_->default_interval_();
+  }
 
  public:
   Composite(std::unique_ptr<AsyncDisplay> left,
@@ -299,9 +300,7 @@ class Composite : public AsyncDisplay {
       throw std::runtime_error("Running displays cannot be composed!");
     }
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
-    if (left_->no_tty_ or right_->no_tty_) {
-      AsyncDisplay::no_tty();
-    }
+    if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
   ~Composite() { done(); }
 
@@ -318,7 +317,7 @@ class Composite : public AsyncDisplay {
 template <typename LeftDisplay, typename RightDisplay>
 auto operator|(LeftDisplay left, RightDisplay right) {
   return Composite(std::make_unique<LeftDisplay>(left),
-                                              std::make_unique<RightDisplay>(right));
+                   std::make_unique<RightDisplay>(right));
 }
 
 // Trait class to extract underlying value type from numerics and
@@ -337,14 +336,9 @@ template <typename T>
 using value_t = typename AtomicTraits<T>::value_type;
 
 template <typename T>
-using signed_t =
-        typename std::conditional_t
-        <
-            std::is_integral_v<T>,
-            std::make_signed<T>,
-            std::common_type<T>
-        >::type;
-
+using signed_t = typename std::conditional_t<std::is_integral_v<T>,
+                                             std::make_signed<T>,
+                                             std::common_type<T>>::type;
 
 // Class: Speedometer
 // Helper class to measure and display speed of progress.
@@ -376,8 +370,10 @@ class Speedometer {
       using ValueType = value_t<Progress>;
       using SignedType = signed_t<ValueType>;
 
-      auto speed = double(SignedType(progress_) - SignedType(first_progress_)) / dur.count();
-      auto speed2 = double(SignedType(progress_) - SignedType(last_progress_)) / dur2.count();
+      auto speed = double(SignedType(progress_) - SignedType(first_progress_)) /
+                   dur.count();
+      auto speed2 = double(SignedType(progress_) - SignedType(last_progress_)) /
+                    dur2.count();
 
       ss << std::fixed << std::setprecision(2) << "(";
       if (speed_ == Speed::Overall or speed_ == Speed::Both) { ss << speed; }
@@ -424,7 +420,6 @@ class Speedometer {
   Speedometer(Progress& progress) : progress_(progress) {}
 };
 
-
 // Class: Counter
 // Monitors and displays a single numeric variable
 template <typename Progress = size_t>
@@ -468,9 +463,7 @@ class Counter : public AsyncDisplay {
   //   progress - Variable to be monitored and displayed
   //   out      - Output stream to write to
   Counter(Progress& progress, std::ostream& out = std::cout)
-      : AsyncDisplay(out),
-        progress_(progress),
-        speedom_(progress) {}
+      : AsyncDisplay(out), progress_(progress), speedom_(progress) {}
 
   Counter(const Counter<Progress>& other)
       : AsyncDisplay(other),
@@ -531,10 +524,11 @@ class ProgressBar : public AsyncDisplay {
   using ValueType = value_t<Progress>;
 
   Speedometer<Progress> speedom_;
-  Progress& progress_;                    // work done so far
-  static constexpr ValueType width_ = 30; // width of progress bar (TODO: make customizable?)
-  ValueType total_{100};                  // total work
-  bool counts_ = true;                    // whether to display counts
+  Progress& progress_; // work done so far
+  static constexpr ValueType width_ =
+      30;                // width of progress bar (TODO: make customizable?)
+  ValueType total_{100}; // total work
+  bool counts_ = true;   // whether to display counts
 
   Strings partials_; // progress bar display strings
 
@@ -542,9 +536,11 @@ class ProgressBar : public AsyncDisplay {
   // Compute the shape of the progress bar based on progress and write to output
   // stream.
   size_t render_progress_bar_(std::ostream& out) {
-    ValueType on = width_ * progress_ / total_;
-    ValueType partial =
-        partials_.size() * width_ * progress_ / total_ - partials_.size() * on;
+    ValueType progress_copy =
+        progress_; // to avoid progress_ changing during computations below
+    ValueType on = width_ * progress_copy / total_;
+    ValueType partial = partials_.size() * width_ * progress_copy / total_ -
+                        partials_.size() * on;
     if (on >= width_) {
       on = width_;
       partial = 0;
@@ -686,7 +682,6 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 };
-
 
 } // namespace mew
 
