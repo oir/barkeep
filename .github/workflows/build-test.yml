@@ -7,4 +7,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: make -j2
-      - run: ./test
+      - run: ./test.out
