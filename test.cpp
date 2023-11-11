@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 #include <catch.hpp>
-#include <meanwhile.h>
+#include <meanwhile/meanwhile.h>
 
 using namespace std::chrono_literals;
 using namespace mew;
@@ -71,7 +71,7 @@ using ProgressTypeList =
 TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = typename ProgressTraits<TestType>::value_type;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   auto sp = GENERATE(Speed::None, Speed::Last);
@@ -127,7 +127,7 @@ auto extract_counts(const std::string& prefix,
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = typename ProgressTraits<TestType>::value_type;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   ValueType initial = amount;
@@ -169,27 +169,27 @@ template <typename Display>
 Display factory_helper();
 
 template <>
-Animation factory_helper<>() {
+Animation factory_helper<Animation>() {
   static std::stringstream hide;
   return Animation(hide);
 }
 
 template <>
-CounterDisplay<> factory_helper<>() {
+Counter<> factory_helper<Counter<>>() {
   static size_t progress;
   static std::stringstream hide;
   return Counter(progress, hide);
 }
 
 template <>
-ProgressBarDisplay<float> factory_helper<>() {
+ProgressBar<float> factory_helper<ProgressBar<float>>() {
   static float progress;
   static std::stringstream hide;
   return ProgressBar(progress, hide);
 }
 
 using DisplayTypeList =
-    std::tuple<Animation, CounterDisplay<>, ProgressBarDisplay<float>>;
+    std::tuple<Animation, Counter<>, ProgressBar<float>>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   auto orig = factory_helper<TestType>();

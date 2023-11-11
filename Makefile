@@ -3,11 +3,11 @@ CXX=g++
 .PHONY: all
 all: test demo
 
-test: test.cpp meanwhile.h
-	${CXX} -std=c++14 -pthread -g -I./ -I./extern test.cpp -o test
+test: test.cpp meanwhile/meanwhile.h
+	${CXX} -std=c++17 -pthread -g -I./ -I./extern test.cpp -o test.out
 
-demo: demo.cpp meanwhile.h
-	${CXX} -std=c++14 -pthread -I./ demo.cpp -o demo
+demo: demo.cpp meanwhile/meanwhile.h
+	${CXX} -std=c++17 -pthread -O3 -I./ demo.cpp -o demo.out
 
 .PHONY: install
 install:
@@ -15,4 +15,4 @@ install:
 
 .PHONY: clean
 clean:
-	rm -rf test demo
+	rm -rf *.out.*

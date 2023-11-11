@@ -47,11 +47,11 @@ const static StringsList animation_stills_{
 };
 
 // Enum: ProgressBarStyle
-// Kind of bar being displayed for <ProgressBarDisplay>
+// Kind of bar being displayed for <ProgressBar>
 enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow };
 
 // Var: progress_partials_
-// Definitions of various partial bars for <ProgressBarDisplay>.
+// Definitions of various partial bars for <ProgressBar>.
 // <ProgressBarStyle> indexes into this.
 const static StringsList progress_partials_{
     {"|"},
@@ -65,10 +65,9 @@ const static StringsList progress_partials_{
 enum class Speed : unsigned short { None, Last, Overall, Both };
 
 // Class: AsyncDisplay
-// Base (CRTP) class to handle asynchronous displays.
-template <typename Derived>
+// Base class to handle asynchronous displays.
 class AsyncDisplay {
- private:
+ protected:
   Duration interval_{0.0};
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
@@ -80,15 +79,12 @@ class AsyncDisplay {
 
   size_t max_rendered_len_ = 0;
 
+ protected:
   // Method: render_
-  // Render a display: animation, progress bar, etc. Needs to be specialized.
-  size_t render_(std::ostream& out) {
-    return static_cast<Derived&>(*this).render_(out);
-  }
+  // Render a display: animation, progress bar, etc.
+  virtual size_t render_(std::ostream& out) = 0;
 
-  Duration default_interval_() const {
-    return static_cast<const Derived&>(*this).default_interval_();
-  }
+  virtual Duration default_interval_() const = 0;
 
   // Method: display_
   // Display everything (message, maybe with animation, progress bar, etc)
@@ -146,12 +142,12 @@ class AsyncDisplay {
     message_ = std::move(other.message_);
   }
 
-  ~AsyncDisplay() { done(); }
+  virtual ~AsyncDisplay() { done(); }
 
   // Method: start
   // Start the display. This starts writing the display in the output stream,
   // and computing speed if applicable.
-  void start() {
+  virtual void start() {
     if (displayer_) {
       throw std::runtime_error("Display was already started!");
     }
@@ -171,7 +167,7 @@ class AsyncDisplay {
   // Method: done
   // End the display. This adds a newline to the output stream and stops
   // writing.
-  void done() {
+  virtual void done() {
     if (not displayer_) { return; } // noop if already done() before
     {
       std::lock_guard<std::mutex> lock(completion_m_);
@@ -191,47 +187,34 @@ class AsyncDisplay {
      interval(double)
      - Set the interval by seconds as a double argument
   */
-  Derived& message(const std::string& msg) {
-    message_ = msg;
-    return static_cast<Derived&>(*this);
-  }
 
-  Derived& interval(Duration pd) {
-    interval_ = pd;
-    return static_cast<Derived&>(*this);
-  }
+ protected:
+  void message(const std::string& msg) { message_ = msg; }
+  void interval(Duration pd) { interval_ = pd; }
+  void interval(double pd) { interval_ = Duration(pd); }
+  void no_tty() { no_tty_ = true; }
 
-  Derived& interval(double pd) {
-    interval_ = Duration(pd);
-    return static_cast<Derived&>(*this);
-  }
-
-  Derived& no_tty() {
-    no_tty_ = true;
-    return static_cast<Derived&>(*this);
-  }
-
-  template <typename Left, typename Right>
-  friend class Composite;
+ friend class Composite;
 };
 
 // Class: Animation
 // Displays a simple animation with a message.
-class Animation : public AsyncDisplay<Animation> {
+class Animation : public AsyncDisplay {
  private:
   unsigned short frame_ = 0;
   Strings stills_;
 
-  size_t render_(std::ostream& out) {
-    size_t len = this->render_message_(out);
+ protected:
+  size_t render_(std::ostream& out) override {
+    size_t len = render_message_(out);
     out << stills_[frame_] << " ";
     len += (stills_[frame_].size() + 1);
     frame_ = (frame_ + 1) % stills_.size();
     return len;
   }
 
-  Duration default_interval_() const {
-    if (this->no_tty_) { return Duration{60.}; }
+  Duration default_interval_() const override {
+    if (no_tty_) { return Duration{60.}; }
     return Duration{1.};
   }
 
@@ -245,12 +228,12 @@ class Animation : public AsyncDisplay<Animation> {
        out  - Output stream to print
   */
   Animation(std::ostream& out = std::cout)
-      : AsyncDisplay<Animation>(out),
+      : AsyncDisplay(out),
         stills_(animation_stills_[static_cast<unsigned short>(Ellipsis)]) {}
 
   Animation(const Animation& other) = default;
   Animation(Animation&&) = default;
-  ~Animation() { this->done(); }
+  ~Animation() { done(); }
 
   // Methods: Setters
   //
@@ -260,74 +243,108 @@ class Animation : public AsyncDisplay<Animation> {
     return *this;
   }
 
-  friend class AsyncDisplay<Animation>;
-  template <typename Left, typename Right>
-  friend class Composite;
-};
+  /* Methods: Setters
 
-// Class: Composite
-// Creates a composite display out of two display that shows them side by side.
-// For instance, you can combine two <CounterDisplay>s to monitor two variables.
-template <typename LeftDisplay, typename RightDisplay>
-class Composite : public AsyncDisplay<Composite<LeftDisplay, RightDisplay>> {
- private:
-  LeftDisplay left_;
-  RightDisplay right_;
-
-  size_t render_(std::ostream& out) {
-    size_t len = left_.render_(out);
-    out << " ";
-    len += right_.render_(out);
-    return len + 1;
-  }
-
-  Duration default_interval_() const { return left_.default_interval_(); }
-
- public:
-  Composite(LeftDisplay left, RightDisplay right)
-      : AsyncDisplay<Composite<LeftDisplay, RightDisplay>>(left.out_),
-        left_(std::move(left)),
-        right_(std::move(right)) {
-    if (left_.displayer_ or right_.displayer_) {
-      throw std::runtime_error("Running displays cannot be composed!");
-    }
-    this->interval_ = std::min(left_.interval_, right_.interval_);
-    this->no_tty_ = left_.no_tty_ or right_.no_tty_;
-  }
-  ~Composite() { this->done(); }
-
-  auto& no_tty() {
-    this->no_tty_ = true;
-    left_.no_tty();
-    right_.no_tty();
+     message          - Set message
+     interval(Duration) - Set the interval in which the display is refreshed.
+     This is also the interval in which speed is measured if applicable.
+     interval(double)
+     - Set the interval by seconds as a double argument
+  */
+  auto& message(const std::string& msg) {
+    AsyncDisplay::message(msg);
     return *this;
   }
 
-  friend class AsyncDisplay<Composite<LeftDisplay, RightDisplay>>;
-  template <typename Left, typename Right>
-  friend class Composite;
+  auto& interval(Duration pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+
+  auto& interval(double pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+
+  auto& no_tty() {
+    AsyncDisplay::no_tty();
+    return *this;
+  }
+};
+
+
+// Class: Composite
+// Creates a composite display out of two display that shows them side by side.
+// For instance, you can combine two <Counter>s to monitor two variables.
+class Composite : public AsyncDisplay {
+ protected:
+  std::unique_ptr<AsyncDisplay> left_, right_;
+
+  size_t render_(std::ostream& out) override {
+    size_t len = left_->render_(out);
+    out << " ";
+    len += right_->render_(out);
+    return len + 1;
+  }
+
+  Duration default_interval_() const override { return left_->default_interval_(); }
+
+ public:
+  Composite(std::unique_ptr<AsyncDisplay> left,
+            std::unique_ptr<AsyncDisplay> right)
+      : AsyncDisplay(left->out_),
+        left_(std::move(left)),
+        right_(std::move(right)) {
+    if (left_->displayer_ or right_->displayer_) {
+      throw std::runtime_error("Running displays cannot be composed!");
+    }
+    AsyncDisplay::interval(min(left_->interval_, right_->interval_));
+    if (left_->no_tty_ or right_->no_tty_) {
+      AsyncDisplay::no_tty();
+    }
+  }
+  ~Composite() { done(); }
+
+  auto& no_tty() {
+    AsyncDisplay::no_tty();
+    left_->no_tty();
+    right_->no_tty();
+    return *this;
+  }
 };
 
 // Function: operator|
 // Pipe operator can be used to combine two displays into a <Composite>.
 template <typename LeftDisplay, typename RightDisplay>
 auto operator|(LeftDisplay left, RightDisplay right) {
-  return Composite<LeftDisplay, RightDisplay>(std::move(left),
-                                              std::move(right));
+  return Composite(std::make_unique<LeftDisplay>(left),
+                                              std::make_unique<RightDisplay>(right));
 }
 
-// Struct: ProgressTraits
 // Trait class to extract underlying value type from numerics and
 // std::atomics of numerics.
-template <typename Progress>
-struct ProgressTraits {
-  using value_type = Progress;
+template <typename T>
+struct AtomicTraits {
+  using value_type = T;
 };
 
-template <typename Progress>
-struct ProgressTraits<std::atomic<Progress>> {
-  using value_type = Progress;
+template <typename T>
+struct AtomicTraits<std::atomic<T>> {
+  using value_type = T;
 };
+
+template <typename T>
+using value_t = typename AtomicTraits<T>::value_type;
+
+template <typename T>
+using signed_t =
+        typename std::conditional_t
+        <
+            std::is_integral_v<T>,
+            std::make_signed<T>,
+            std::common_type<T>
+        >::type;
+
 
 // Class: Speedometer
 // Helper class to measure and display speed of progress.
@@ -342,7 +359,8 @@ class Speedometer {
   using Time = std::chrono::time_point<Clock>;
 
   Time start_time_, last_start_time_;
-  typename ProgressTraits<Progress>::value_type last_progress_{0};
+
+  value_t<Progress> first_progress_{}, last_progress_{};
 
  public:
   // Method: render_speed
@@ -355,8 +373,11 @@ class Speedometer {
       Duration dur = (Clock::now() - start_time_);
       Duration dur2 = (Clock::now() - last_start_time_);
 
-      auto speed = double(progress_) / dur.count();
-      auto speed2 = double(progress_ - last_progress_) / dur2.count();
+      using ValueType = value_t<Progress>;
+      using SignedType = signed_t<ValueType>;
+
+      auto speed = double(SignedType(progress_) - SignedType(first_progress_)) / dur.count();
+      auto speed2 = double(SignedType(progress_) - SignedType(last_progress_)) / dur2.count();
 
       ss << std::fixed << std::setprecision(2) << "(";
       if (speed_ == Speed::Overall or speed_ == Speed::Both) { ss << speed; }
@@ -380,7 +401,10 @@ class Speedometer {
 
   // Method: start
   // Start computing the speed based on the amount of change in progress
-  void start() { start_time_ = Clock::now(); }
+  void start() {
+    first_progress_ = progress_;
+    start_time_ = Clock::now();
+  }
 
   /* Methods: Setters
    *
@@ -400,10 +424,11 @@ class Speedometer {
   Speedometer(Progress& progress) : progress_(progress) {}
 };
 
-// Class: CounterDisplay
+
+// Class: Counter
 // Monitors and displays a single numeric variable
 template <typename Progress = size_t>
-class CounterDisplay : public AsyncDisplay<CounterDisplay<Progress>> {
+class Counter : public AsyncDisplay {
  private:
   Progress& progress_; // current amount of work done
   Speedometer<Progress> speedom_;
@@ -424,45 +449,45 @@ class CounterDisplay : public AsyncDisplay<CounterDisplay<Progress>> {
  private:
   // Method: render_
   // Write the value of progress with the message to the output stream
-  size_t render_(std::ostream& out) {
-    size_t len = this->render_message_(out);
+  size_t render_(std::ostream& out) override {
+    size_t len = render_message_(out);
     len += render_counts_(out);
     len += speedom_.render_speed(out);
     return len;
   }
 
-  Duration default_interval_() const {
-    if (this->no_tty_) { return Duration{60.}; }
+  Duration default_interval_() const override {
+    if (no_tty_) { return Duration{60.}; }
     return Duration{.1};
   }
 
  public:
-  // Constructor: CounterDisplay
+  // Constructor: Counter
   //
   // Parameters:
   //   progress - Variable to be monitored and displayed
   //   out      - Output stream to write to
-  CounterDisplay(Progress& progress, std::ostream& out = std::cout)
-      : AsyncDisplay<CounterDisplay<Progress>>(out),
+  Counter(Progress& progress, std::ostream& out = std::cout)
+      : AsyncDisplay(out),
         progress_(progress),
         speedom_(progress) {}
 
-  CounterDisplay(const CounterDisplay<Progress>& other)
-      : AsyncDisplay<CounterDisplay<Progress>>(other),
+  Counter(const Counter<Progress>& other)
+      : AsyncDisplay(other),
         speedom_(other.speedom_),
         progress_(other.progress_) {}
 
-  CounterDisplay(CounterDisplay<Progress>&& other)
-      : AsyncDisplay<CounterDisplay<Progress>>(std::move(other)),
+  Counter(Counter<Progress>&& other)
+      : AsyncDisplay(std::move(other)),
         speedom_(std::move(other.speedom_)),
         progress_(other.progress_) {}
 
-  ~CounterDisplay() { this->done(); }
+  ~Counter() { done(); }
 
   // Method: start
   // Start displaying the counter
-  void start() {
-    static_cast<AsyncDisplay<CounterDisplay<Progress>>&>(*this).start();
+  void start() override {
+    AsyncDisplay::start();
     speedom_.start();
   }
 
@@ -479,30 +504,35 @@ class CounterDisplay : public AsyncDisplay<CounterDisplay<Progress>> {
     speedom_.unit_of_speed(msg);
     return *this;
   }
-
-  friend class AsyncDisplay<CounterDisplay<Progress>>;
-  template <typename Left, typename Right>
-  friend class Composite;
+  auto& message(const std::string& msg) {
+    AsyncDisplay::message(msg);
+    return *this;
+  }
+  auto& interval(Duration pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+  auto& interval(double pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+  auto& no_tty() {
+    AsyncDisplay::no_tty();
+    return *this;
+  }
 };
 
-// Function: Counter
-// Factory function to return a CounterDisplay to deduce template argument
-template <typename Progress, typename... Args>
-auto Counter(Progress& progress, Args&&... args) {
-  return CounterDisplay<Progress>(progress, std::forward<Args>(args)...);
-}
-
-// Class: ProgressBarDisplay
+// Class: ProgressBar
 // Displays a progress bar, by comparing the progress value being monitored to a
 // given total value. Optionally reports speed.
 template <typename Progress>
-class ProgressBarDisplay : public AsyncDisplay<ProgressBarDisplay<Progress>> {
+class ProgressBar : public AsyncDisplay {
  private:
-  using ValueType = typename ProgressTraits<Progress>::value_type;
+  using ValueType = value_t<Progress>;
 
   Speedometer<Progress> speedom_;
   Progress& progress_;                    // work done so far
-  static constexpr ValueType width_ = 30; // width of progress bar
+  static constexpr ValueType width_ = 30; // width of progress bar (TODO: make customizable?)
   ValueType total_{100};                  // total work
   bool counts_ = true;                    // whether to display counts
 
@@ -568,8 +598,8 @@ class ProgressBarDisplay : public AsyncDisplay<ProgressBarDisplay<Progress>> {
 
   // Method: render_
   // Run all of the individual render methods to write everything to stream
-  size_t render_(std::ostream& out) {
-    size_t len = this->render_message_(out);
+  size_t render_(std::ostream& out) override {
+    size_t len = render_message_(out);
     len += render_percentage_(out);
     len += render_progress_bar_(out);
     len += render_counts_(out);
@@ -577,31 +607,31 @@ class ProgressBarDisplay : public AsyncDisplay<ProgressBarDisplay<Progress>> {
     return len;
   }
 
-  Duration default_interval_() const {
-    if (this->no_tty_) { return Duration{60.}; }
+  Duration default_interval_() const override {
+    if (no_tty_) { return Duration{60.}; }
     return Duration{.1};
   }
 
  public:
   using Style = ProgressBarStyle;
 
-  // Constructor: ProgressBarDisplay
+  // Constructor: ProgressBar
   //
   // Parameters:
   //   progress - Variable to be monitored to measure completion
   //   out      - Output stream to write to
-  ProgressBarDisplay(Progress& progress, std::ostream& out = std::cout)
-      : AsyncDisplay<ProgressBarDisplay<Progress>>(out),
+  ProgressBar(Progress& progress, std::ostream& out = std::cout)
+      : AsyncDisplay(out),
         speedom_(progress),
         progress_(progress),
         partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {}
 
-  ~ProgressBarDisplay() { this->done(); }
+  ~ProgressBar() { done(); }
 
   // Method: start
   // Start displaying the bar
-  void start() {
-    static_cast<AsyncDisplay<ProgressBarDisplay<Progress>>&>(*this).start();
+  void start() override {
+    AsyncDisplay::start();
     speedom_.start();
   }
 
@@ -636,17 +666,27 @@ class ProgressBarDisplay : public AsyncDisplay<ProgressBarDisplay<Progress>> {
     return *this;
   }
 
-  friend class AsyncDisplay<ProgressBarDisplay<Progress>>;
-  template <typename Left, typename Right>
-  friend class Composite;
+  auto& message(const std::string& msg) {
+    AsyncDisplay::message(msg);
+    return *this;
+  }
+
+  auto& interval(Duration pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+
+  auto& interval(double pd) {
+    AsyncDisplay::interval(pd);
+    return *this;
+  }
+
+  auto& no_tty() {
+    AsyncDisplay::no_tty();
+    return *this;
+  }
 };
 
-// Function: ProgressBar
-// Factory function to return a ProgressBarDisplay to deduce template argument
-template <typename Progress, typename... Args>
-auto ProgressBar(Progress& progress, Args&&... args) {
-  return ProgressBarDisplay<Progress>(progress, std::forward<Args>(args)...);
-}
 
 } // namespace mew
 
