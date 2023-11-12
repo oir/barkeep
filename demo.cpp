@@ -4,7 +4,7 @@
 #include <iostream>
 #include <meanwhile/meanwhile.h>
 
-int main(int argc, char** argv) {
+int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
   using namespace mew;
 
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     auto c = Counter(work)
                  .message("Decreasing")
                  .unit_of_speed("")
-                 .speed(Speed::Overall);
+                 .speed(speed);
     c.start();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
       sents++;
-      toks += (1 + rand() % 5);
+      toks += (1 + size_t(rand()) % 5);
     }
     bar.done();
   }
@@ -110,7 +110,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 20100; i++) {
       std::this_thread::sleep_for(13ms);
       sents++;
-      toks += (1 + rand() % 5);
+      toks += (1 + size_t(rand()) % 5);
     }
     bar.done();
   }
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 20100; i++) {
       std::this_thread::sleep_for(13ms);
       sents++;
-      toks += (1 + rand() % 5);
+      toks += (1 + size_t(rand()) % 5);
     }
     bar.done();
   }

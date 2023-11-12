@@ -62,7 +62,7 @@ TEST_CASE("Animation", "[anim]") {
   anim.done();
 
   auto parts = check_and_get_parts(out.str());
-  check_anim(parts, "Working", animation_stills_[int(sty)]);
+  check_anim(parts, "Working", animation_stills_[size_t(sty)]);
 }
 
 using ProgressTypeList =
@@ -230,7 +230,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   // Check that space is shrinking
   size_t last_spaces = std::numeric_limits<size_t>::max();
   for (auto& part : parts) {
-    auto spaces = std::count(part.begin(), part.end(), ' ');
+    auto spaces = size_t(std::count(part.begin(), part.end(), ' '));
     CHECK(spaces <= last_spaces);
     last_spaces = spaces;
   }
@@ -299,12 +299,12 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
     sents++;
-    toks += (1 + rand() % 5);
+    toks += size_t(1 + rand() % 5);
   }
   bar.done();
 
   auto parts = check_and_get_parts(out.str());
-  size_t last_spaces = std::numeric_limits<size_t>::max(), last_count = 0;
+  long last_spaces = std::numeric_limits<long>::max(), last_count = 0;
 
   for (auto& part : parts) {
     CHECK(part.substr(0, 6) == "Sents ");
@@ -314,7 +314,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
 
     { // check bar correctness
       auto bar_part = part.substr(14, 32);
-      size_t spaces = std::count(bar_part.begin(), bar_part.end(), ' ');
+      long spaces = std::count(bar_part.begin(), bar_part.end(), ' ');
       CHECK(spaces <= last_spaces);
       last_spaces = spaces;
       size_t i = 1;
@@ -325,7 +325,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
     { // check counter correctness
       auto count_part = part.substr(61, part.size());
       auto i = count_part.find_first_of(' ');
-      size_t count = std::stoi(count_part.substr(0, i));
+      long count = std::stol(count_part.substr(0, i));
       CHECK(count >= last_count);
       last_count = count;
     }

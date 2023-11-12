@@ -467,13 +467,13 @@ class Counter : public AsyncDisplay {
 
   Counter(const Counter<Progress>& other)
       : AsyncDisplay(other),
-        speedom_(other.speedom_),
-        progress_(other.progress_) {}
+        progress_(other.progress_),
+        speedom_(other.speedom_) {}
 
   Counter(Counter<Progress>&& other)
       : AsyncDisplay(std::move(other)),
-        speedom_(std::move(other.speedom_)),
-        progress_(other.progress_) {}
+        progress_(other.progress_),
+        speedom_(std::move(other.speedom_)) {}
 
   ~Counter() { done(); }
 
@@ -525,7 +525,7 @@ class ProgressBar : public AsyncDisplay {
 
   Speedometer<Progress> speedom_;
   Progress& progress_; // work done so far
-  static constexpr ValueType width_ =
+  static constexpr size_t width_ =
       30;                // width of progress bar (TODO: make customizable?)
   ValueType total_{100}; // total work
   bool counts_ = true;   // whether to display counts
@@ -538,22 +538,22 @@ class ProgressBar : public AsyncDisplay {
   size_t render_progress_bar_(std::ostream& out) {
     ValueType progress_copy =
         progress_; // to avoid progress_ changing during computations below
-    ValueType on = width_ * progress_copy / total_;
-    ValueType partial = partials_.size() * width_ * progress_copy / total_ -
-                        partials_.size() * on;
-    if (on >= width_) {
+    int on = int(ValueType(width_) * progress_copy / total_);
+    size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) * progress_copy / total_ -
+                        ValueType(partials_.size()) * ValueType(on));
+    if (on >= int(width_)) {
       on = width_;
       partial = 0;
     } else if (on < 0) {
       on = 0;
       partial = 0;
     }
-    assert(partial != partials_.size());
-    auto off = width_ - on - ValueType(partial > 0);
+    assert(partial < partials_.size());
+    auto off = width_ - size_t(on) - size_t(partial > 0);
 
     // draw progress bar
     out << "|";
-    for (size_t i = 0; i < on; i++) { out << partials_.back(); }
+    for (int i = 0; i < on; i++) { out << partials_.back(); }
     if (partial > 0) { out << partials_.at(partial - 1); }
     out << std::string(off, ' ') << "| ";
     return width_ + 3;
@@ -570,7 +570,7 @@ class ProgressBar : public AsyncDisplay {
         totals << std::fixed << std::setprecision(2);
       }
       totals << total_;
-      auto width = totals.str().size();
+      auto width = static_cast<std::streamsize>(totals.str().size());
       ss.width(width);
       ss << std::right << progress_ << "/" << total_ << " ";
       auto s = ss.str();
