@@ -6,5 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: sudo apt-get install lcov
       - run: make -j2
       - run: ./test.out
+      - run: |
+          gcov -b -p -c test.gcno && \
+          lcov -c -d . -o cov.info && \
+          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/extern/*' '*/test.cpp*' -o meanwhile.info
+          rm cov.info
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: meanwhile.info
