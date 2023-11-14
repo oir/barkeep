@@ -21,7 +21,12 @@ anim.start();
 /* do work */ std::this_thread::sleep_for(10s);
 anim.done();
 ```
-<img src="docs/anim1.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/anim1-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/anim1-light.svg" width="700">
+  <img src="docs/anim1-light.svg" width="700">
+</picture>
+
 
 Supports several styles:
 ```C++

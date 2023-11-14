@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="terminal" baseProfile="full" viewBox="0 0 600 51" width="600" version="1.1">
+    <defs>
+        <termtosvg:template_settings xmlns:termtosvg="https://github.com/nbedos/termtosvg">
+            <termtosvg:screen_geometry columns="103" rows="57"/>
+            <termtosvg:animation type="css"/>
+        </termtosvg:template_settings>
+        <style type="text/css">@import url(http://fonts.googleapis.com/css?family=Fira+Mono);</style>
+        <style type="text/css" id="generated-style"><![CDATA[#screen {
+                font-family: 'Fira Mono', 'DejaVu Sans Mono', monospace;
+                font-style: normal;
+                font-size: 14px;
+            }
+
+        text {
+            dominant-baseline: text-before-edge;
+            white-space: pre;
+        }
+    
+            :root {
+                --animation-duration: 14689ms;
+            }
+
+            @keyframes roll {
+                0.000%{transform:translateY(0px)}
+0.095%{transform:translateY(-986px)}
+4.289%{transform:translateY(-1972px)}
+4.296%{transform:translateY(-2958px)}
+5.079%{transform:translateY(-3944px)}
+6.297%{transform:translateY(-4930px)}
+7.291%{transform:translateY(-5916px)}
+9.613%{transform:translateY(-6902px)}
+12.363%{transform:translateY(-7888px)}
+12.383%{transform:translateY(-8874px)}
+19.225%{transform:translateY(-9860px)}
+26.047%{transform:translateY(-10846px)}
+32.868%{transform:translateY(-11832px)}
+39.710%{transform:translateY(-12818px)}
+46.545%{transform:translateY(-13804px)}
+53.387%{transform:translateY(-14790px)}
+60.229%{transform:translateY(-15776px)}
+67.057%{transform:translateY(-16762px)}
+73.899%{transform:translateY(-17748px)}
+80.496%{transform:translateY(-18734px)}
+80.516%{transform:translateY(-19720px)}
+80.741%{transform:translateY(-20706px)}
+80.747%{transform:translateY(-21692px)}
+93.179%{transform:translateY(-22678px)}
+93.192%{transform:translateY(-23664px)}
+100.000%{transform:translateY(-23664px)}
+            }
+
+            #screen_view {
+                animation-duration: 14689ms;
+                animation-iteration-count:infinite;
+                animation-name:roll;
+                animation-timing-function: steps(1,end);
+                animation-fill-mode: forwards;
+            }
+        ]]></style>
+        <style type="text/css" id="user-style">
+            /* The colors defined below are the default 16 colors used for rendering text of the terminal. Adjust
+               them as needed.
+               PowerShell colors based on https://en.wikipedia.org/wiki/ANSI_escape_code#Colors */
+            .foreground {fill: #cccccc;}
+            .background {fill: #0c0c0c00;}
+            .color0  {fill: #1c1c1c;}
+            .color1  {fill: #af005f;}
+            .color2  {fill: #5faf00;}
+            .color3  {fill: #d7af5f;}
+            .color4  {fill: #5fafd7;}
+            .color5  {fill: #808080;}
+            .color6  {fill: #d7875f;}
+            .color7  {fill: #d0d0d0;}
+            .color8  {fill: #585858;}
+            .color9  {fill: #5faf5f;}
+            .color10 {fill: #afd700;}
+            .color11 {fill: #af87d7;}
+            .color12 {fill: #ffaf00;}
+            .color13 {fill: #ff5faf;}
+            .color14 {fill: #00afaf;}
+            .color15 {fill: #5f8787;}
+        </style>
+    </defs>
+    <svg id="screen" width="824" height="969" viewBox="0 0 824 969" preserveAspectRatio="xMidYMin slice">
+    <rect class="background" height="100%" width="100%" x="0" y="0"/><defs><g id="g1"><text x="0" textLength="8" class="background"> </text></g><g id="g2"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="8" class="background"> </text><text x="40" textLength="784" class="foreground">                                                                                                  </text></g><g id="g3"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="8" class="color4">.</text><text x="40" textLength="8" class="background"> </text><text x="48" textLength="776" class="foreground">                                                                                                 </text></g><g id="g4"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="8" class="color4">.</text><text x="40" textLength="8" class="background">/</text><text x="48" textLength="64" fill="#555555">demo.out</text><text x="112" textLength="712" class="foreground">                                                                                         </text></g><g id="g5"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="16" class="color4">./</text><text x="48" textLength="8" class="background">d</text><text x="56" textLength="56" fill="#555555">emo.out</text><text x="112" textLength="712" class="foreground">                                                                                         </text></g><g id="g6"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="24" class="color9">./d</text><text x="56" textLength="8" class="background">e</text><text x="64" textLength="48" fill="#555555">mo.out</text><text x="112" textLength="712" class="foreground">                                                                                         </text></g><g id="g7"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="32" class="color9">./de</text><text x="64" textLength="8" class="background">m</text><text x="72" textLength="40" fill="#555555">o.out</text><text x="112" textLength="712" class="foreground">                                                                                         </text></g><g id="g8"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="80" class="color4">./demo.out</text><text x="112" textLength="8" class="foreground"> </text><text x="120" textLength="8" class="background"> </text><text x="128" textLength="696" class="foreground">                                                                                       </text></g><g id="g9"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="8" class="foreground"> </text><text x="32" textLength="80" class="color4">./demo.out</text><text x="112" textLength="712" class="foreground">                                                                                         </text></g><g id="g10"><text x="0" textLength="96" class="foreground">Working .   </text><text x="96" textLength="8" class="background"> </text></g><g id="g11"><text x="0" textLength="96" class="foreground">Working ..  </text><text x="96" textLength="8" class="background"> </text></g><g id="g12"><text x="0" textLength="96" class="foreground">Working ... </text><text x="96" textLength="8" class="background"> </text></g><g id="g13"><text x="0" textLength="96" class="foreground">Working ..  </text></g><g id="g14"><text x="0" textLength="8" class="background"> </text><text x="8" textLength="816" class="foreground">                                                                                                      </text></g><g id="g15"><text x="0" textLength="16" class="color4">~ </text><text x="16" textLength="8" class="color5">&#10095;</text><text x="24" textLength="800" class="foreground">                                                                                                    </text></g></defs><g id="screen_view"><g><rect x="0" y="0" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="0"/></g><g><rect x="32" y="986" width="8" height="17" class="foreground"/><use xlink:href="#g2" y="986"/></g><g><rect x="40" y="1972" width="8" height="17" class="foreground"/><use xlink:href="#g3" y="1972"/></g><g><rect x="40" y="2958" width="8" height="17" class="foreground"/><use xlink:href="#g4" y="2958"/></g><g><rect x="48" y="3944" width="8" height="17" class="foreground"/><use xlink:href="#g5" y="3944"/></g><g><rect x="56" y="4930" width="8" height="17" class="foreground"/><use xlink:href="#g6" y="4930"/></g><g><rect x="64" y="5916" width="8" height="17" class="foreground"/><use xlink:href="#g7" y="5916"/></g><g><rect x="120" y="6902" width="8" height="17" class="foreground"/><use xlink:href="#g8" y="6902"/></g><g><use xlink:href="#g9" y="7888"/><rect x="0" y="7905" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="7905"/></g><g><use xlink:href="#g9" y="8874"/><rect x="96" y="8891" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="8891"/></g><g><use xlink:href="#g9" y="9860"/><rect x="96" y="9877" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="9877"/></g><g><use xlink:href="#g9" y="10846"/><rect x="96" y="10863" width="8" height="17" class="foreground"/><use xlink:href="#g12" y="10863"/></g><g><use xlink:href="#g9" y="11832"/><rect x="96" y="11849" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="11849"/></g><g><use xlink:href="#g9" y="12818"/><rect x="96" y="12835" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="12835"/></g><g><use xlink:href="#g9" y="13804"/><rect x="96" y="13821" width="8" height="17" class="foreground"/><use xlink:href="#g12" y="13821"/></g><g><use xlink:href="#g9" y="14790"/><rect x="96" y="14807" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="14807"/></g><g><use xlink:href="#g9" y="15776"/><rect x="96" y="15793" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="15793"/></g><g><use xlink:href="#g9" y="16762"/><rect x="96" y="16779" width="8" height="17" class="foreground"/><use xlink:href="#g12" y="16779"/></g><g><use xlink:href="#g9" y="17748"/><rect x="96" y="17765" width="8" height="17" class="foreground"/><use xlink:href="#g10" y="17765"/></g><g><use xlink:href="#g9" y="18734"/><rect x="96" y="18751" width="8" height="17" class="foreground"/><use xlink:href="#g11" y="18751"/></g><g><use xlink:href="#g9" y="19720"/><use xlink:href="#g13" y="19737"/><rect x="0" y="19754" width="8" height="17" class="foreground"/><use xlink:href="#g14" y="19754"/></g><g><use xlink:href="#g9" y="20706"/><use xlink:href="#g13" y="20723"/><rect x="0" y="20740" width="8" height="17" class="foreground"/><use xlink:href="#g14" y="20740"/></g><g><use xlink:href="#g9" y="21692"/><use xlink:href="#g13" y="21709"/><rect x="32" y="21726" width="8" height="17" class="foreground"/><use xlink:href="#g2" y="21726"/></g><g><use xlink:href="#g9" y="22678"/><use xlink:href="#g13" y="22695"/><use xlink:href="#g15" y="22712"/><rect x="0" y="22729" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="22729"/></g><g><use xlink:href="#g9" y="23664"/><use xlink:href="#g13" y="23681"/><use xlink:href="#g15" y="23698"/><rect x="0" y="23715" width="8" height="17" class="foreground"/><use xlink:href="#g1" y="23715"/></g></g></svg>
+</svg>
