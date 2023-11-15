@@ -96,7 +96,11 @@ for (int i = 0; i < 1010; i++) {
 }
 bar.done();
 ```
-<img src="docs/composite.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/composite-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/composite-light.svg" width="700">
+  <img src="docs/composite-light.svg" width="700">
+</picture>
 
 Use "no tty" mode to, e.g., output to log files:
 ```C++
