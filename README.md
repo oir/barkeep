@@ -75,7 +75,11 @@ for (int i = 0; i < 505; i++) {
 }
 bar.done();
 ```
-<img src="docs/bar.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/bar-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/bar-light.svg" width="700">
+  <img src="docs/bar-light.svg" width="700">
+</picture>
 
 Combine diplays using `|` operator to monitor multiple variables:
 ```C++
