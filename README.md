@@ -11,32 +11,31 @@ including `meanwhile.h` in your project.
 
 ---
 
-Display a waiting animation with a message:
-```C++
-using namespace std::chrono_literals;
-using namespace mew;
+- Display a waiting animation with a message:
+  ```C++
+  using namespace std::chrono_literals;
+  using namespace mew;
+  
+  auto anim = Animation().message("Working");
+  anim.start();
+  /* do work */ std::this_thread::sleep_for(10s);
+  anim.done();
+  ```
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/anim1-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/anim1-light.svg" width="700">
+    <img src="docs/anim1-light.svg" width="700">
+  </picture>
 
-auto anim = Animation().message("Working");
-anim.start();
-/* do work */ std::this_thread::sleep_for(10s);
-anim.done();
-```
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/anim1-dark.svg" width="700">
-  <source media="(prefers-color-scheme: light)" srcset="docs/anim1-light.svg" width="700">
-  <img src="docs/anim1-light.svg" width="700">
-</picture>
-
-
-Supports several styles:
-```C++
-auto anim = Animation().message("Downloading...").style(Earth);
-```
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/anim2-dark.svg" width="700">
-  <source media="(prefers-color-scheme: light)" srcset="docs/anim2-light.svg" width="700">
-  <img src="docs/anim2-light.svg" width="700">
-</picture>
+- Supports several styles:
+  ```C++
+  auto anim = Animation().message("Downloading...").style(Earth);
+  ```
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/anim2-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/anim2-light.svg" width="700">
+    <img src="docs/anim2-light.svg" width="700">
+  </picture>
 
 
 Display a counter to monitor a numeric variable while waiting:
