@@ -82,54 +82,56 @@ including `meanwhile.h` in your project.
     <img src="docs/bar-light.svg" width="700">
   </picture>
 
-Combine diplays using `|` operator to monitor multiple variables:
-```C++
-std::atomic<size_t> sents{0}, toks{0};
-auto bar =
-  ProgressBar(sents).total(1010).message("Sents") |
-  Counter(toks).message("Toks").unit_of_speed("tok/s").speed(Speed::Last);
-bar.start();
-for (int i = 0; i < 1010; i++) {
-  // do work
-  std::this_thread::sleep_for(13ms);
-  sents++;
-  toks += (1 + rand() % 5);
-}
-bar.done();
-```
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/composite-dark.svg" width="700">
-  <source media="(prefers-color-scheme: light)" srcset="docs/composite-light.svg" width="700">
-  <img src="docs/composite-light.svg" width="700">
-</picture>
+- Combine diplays using `|` operator to monitor multiple variables:
 
-Use "no tty" mode to, e.g., output to log files:
-```C++
-std::atomic<size_t> sents{0}, toks{0};
-auto bar = ProgressBar(sents)
-               .total(401)
-               .message("Sents")
-               .speed(Speed::Last)
-               .interval(1.)
-               .no_tty();
-bar.start();
-for (int i = 0; i < 401; i++) {
-  std::this_thread::sleep_for(13ms);
-  sents++;
-  toks += (1 + rand() % 5);
-}
-bar.done();
-```
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/notty-dark.svg" width="700">
-  <source media="(prefers-color-scheme: light)" srcset="docs/notty-light.svg" width="700">
-  <img src="docs/notty-light.svg" width="700">
-</picture>
+  ```C++
+  std::atomic<size_t> sents{0}, toks{0};
+  auto bar =
+    ProgressBar(sents).total(1010).message("Sents") |
+    Counter(toks).message("Toks").unit_of_speed("tok/s").speed(Speed::Last);
+  bar.start();
+  for (int i = 0; i < 1010; i++) {
+    // do work
+    std::this_thread::sleep_for(13ms);
+    sents++;
+    toks += (1 + rand() % 5);
+  }
+  bar.done();
+  ```
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/composite-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/composite-light.svg" width="700">
+    <img src="docs/composite-light.svg" width="700">
+  </picture>
 
-`no_tty` achieves two things:
+- Use "no tty" mode to, e.g., output to log files:
 
-- Change the delimiter from `\r` to `\n` to avoid wonky looking output in your log files
-- Change the default interval to a minute to avoid overwhelming logs (in the example above, we set the interval ourselves explicitly)
+  ```C++
+  std::atomic<size_t> sents{0}, toks{0};
+  auto bar = ProgressBar(sents)
+                 .total(401)
+                 .message("Sents")
+                 .speed(Speed::Last)
+                 .interval(1.)
+                 .no_tty();
+  bar.start();
+  for (int i = 0; i < 401; i++) {
+    std::this_thread::sleep_for(13ms);
+    sents++;
+    toks += (1 + rand() % 5);
+  }
+  bar.done();
+  ```
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/notty-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/notty-light.svg" width="700">
+    <img src="docs/notty-light.svg" width="700">
+  </picture>
+
+  `no_tty` achieves two things:
+  
+  - Change the delimiter from `\r` to `\n` to avoid wonky looking output in your log files
+  - Change the default interval to a minute to avoid overwhelming logs (in the example above, we set the interval ourselves explicitly)
 
 See `demo.cpp` for more examples. 
 
