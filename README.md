@@ -119,7 +119,11 @@ for (int i = 0; i < 401; i++) {
 }
 bar.done();
 ```
-<img src="docs/notty.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/notty-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/notty-light.svg" width="700">
+  <img src="docs/notty-light.svg" width="700">
+</picture>
 
 `no_tty` achieves two things:
 
