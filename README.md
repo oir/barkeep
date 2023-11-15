@@ -32,7 +32,12 @@ Supports several styles:
 ```C++
 auto anim = Animation().message("Downloading...").style(Earth);
 ```
-<img src="docs/anim2.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/anim2-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/anim2-light.svg" width="700">
+  <img src="docs/anim2-light.svg" width="700">
+</picture>
+
 
 Display a counter to monitor a numeric variable while waiting:
 ```C++
