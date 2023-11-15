@@ -137,7 +137,7 @@ See `demo.cpp` for more examples.
 
 ### Notes
 
-- Progress variables (and total for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
+- Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by reference, which means it needs to outlive the display.
 
 ## Building
