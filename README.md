@@ -26,7 +26,6 @@ including `meanwhile.h` in your project.
     <source media="(prefers-color-scheme: light)" srcset="docs/anim1-light.svg" width="700">
     <img src="docs/anim1-light.svg" width="700">
   </picture>
-
 - Supports several styles:
   ```C++
   auto anim = Animation().message("Downloading...").style(Earth);
