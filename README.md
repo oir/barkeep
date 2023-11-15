@@ -53,7 +53,11 @@ for (int i = 0; i < 505; i++) {
 }
 c.done();
 ```
-<img src="docs/counter.gif" width="700">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/counter-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/counter-light.svg" width="700">
+  <img src="docs/counter-light.svg" width="700">
+</picture>
 
 Display a progress bar to monitor a numeric variable and measure its completion by comparing against a total:
 
