@@ -147,7 +147,7 @@ class AsyncDisplay {
   // Method: start
   // Start the display. This starts writing the display in the output stream,
   // and computing speed if applicable.
-  virtual void start() {
+  virtual void show() {
     if (displayer_) {
       throw std::runtime_error("Display was already started!");
     }
@@ -347,7 +347,7 @@ class Speedometer {
  private:
   Progress& progress_;        // Current amount of work done
   Speed speed_ = Speed::None; // Time interval to compute speed over
-  std::string unit_of_speed_; // unit (message) to display alongside speed
+  std::string speed_unit_; // unit (message) to display alongside speed
 
   using Clock = std::chrono::system_clock;
   using Time = std::chrono::time_point<Clock>;
@@ -379,10 +379,10 @@ class Speedometer {
       if (speed_ == Speed::Overall or speed_ == Speed::Both) { ss << speed; }
       if (speed_ == Speed::Both) { ss << " | "; }
       if (speed_ == Speed::Last or speed_ == Speed::Both) { ss << speed2; }
-      if (unit_of_speed_.empty()) {
+      if (speed_unit_.empty()) {
         ss << ") ";
       } else {
-        ss << " " << unit_of_speed_ << ") ";
+        ss << " " << speed_unit_ << ") ";
       }
 
       auto s = ss.str();
@@ -397,7 +397,7 @@ class Speedometer {
 
   // Method: start
   // Start computing the speed based on the amount of change in progress
-  void start() {
+  void show() {
     first_progress_ = progress_;
     start_time_ = Clock::now();
   }
@@ -406,12 +406,12 @@ class Speedometer {
    *
    * speed(Speed)                      - Set how to compute speed among <Speed>
    *                                     options.
-   * unit_of_speed(const std::string&) - Set text for unit of speed.
+   * speed_unit(const std::string&) - Set text for unit of speed.
    */
 
   void speed(Speed sp) { speed_ = sp; }
 
-  void unit_of_speed(const std::string& msg) { unit_of_speed_ = msg; }
+  void speed_unit(const std::string& msg) { speed_unit_ = msg; }
 
   // Constructor: Speedometer
   //
@@ -479,22 +479,22 @@ class Counter : public AsyncDisplay {
 
   // Method: start
   // Start displaying the counter
-  void start() override {
-    AsyncDisplay::start();
-    speedom_.start();
+  void show() override {
+    AsyncDisplay::show();
+    speedom_.show();
   }
 
   // Methods: Setters
   //
   // speed(Speed)                       - Set how to compute speed, among
   //                                      <Speed> options
-  // unit_of_speed(const std::string&)  - Set unit of speed text next to speed
+  // speed_unit(const std::string&)  - Set unit of speed text next to speed
   auto& speed(Speed sp) {
     speedom_.speed(sp);
     return *this;
   }
-  auto& unit_of_speed(const std::string& msg) {
-    speedom_.unit_of_speed(msg);
+  auto& speed_unit(const std::string& msg) {
+    speedom_.speed_unit(msg);
     return *this;
   }
   auto& message(const std::string& msg) {
@@ -626,16 +626,16 @@ class ProgressBar : public AsyncDisplay {
 
   // Method: start
   // Start displaying the bar
-  void start() override {
-    AsyncDisplay::start();
-    speedom_.start();
+  void show() override {
+    AsyncDisplay::show();
+    speedom_.show();
   }
 
   // Methods: Setters
   //
   // speed(Speed)                       - Set how to compute speed, among
   //                                      <Speed> options
-  // unit_of_speed(const std::string&)  - Set unit of speed text next to speed
+  // speed_unit(const std::string&)  - Set unit of speed text next to speed
   // total(ValueType)                   - Set total amount, cannot be 0
   // style(Style)                       - Set style from <ProgressBarStyle>
   //                                      options
@@ -644,8 +644,8 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 
-  auto& unit_of_speed(const std::string& msg) {
-    speedom_.unit_of_speed(msg);
+  auto& speed_unit(const std::string& msg) {
+    speedom_.speed_unit(msg);
     return *this;
   }
 

@@ -57,7 +57,7 @@ TEST_CASE("Animation", "[anim]") {
   auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Square);
   auto anim = Animation(out).message("Working").style(sty).interval(0.1);
 
-  anim.start();
+  anim.show();
   std::this_thread::sleep_for(1s);
   anim.done();
 
@@ -81,8 +81,8 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
                  .message("Doing things")
                  .interval(0.001)
                  .speed(sp)
-                 .unit_of_speed(unit);
-  ctr.start();
+                 .speed_unit(unit);
+  ctr.show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
     // no work
@@ -138,8 +138,8 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
                  .message("Doing things")
                  .interval(0.01)
                  .speed(sp)
-                 .unit_of_speed(unit);
-  ctr.start();
+                 .speed_unit(unit);
+  ctr.show();
 
   ValueType increment = ValueType(1.2); // becomes 1 for integral types
   for (size_t i = 0; i < 101; i++) {
@@ -192,12 +192,12 @@ using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   auto orig = factory_helper<TestType>();
-  orig.start();
+  orig.show();
   SECTION("Running copy & move") {
     CHECK_THROWS([&]() { auto copy{orig}; }());
     CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
   }
-  SECTION("Double start") { CHECK_THROWS(orig.start()); }
+  SECTION("Double start") { CHECK_THROWS(orig.show()); }
   orig.done();
   CHECK_NOTHROW(orig.done());
 }
@@ -206,7 +206,7 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypeList) {
   CHECK_NOTHROW([]() {
     { // lifetime
       auto display = factory_helper<TestType>();
-      display.start();
+      display.show();
     }
   }());
 }
@@ -218,7 +218,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   auto bar =
       ProgressBar(progress, out).total(50).message("Computing").interval(0.001);
   bar.style(GENERATE(Bars, Blocks, Arrow));
-  bar.start();
+  bar.show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
     progress++;
@@ -247,7 +247,7 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
 
   SECTION("Above") {
     progress = 50;
-    bar.start();
+    bar.show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress++;
@@ -262,7 +262,7 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
 
   SECTION("Below") {
     progress = 0;
-    bar.start();
+    bar.show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress--;
@@ -293,9 +293,9 @@ TEST_CASE("Composite bar-counter", "[composite]") {
                  .message("Sents")
                  .style(Bars)
                  .interval(0.01) |
-             Counter(toks, out).message("Toks").unit_of_speed("tok/s").speed(
+             Counter(toks, out).message("Toks").speed_unit("tok/s").speed(
                  Speed::Last);
-  bar.start();
+  bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
     sents++;

@@ -18,7 +18,7 @@ including `meanwhile.h` in your project.
   using namespace mew;
   
   auto anim = Animation().message("Working");
-  anim.start();
+  anim.show();
   /* do work */ std::this_thread::sleep_for(10s);
   anim.done();
   ```
@@ -46,8 +46,8 @@ including `meanwhile.h` in your project.
   auto c = Counter(work)
     .message("Reading lines")
     .speed(Speed::Last)
-    .unit_of_speed("line/s");
-  c.start();
+    .speed_unit("line/s");
+  c.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
@@ -67,9 +67,9 @@ including `meanwhile.h` in your project.
   auto bar = ProgressBar(work)
     .message("Reading lines")
     .speed(Speed::Last)
-    .unit_of_speed("line/s")
+    .speed_unit("line/s")
     .total(505);
-  bar.start();
+  bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
@@ -88,8 +88,8 @@ including `meanwhile.h` in your project.
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
     ProgressBar(sents).total(1010).message("Sents") |
-    Counter(toks).message("Toks").unit_of_speed("tok/s").speed(Speed::Last);
-  bar.start();
+    Counter(toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+  bar.show();
   for (int i = 0; i < 1010; i++) {
     // do work
     std::this_thread::sleep_for(13ms);
@@ -114,7 +114,7 @@ including `meanwhile.h` in your project.
                  .speed(Speed::Last)
                  .interval(1.)
                  .no_tty();
-  bar.start();
+  bar.show();
   for (int i = 0; i < 401; i++) {
     std::this_thread::sleep_for(13ms);
     sents++;
