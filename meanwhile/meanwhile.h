@@ -347,7 +347,7 @@ class Speedometer {
  private:
   Progress& progress_;        // Current amount of work done
   Speed speed_ = Speed::None; // Time interval to compute speed over
-  std::string speed_unit_; // unit (message) to display alongside speed
+  std::string speed_unit_;    // unit (message) to display alongside speed
 
   using Clock = std::chrono::system_clock;
   using Time = std::chrono::time_point<Clock>;
@@ -539,8 +539,9 @@ class ProgressBar : public AsyncDisplay {
     ValueType progress_copy =
         progress_; // to avoid progress_ changing during computations below
     int on = int(ValueType(width_) * progress_copy / total_);
-    size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) * progress_copy / total_ -
-                        ValueType(partials_.size()) * ValueType(on));
+    size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) *
+                                progress_copy / total_ -
+                            ValueType(partials_.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
       partial = 0;

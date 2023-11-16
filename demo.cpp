@@ -41,10 +41,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
     unsigned long long work{677};
-    auto c = Counter(work)
-                 .message("Decreasing")
-                 .speed_unit("")
-                 .speed(speed);
+    auto c = Counter(work).message("Decreasing").speed_unit("").speed(speed);
     c.show();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
