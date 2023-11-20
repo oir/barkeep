@@ -215,8 +215,10 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
 
-  auto bar =
-      ProgressBar(&progress, out).total(50).message("Computing").interval(0.001);
+  auto bar = ProgressBar(&progress, out)
+                 .total(50)
+                 .message("Computing")
+                 .interval(0.001);
   bar.style(GENERATE(Bars, Blocks, Arrow));
   bar.show();
   for (size_t i = 0; i < 50; i++) {
@@ -288,13 +290,15 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar =
-      ProgressBar(&sents, out)
-          .total(505)
-          .message("Sents")
-          .style(Bars)
-          .interval(0.01) |
-      Counter(&toks, out).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+  auto bar = ProgressBar(&sents, out)
+                 .total(505)
+                 .message("Sents")
+                 .style(Bars)
+                 .interval(0.01) |
+             Counter(&toks, out)
+                 .message("Toks")
+                 .speed_unit("tok/s")
+                 .speed(Speed::Last);
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);

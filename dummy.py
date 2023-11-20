@@ -1,42 +1,58 @@
 from mewpy import Animation, AnimationStyle, Counter, Speed, DType, ProgressBar
 import time
+import random
 
-a = Animation(interval=0.3, style=AnimationStyle.Earth)
-a.show()
-time.sleep(10)
-a.done()
+#a = Animation(interval=0.3, style=AnimationStyle.Earth)
+#a.show()
+#time.sleep(10)
+#a.done()
+#
+#def start(dtype: DType):
+#    return 1 if dtype in [DType.Int, DType.AtomicInt] else 0.7
+#
+#def increment(dtype: DType):
+#    return 1 if dtype in [DType.Int, DType.AtomicInt] else 0.33
+#
+#for dtype in [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]:
+#    for speed in [Speed.No, Speed.Overall]:
+#        c = Counter(interval=0.1, message="Hopping", speed=speed, speed_unit="hop/s", dtype=dtype)
+#        c.show()
+#        j = start(dtype) 
+#        for i in range(20):
+#            c += j
+#            j += increment(dtype)
+#            time.sleep(0.3)
+#        c.done()
+#
+#
+#c.work = 0.2
+#c.show()
+#c.done()
+#
+#c += 0.1
+#c.show()
+#c.done()
+#
+#for dtype in [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]:
+#    for speed in [Speed.No, Speed.Overall]:
+#        b = ProgressBar(interval=0.1, message="Loading", speed=speed, speed_unit="B/s", dtype=dtype)
+#        b.show()
+#        for i in range(100):
+#            b += 1
+#            time.sleep(0.12)
+#        b.done()
 
-def start(dtype: DType):
-    return 1 if dtype in [DType.Int, DType.AtomicInt] else 0.7
 
-def increment(dtype: DType):
-    return 1 if dtype in [DType.Int, DType.AtomicInt] else 0.33
+#auto bar =
+#    ProgressBar(&sents).total(1010).message("Sents") |
+#    Counter(&toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+sents = ProgressBar(total=1010, message="Sents")
+toks = Counter(message="Toks", speed_unit="tok/s", speed=Speed.Last)
+bar = sents | toks
 
-for dtype in [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]:
-    for speed in [Speed.No, Speed.Overall]:
-        c = Counter(interval=0.1, message="Hopping", speed=speed, speed_unit="hop/s", dtype=dtype)
-        c.show()
-        j = start(dtype) 
-        for i in range(20):
-            c += j
-            j += increment(dtype)
-            time.sleep(0.3)
-        c.done()
-
-
-c.work = 0.2
-c.show()
-c.done()
-
-c += 0.1
-c.show()
-c.done()
-
-for dtype in [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]:
-    for speed in [Speed.No, Speed.Overall]:
-        b = ProgressBar(interval=0.1, message="Loading", speed=speed, speed_unit="B/s", dtype=dtype)
-        b.show()
-        for i in range(100):
-            b += 1
-            time.sleep(0.12)
-        b.done()
+bar.show();
+for i in range(1010):
+    time.sleep(0.013)
+    sents += 1;
+    toks += (1 + random.randrange(5))
+bar.done();

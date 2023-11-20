@@ -179,6 +179,8 @@ class AsyncDisplay {
     out_ << std::endl;
   }
 
+  virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
+
   /* Methods: Setters
 
      message          - Set message
@@ -234,6 +236,10 @@ class Animation : public AsyncDisplay {
   Animation(const Animation& other) = default;
   Animation(Animation&&) = default;
   ~Animation() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Animation>(*this);
+  }
 
   // Methods: Setters
   //
@@ -302,7 +308,17 @@ class Composite : public AsyncDisplay {
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
     if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
+  // Copy constructor
+  Composite(const Composite& other)
+      : AsyncDisplay(other),
+        left_(other.left_->clone()),
+        right_(other.right_->clone()) {}
+  Composite(Composite&& other) = default;
   ~Composite() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Composite>(*this);
+  }
 
   auto& no_tty() {
     AsyncDisplay::no_tty();
@@ -314,10 +330,8 @@ class Composite : public AsyncDisplay {
 
 // Function: operator|
 // Pipe operator can be used to combine two displays into a <Composite>.
-template <typename LeftDisplay, typename RightDisplay>
-auto operator|(LeftDisplay left, RightDisplay right) {
-  return Composite(std::make_unique<LeftDisplay>(left),
-                   std::make_unique<RightDisplay>(right));
+auto operator|(const AsyncDisplay& left, const AsyncDisplay& right) {
+  return Composite(left.clone(), right.clone());
 }
 
 // Trait class to extract underlying value type from numerics and
@@ -484,6 +498,10 @@ class Counter : public AsyncDisplay {
         speedom_(std::move(other.speedom_)) {}
 
   ~Counter() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Counter>(*this);
+  }
 
   // Method: start
   // Start displaying the counter
@@ -658,6 +676,10 @@ class ProgressBar : public AsyncDisplay {
         partials_(other.partials_) {}
 
   ~ProgressBar() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<ProgressBar>(*this);
+  }
 
   // Method: start
   // Start displaying the bar

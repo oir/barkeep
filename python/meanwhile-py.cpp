@@ -101,20 +101,6 @@ void bind_template_progress_bar(py::module& m, char const* name) {
           py::is_operator());
 }
 
-// class Composite_ : public OwningDisplay {
-//  protected:
-//   std::unique_ptr<OwningDisplay> left_, right_;
-//  public:
-//   mew::Composite composite_;
-//
-//   AsyncDisplay& impl() override { return composite_; }
-//
-//   Composite_(std::unique_ptr<OwningDisplay> left,
-//              std::unique_ptr<OwningDisplay> right)
-//       : left_(std::move(left)), right_(std::move(right)),
-//       composite_(left_->impl(), right_->impl()) {}
-// };
-
 PYBIND11_MODULE(mewpy, m) {
   m.doc() = "Python bindings for meanwhile";
 
@@ -146,9 +132,9 @@ PYBIND11_MODULE(mewpy, m) {
       .value("AtomicFloat", DType::AtomicFloat)
       .export_values();
 
-  py::class_<AsyncDisplay>(m, "AsyncDisplay")
-      .def("show", &AsyncDisplay::show)
-      .def("done", &AsyncDisplay::done);
+  auto async_display = py::class_<AsyncDisplay>(m, "AsyncDisplay")
+                           .def("show", &AsyncDisplay::show)
+                           .def("done", &AsyncDisplay::done);
 
   py::class_<Animation, AsyncDisplay>(m, "Animation")
       .def(py::init([](std::string msg, double interval, AnimationStyle style) {
@@ -230,9 +216,16 @@ PYBIND11_MODULE(mewpy, m) {
       "value"_a = 0,
       "total"_a = 100,
       "message"_a = "",
-      "interval"_a = 1.,
+      "interval"_a = 0.1,
       "style"_a = ProgressBarStyle::Blocks,
       "speed"_a = Speed::None,
       "speed_unit"_a = "",
       "dtype"_a = DType::Int);
+
+  py::class_<Composite, AsyncDisplay>(m, "Composite");
+
+  async_display.def("__or__",
+                    [](AsyncDisplay& self, const AsyncDisplay& other) {
+                      return Composite(self.clone(), other.clone());
+                    });
 }
