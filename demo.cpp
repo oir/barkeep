@@ -15,10 +15,10 @@ int main(int /*argc*/, char** /*argv*/) {
     anim.done();
   }
 
-  for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
+  for (auto speed : {Speed::None, Speed::Overall, Speed::Last}) {
     std::atomic<size_t> work{0};
     auto c =
-        Counter(work).message("Doing stuff").speed_unit("tk/s").speed(speed);
+        Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -27,10 +27,10 @@ int main(int /*argc*/, char** /*argv*/) {
     c.done();
   }
 
-  for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
+  for (auto speed : {Speed::None, Speed::Overall, Speed::Last}) {
     float work{0};
     auto c =
-        Counter(work).message("Doing stuff").speed_unit("tk/s").speed(speed);
+        Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -39,9 +39,9 @@ int main(int /*argc*/, char** /*argv*/) {
     c.done();
   }
 
-  for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
+  for (auto speed : {Speed::None, Speed::Overall, Speed::Last}) {
     unsigned long long work{677};
-    auto c = Counter(work).message("Decreasing").speed_unit("").speed(speed);
+    auto c = Counter(&work).message("Decreasing").speed_unit("").speed(speed);
     c.show();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
@@ -50,10 +50,10 @@ int main(int /*argc*/, char** /*argv*/) {
     // Let destructor do the c.done() this time
   }
 
-  for (auto speed : {Speed::None, Speed::Overall, Speed::Last, Speed::Both}) {
-    for (auto sty : {Blocks, Bars}) {
+  for (auto speed : {Speed::None, Speed::Overall, Speed::Last}) {
+    for (auto sty : {Blocks, Bars, Arrow}) {
       std::atomic<size_t> work{0};
-      auto bar = ProgressBar(work)
+      auto bar = ProgressBar(&work)
                      .total(1010)
                      .message("Doing stuff")
                      .speed_unit("tk/s")
@@ -73,8 +73,8 @@ int main(int /*argc*/, char** /*argv*/) {
     // in terms of tokens per second.'
     std::atomic<size_t> sents{0}, toks{0};
     auto bar =
-        ProgressBar(sents).total(1010).message("Sents") |
-        Counter(toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+        ProgressBar(&sents).total(1010).message("Sents") |
+        Counter(&toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -87,7 +87,7 @@ int main(int /*argc*/, char** /*argv*/) {
   { // Decreasing progress
     // WARN: negative speeds will underflow if you use an unsigned progress type
     long work{1010};
-    auto bar = ProgressBar(work).total(1010).speed(Speed::Last);
+    auto bar = ProgressBar(&work).total(1010).speed(Speed::Last);
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -96,9 +96,13 @@ int main(int /*argc*/, char** /*argv*/) {
     bar.done();
   }
 
+  std::cout << "\nWarning: To illustrate infrequent writes, no-tty"
+               " demos take long (several minutes)... 😅"
+            << std::endl;
+
   { // Progress bar with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar = ProgressBar(sents)
+    auto bar = ProgressBar(&sents)
                    .total(20100)
                    .message("Sents")
                    .speed(Speed::Last)
@@ -115,8 +119,8 @@ int main(int /*argc*/, char** /*argv*/) {
   { // Composite display of a ProgressBar and Counter with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
     auto bar =
-        ProgressBar(sents).total(20100).message("Sents") |
-        Counter(toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+        ProgressBar(&sents).total(20100).message("Sents") |
+        Counter(&toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
     bar.no_tty();
     bar.show();
     for (int i = 0; i < 20100; i++) {

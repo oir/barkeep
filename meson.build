@@ -1,4 +1,4 @@
-project('meanwhile', 'cpp', default_options : ['cpp_std=c++17', 'warning_level=3'])
+project('meanwhile', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3'])
 
 incdir = include_directories(['./', './extern/'])
 

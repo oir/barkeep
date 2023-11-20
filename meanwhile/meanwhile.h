@@ -425,36 +425,42 @@ class Speedometer {
 template <typename Progress = size_t>
 class Counter : public AsyncDisplay {
  private:
-  Progress& progress_; // current amount of work done
-  Speedometer<Progress> speedom_;
+  Progress* progress_ = nullptr; // current amount of work done
+  std::unique_ptr<Speedometer<Progress>> speedom_;
 
+ protected:
   // Method: render_counts_
   // Write the value of progress to the output stream
   size_t render_counts_(std::ostream& out) {
     std::stringstream ss;
-    if (std::is_floating_point<Progress>::value) {
+    if (std::is_floating_point_v<Progress>) {
       ss << std::fixed << std::setprecision(2);
     }
-    ss << progress_ << " ";
+    ss << *progress_ << " ";
     auto s = ss.str();
     out << s;
     return s.size();
   }
 
- private:
   // Method: render_
   // Write the value of progress with the message to the output stream
   size_t render_(std::ostream& out) override {
     size_t len = render_message_(out);
     len += render_counts_(out);
-    len += speedom_.render_speed(out);
+    len += speedom_->render_speed(out);
     return len;
   }
 
   Duration default_interval_() const override {
-    if (no_tty_) { return Duration{60.}; }
-    return Duration{.1};
+    return no_tty_ ? Duration{60.} : Duration{.1};
   }
+
+  void init(Progress* progress) {
+    progress_ = progress;
+    speedom_ = std::make_unique<Speedometer<Progress>>(*progress_);
+  }
+
+  Counter(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
  public:
   // Constructor: Counter
@@ -462,13 +468,15 @@ class Counter : public AsyncDisplay {
   // Parameters:
   //   progress - Variable to be monitored and displayed
   //   out      - Output stream to write to
-  Counter(Progress& progress, std::ostream& out = std::cout)
-      : AsyncDisplay(out), progress_(progress), speedom_(progress) {}
+  Counter(Progress* progress, std::ostream& out = std::cout)
+      : AsyncDisplay(out) {
+    init(progress);
+  }
 
   Counter(const Counter<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
-        speedom_(other.speedom_) {}
+        speedom_(std::make_unique<Speedometer<Progress>>(*other.speedom_)) {}
 
   Counter(Counter<Progress>&& other)
       : AsyncDisplay(std::move(other)),
@@ -481,7 +489,7 @@ class Counter : public AsyncDisplay {
   // Start displaying the counter
   void show() override {
     AsyncDisplay::show();
-    speedom_.show();
+    speedom_->show();
   }
 
   // Methods: Setters
@@ -490,11 +498,11 @@ class Counter : public AsyncDisplay {
   //                                      <Speed> options
   // speed_unit(const std::string&)  - Set unit of speed text next to speed
   auto& speed(Speed sp) {
-    speedom_.speed(sp);
+    speedom_->speed(sp);
     return *this;
   }
   auto& speed_unit(const std::string& msg) {
-    speedom_.speed_unit(msg);
+    speedom_->speed_unit(msg);
     return *this;
   }
   auto& message(const std::string& msg) {
@@ -523,21 +531,22 @@ class ProgressBar : public AsyncDisplay {
  private:
   using ValueType = value_t<Progress>;
 
-  Speedometer<Progress> speedom_;
-  Progress& progress_; // work done so far
-  static constexpr size_t width_ =
-      30;                // width of progress bar (TODO: make customizable?)
-  ValueType total_{100}; // total work
-  bool counts_ = true;   // whether to display counts
+  Progress* progress_; // work done so far
+  std::unique_ptr<Speedometer<Progress>> speedom_;
+  static constexpr size_t width_ = 30; // width of progress bar
+                                       // (TODO: make customizable?)
+  ValueType total_{100};               // total work
+  bool counts_ = true; // whether to display counts //TODO: rename this var
 
   Strings partials_; // progress bar display strings
 
+ protected:
   // Method: render_progress_bar_
   // Compute the shape of the progress bar based on progress and write to output
   // stream.
   size_t render_progress_bar_(std::ostream& out) {
-    ValueType progress_copy =
-        progress_; // to avoid progress_ changing during computations below
+    ValueType progress_copy = *progress_; // to avoid progress_ changing
+                                          // during computations below
     int on = int(ValueType(width_) * progress_copy / total_);
     size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) *
                                 progress_copy / total_ -
@@ -566,14 +575,14 @@ class ProgressBar : public AsyncDisplay {
   size_t render_counts_(std::ostream& out) {
     if (counts_) {
       std::stringstream ss, totals;
-      if (std::is_floating_point<Progress>::value) {
+      if (std::is_floating_point_v<Progress>) {
         ss << std::fixed << std::setprecision(2);
         totals << std::fixed << std::setprecision(2);
       }
       totals << total_;
       auto width = static_cast<std::streamsize>(totals.str().size());
       ss.width(width);
-      ss << std::right << progress_ << "/" << total_ << " ";
+      ss << std::right << *progress_ << "/" << total_ << " ";
       auto s = ss.str();
       out << s;
       return s.size();
@@ -587,7 +596,7 @@ class ProgressBar : public AsyncDisplay {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss.width(6);
-    ss << std::right << progress_ * 100. / total_ << "% ";
+    ss << std::right << *progress_ * 100. / total_ << "% ";
     auto s = ss.str();
     out << s;
     return s.size();
@@ -600,14 +609,21 @@ class ProgressBar : public AsyncDisplay {
     len += render_percentage_(out);
     len += render_progress_bar_(out);
     len += render_counts_(out);
-    len += speedom_.render_speed(out);
+    len += speedom_->render_speed(out);
     return len;
   }
 
   Duration default_interval_() const override {
-    if (no_tty_) { return Duration{60.}; }
-    return Duration{.1};
+    return no_tty_ ? Duration{60.} : Duration{.1};
   }
+
+ protected:
+  void init(Progress* progress) {
+    progress_ = progress;
+    speedom_ = std::make_unique<Speedometer<Progress>>(*progress_);
+  }
+
+  ProgressBar(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
  public:
   using Style = ProgressBarStyle;
@@ -617,11 +633,29 @@ class ProgressBar : public AsyncDisplay {
   // Parameters:
   //   progress - Variable to be monitored to measure completion
   //   out      - Output stream to write to
-  ProgressBar(Progress& progress, std::ostream& out = std::cout)
+  ProgressBar(Progress* progress, std::ostream& out = std::cout)
       : AsyncDisplay(out),
-        speedom_(progress),
-        progress_(progress),
-        partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {}
+        partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {
+    init(progress);
+  }
+
+  // move constructor
+  ProgressBar(ProgressBar<Progress>&& other)
+      : AsyncDisplay(std::move(other)),
+        progress_(other.progress_),
+        speedom_(std::move(other.speedom_)),
+        total_(other.total_),
+        counts_(other.counts_),
+        partials_(std::move(other.partials_)) {}
+
+  // copy constructor
+  ProgressBar(const ProgressBar<Progress>& other)
+      : AsyncDisplay(other),
+        progress_(other.progress_),
+        speedom_(std::make_unique<Speedometer<Progress>>(*other.speedom_)),
+        total_(other.total_),
+        counts_(other.counts_),
+        partials_(other.partials_) {}
 
   ~ProgressBar() { done(); }
 
@@ -629,7 +663,7 @@ class ProgressBar : public AsyncDisplay {
   // Start displaying the bar
   void show() override {
     AsyncDisplay::show();
-    speedom_.show();
+    speedom_->show();
   }
 
   // Methods: Setters
@@ -641,12 +675,12 @@ class ProgressBar : public AsyncDisplay {
   // style(Style)                       - Set style from <ProgressBarStyle>
   //                                      options
   auto& speed(Speed sp) {
-    speedom_.speed(sp);
+    speedom_->speed(sp);
     return *this;
   }
 
   auto& speed_unit(const std::string& msg) {
-    speedom_.speed_unit(msg);
+    speedom_->speed_unit(msg);
     return *this;
   }
 

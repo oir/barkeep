@@ -77,7 +77,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   auto sp = GENERATE(Speed::None, Speed::Last);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(amount, out)
+  auto ctr = Counter(&amount, out)
                  .message("Doing things")
                  .interval(0.001)
                  .speed(sp)
@@ -134,7 +134,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   auto sp = GENERATE(Speed::None, Speed::Last);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(amount, out)
+  auto ctr = Counter(&amount, out)
                  .message("Doing things")
                  .interval(0.01)
                  .speed(sp)
@@ -178,14 +178,14 @@ template <>
 Counter<> factory_helper<Counter<>>() {
   static size_t progress;
   static std::stringstream hide;
-  return Counter(progress, hide);
+  return Counter(&progress, hide);
 }
 
 template <>
 ProgressBar<float> factory_helper<ProgressBar<float>>() {
   static float progress;
   static std::stringstream hide;
-  return ProgressBar(progress, hide);
+  return ProgressBar(&progress, hide);
 }
 
 using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>>;
@@ -216,7 +216,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   TestType progress{0};
 
   auto bar =
-      ProgressBar(progress, out).total(50).message("Computing").interval(0.001);
+      ProgressBar(&progress, out).total(50).message("Computing").interval(0.001);
   bar.style(GENERATE(Bars, Blocks, Arrow));
   bar.show();
   for (size_t i = 0; i < 50; i++) {
@@ -239,7 +239,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(progress, out)
+  auto bar = ProgressBar(&progress, out)
                  .total(50)
                  .message("Computing")
                  .interval(0.001)
@@ -280,7 +280,7 @@ TEMPLATE_LIST_TEST_CASE("Zero total progress",
                         "[bar][edges]",
                         ProgressTypeList) {
   TestType progress;
-  auto bar = ProgressBar(progress);
+  auto bar = ProgressBar(&progress);
   CHECK_THROWS(bar.total(0));
 }
 
@@ -289,12 +289,12 @@ TEST_CASE("Composite bar-counter", "[composite]") {
 
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-      ProgressBar(sents, out)
+      ProgressBar(&sents, out)
           .total(505)
           .message("Sents")
           .style(Bars)
           .interval(0.01) |
-      Counter(toks, out).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+      Counter(&toks, out).message("Toks").speed_unit("tok/s").speed(Speed::Last);
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
