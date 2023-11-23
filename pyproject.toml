@@ -1,0 +1,14 @@
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
+
+[project]
+name = 'mewpy'
+version = '0.0.1'
+description = 'Our first Python project, using meson-python!'
+readme = 'README.md'
+requires-python = '>=3.9'
+license = {file = 'LICENSE'}
+authors = [
+  {name = 'Bowsette Koopa', email = 'bowsette@example.com'},
+]
