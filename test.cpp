@@ -218,7 +218,14 @@ ProgressBar<float> factory_helper<ProgressBar<float>>() {
   return ProgressBar(&progress, hide);
 }
 
-using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>>;
+template <>
+Composite factory_helper<Composite>() {
+  static size_t progress;
+  static std::stringstream hide;
+  return ProgressBar(&progress, hide) | Counter(&progress, hide);
+}
+
+using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   auto orig = factory_helper<TestType>();
@@ -238,6 +245,27 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypeList) {
       auto display = factory_helper<TestType>();
       display.show();
     }
+  }());
+}
+
+TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypeList) {
+  CHECK_NOTHROW([]() {
+    auto orig = factory_helper<TestType>();
+    auto copy = orig;
+    auto moved = std::move(orig);
+    copy.show();
+    copy.done();
+    moved.show();
+    moved.done();
+  }());
+}
+
+TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypeList) {
+  CHECK_NOTHROW([]() {
+    auto orig = factory_helper<TestType>();
+    auto clone = orig.clone();
+    clone->show();
+    clone->done();
   }());
 }
 
