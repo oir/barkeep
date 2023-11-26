@@ -234,6 +234,10 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
     CHECK_THROWS([&]() { auto copy{orig}; }());
     CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
   }
+  SECTION("Running compose") {
+    CHECK_THROWS([&]() { orig | orig; }());
+    CHECK_THROWS([&]() { orig | orig | orig; }());
+  }
   SECTION("Double start") { CHECK_THROWS(orig.show()); }
   orig.done();
   CHECK_NOTHROW(orig.done());
