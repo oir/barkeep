@@ -43,7 +43,7 @@ including `meanwhile.h` in your project.
 
   ```C++
   int work{0};
-  auto c = Counter(work)
+  auto c = Counter(&work)
     .message("Reading lines")
     .speed(Speed::Last)
     .speed_unit("line/s");
@@ -64,7 +64,7 @@ including `meanwhile.h` in your project.
 
   ```C++
   int work{0};
-  auto bar = ProgressBar(work)
+  auto bar = ProgressBar(&work)
     .message("Reading lines")
     .speed(Speed::Last)
     .speed_unit("line/s")
@@ -87,8 +87,8 @@ including `meanwhile.h` in your project.
   ```C++
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-    ProgressBar(sents).total(1010).message("Sents") |
-    Counter(toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+    ProgressBar(&sents).total(1010).message("Sents") |
+    Counter(&toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
   bar.show();
   for (int i = 0; i < 1010; i++) {
     // do work
@@ -108,7 +108,7 @@ including `meanwhile.h` in your project.
 
   ```C++
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(sents)
+  auto bar = ProgressBar(&sents)
                  .total(401)
                  .message("Sents")
                  .speed(Speed::Last)
