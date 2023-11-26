@@ -2,13 +2,16 @@
 build-backend = 'mesonpy'
 requires = ['meson-python']
 
+[tool.meson-python.args]
+install = ['--tags=runtime,python-runtime']
+
 [project]
-name = 'mewpy'
+name = 'barkeep'
 version = '0.0.1'
-description = 'Our first Python project, using meson-python!'
+description = ''
 readme = 'README.md'
 requires-python = '>=3.9'
 license = {file = 'LICENSE'}
 authors = [
-  {name = 'Bowsette Koopa', email = 'bowsette@example.com'},
+  {name = 'Ozan Irsoy'},
 ]

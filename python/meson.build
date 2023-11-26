@@ -5,7 +5,7 @@ if py.found()
   pybind11 = subproject('pybind11').get_variable('pybind11_dep')
 
   sources = [
-    'meanwhile-py.cpp',
+    'barkeep.cpp',
   ]
 
   py.install_sources(
@@ -13,7 +13,7 @@ if py.found()
     pure: false,
   )
 
-  tgt = py.extension_module('mewpy',
+  tgt = py.extension_module('barkeep',
                             sources : sources,
                             include_directories : incdir,
                             dependencies : deps + [pybind11],

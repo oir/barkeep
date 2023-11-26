@@ -1,5 +1,6 @@
 #include <meanwhile/meanwhile.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 using namespace mew;
@@ -101,7 +102,15 @@ void bind_template_progress_bar(py::module& m, char const* name) {
           py::is_operator());
 }
 
-PYBIND11_MODULE(mewpy, m) {
+void some_func(std::optional<std::string> msg) {
+  if (msg) {
+    std::cout << *msg << std::endl;
+  } else {
+    std::cout << "No message" << std::endl;
+  }
+}
+
+PYBIND11_MODULE(barkeep, m) {
   m.doc() = "Python bindings for meanwhile";
 
   py::enum_<AnimationStyle>(m, "AnimationStyle")
@@ -228,4 +237,6 @@ PYBIND11_MODULE(mewpy, m) {
                     [](AsyncDisplay& self, const AsyncDisplay& other) {
                       return Composite(self.clone(), other.clone());
                     });
+
+  m.def("some_func", &some_func, "msg"_a = py::none());
 }

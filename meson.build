@@ -1,10 +1,10 @@
-project('meanwhile', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3', 'cpp_compiler=g++-11'])
+project('meanwhile', 'cpp', default_options : ['cpp_std=c++20', 'warning_level=3'])
 
 incdir = include_directories(['./', './extern/'])
 
-threads      = dependency('threads')
+threads = dependency('threads')
 
-deps         = [threads]
+deps = [threads]
 
 sources = [
   'demo.cpp',
