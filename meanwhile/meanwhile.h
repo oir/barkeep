@@ -302,9 +302,6 @@ class Composite : public AsyncDisplay {
       : AsyncDisplay(left->out_),
         left_(std::move(left)),
         right_(std::move(right)) {
-    if (left_->displayer_ or right_->displayer_) {
-      throw std::runtime_error("Running displays cannot be composed!");
-    }
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
     if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }

@@ -225,7 +225,8 @@ Composite factory_helper<Composite>() {
   return ProgressBar(&progress, hide) | Counter(&progress, hide);
 }
 
-using DisplayTypeList = std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
+using DisplayTypeList =
+    std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   auto orig = factory_helper<TestType>();
@@ -235,6 +236,7 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
     CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
   }
   SECTION("Running compose") {
+    // This fails because copy / move is needed and they will both throw
     CHECK_THROWS([&]() { orig | orig; }());
     CHECK_THROWS([&]() { orig | orig | orig; }());
   }
