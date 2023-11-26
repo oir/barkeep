@@ -171,6 +171,30 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   CHECK(counts.back() == expected);
 }
 
+TEST_CASE("Decreasing counter", "[counter]") {
+  std::stringstream out;
+  int amount = 101;
+
+  auto ctr = Counter(&amount, out).message("Doing things").interval(0.01);
+  ctr.show();
+
+  for (size_t i = 0; i < 101; i++) {
+    std::this_thread::sleep_for(1.3ms);
+    amount--;
+  }
+  ctr.done();
+
+  auto parts = check_and_get_parts(out.str());
+  auto counts = extract_counts<int>("Doing things ", parts);
+
+  for (size_t i = 1; i < counts.size(); i++) {
+    CHECK(counts[i] <= counts[i - 1]);
+  }
+
+  // Final result should always be displayed
+  CHECK(counts.back() == 0);
+}
+
 template <typename Display>
 Display factory_helper();
 
