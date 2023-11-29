@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <thread>
