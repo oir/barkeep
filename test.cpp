@@ -78,7 +78,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
-  auto sp = GENERATE(Speed::None, Speed::Last);
+  auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
   std::string unit = GENERATE("", "thing/10ms");
 
   auto ctr = Counter(&amount, out)
@@ -103,7 +103,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::string amountstr = ss.str();
 
   std::string expected = "Doing things " + amountstr + " ";
-  if (sp == Speed::Last) {
+  if (sp == 1.) {
     if (unit.empty()) {
       expected += "(0.00) ";
     } else {
@@ -135,7 +135,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   ValueType initial = amount;
-  auto sp = GENERATE(Speed::None, Speed::Last);
+  auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
   bool no_tty = GENERATE(true, false);
   std::string unit = GENERATE("", "thing/10ms");
 
@@ -363,10 +363,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
                  .message("Sents")
                  .style(Bars)
                  .interval(0.01) |
-             Counter(&toks, out)
-                 .message("Toks")
-                 .speed_unit("tok/s")
-                 .speed(Speed::Last);
+             Counter(&toks, out).message("Toks").speed_unit("tok/s").speed(1);
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);

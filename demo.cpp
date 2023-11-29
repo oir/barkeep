@@ -73,9 +73,8 @@ int main(int /*argc*/, char** /*argv*/) {
     // completion in terms of #sentences but we are also interested in speed
     // in terms of tokens per second.'
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar =
-        ProgressBar(&sents).total(1010).message("Sents").speed(1) |
-        Counter(&toks).message("Toks").speed(1);
+    auto bar = ProgressBar(&sents).total(1010).message("Sents").speed(1) |
+               Counter(&toks).message("Toks").speed(1);
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -102,11 +101,8 @@ int main(int /*argc*/, char** /*argv*/) {
 
   { // Progress bar with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar = ProgressBar(&sents)
-                   .total(20100)
-                   .message("Sents")
-                   .speed(1)
-                   .no_tty();
+    auto bar =
+        ProgressBar(&sents).total(20100).message("Sents").speed(1).no_tty();
     bar.show();
     for (int i = 0; i < 20100; i++) {
       std::this_thread::sleep_for(13ms);
@@ -118,9 +114,8 @@ int main(int /*argc*/, char** /*argv*/) {
 
   { // Composite display of a ProgressBar and Counter with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar =
-        ProgressBar(&sents).total(20100).message("Sents") |
-        Counter(&toks).message("Toks").speed_unit("tok/s").speed(1);
+    auto bar = ProgressBar(&sents).total(20100).message("Sents") |
+               Counter(&toks).message("Toks").speed_unit("tok/s").speed(1);
     bar.no_tty();
     bar.show();
     for (int i = 0; i < 20100; i++) {

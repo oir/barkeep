@@ -538,7 +538,6 @@ class Counter : public AsyncDisplay {
   }
 };
 
-
 // Class: ProgressBar
 // Displays a progress bar, by comparing the progress value being monitored to a
 // given total value. Optionally reports speed.
@@ -549,7 +548,7 @@ class ProgressBar : public AsyncDisplay {
 
   Progress* progress_; // work done so far
   std::unique_ptr<Speedometer<Progress>> speedom_;
-  std::string speed_unit_ = "it/s"; // unit of speed text next to speed
+  std::string speed_unit_ = "it/s";    // unit of speed text next to speed
   static constexpr size_t width_ = 30; // width of progress bar
                                        // (TODO: make customizable?)
   ValueType total_{100};               // total work
@@ -631,9 +630,7 @@ class ProgressBar : public AsyncDisplay {
   }
 
  protected:
-  void init(Progress* progress) {
-    progress_ = progress;
-  }
+  void init(Progress* progress) { progress_ = progress; }
 
   ProgressBar(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
@@ -740,7 +737,6 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 };
-
 
 } // namespace mew
 
