@@ -208,21 +208,22 @@ template <>
 Counter<> factory_helper<Counter<>>() {
   static size_t progress;
   static std::stringstream hide;
-  return Counter(&progress, hide);
+  return Counter(&progress, hide).speed(1);
 }
 
 template <>
 ProgressBar<float> factory_helper<ProgressBar<float>>() {
   static float progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, hide);
+  return ProgressBar(&progress, hide).speed(1);
 }
 
 template <>
 Composite factory_helper<Composite>() {
   static size_t progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, hide) | Counter(&progress, hide);
+  return ProgressBar(&progress, hide).speed(1) |
+         Counter(&progress, hide).speed(1);
 }
 
 using DisplayTypeList =
