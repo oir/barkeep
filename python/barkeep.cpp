@@ -29,13 +29,13 @@ template <typename T>
 py::object make_counter(value_t<T> value,
                         std::string msg,
                         double interval,
-                        Speed speed,
+                        std::optional<double> discount,
                         std::string speed_unit) {
   Counter_<T> counter;
   *counter.work = value;
   counter.message(msg);
   counter.interval(interval);
-  counter.speed(speed);
+  counter.speed(discount);
   counter.speed_unit(speed_unit);
   return py::cast(counter);
 };
@@ -73,7 +73,7 @@ py::object make_progress_bar(value_t<T> value,
                              std::string msg,
                              double interval,
                              ProgressBarStyle style,
-                             Speed speed,
+                             std::optional<double> discount,
                              std::string speed_unit) {
   ProgressBar_<T> bar;
   *bar.work = value;
@@ -81,7 +81,7 @@ py::object make_progress_bar(value_t<T> value,
   bar.message(msg);
   bar.interval(interval);
   bar.style(style);
-  bar.speed(speed);
+  bar.speed(discount);
   bar.speed_unit(speed_unit);
   return py::cast(bar);
 };
@@ -128,12 +128,6 @@ PYBIND11_MODULE(barkeep, m) {
       .value("Arrow", ProgressBarStyle::Arrow)
       .export_values();
 
-  py::enum_<Speed>(m, "Speed")
-      .value("No", Speed::None)
-      .value("Last", Speed::Last)
-      .value("Overall", Speed::Overall)
-      .export_values();
-
   py::enum_<DType>(m, "DType")
       .value("Int", DType::Int)
       .value("Float", DType::Float)
@@ -165,7 +159,7 @@ PYBIND11_MODULE(barkeep, m) {
       [](double value, // TODO: Make value match the specified dtype
          std::string msg,
          double interval,
-         Speed speed,
+         std::optional<double> speed,
          std::string speed_unit,
          DType dtype) -> py::object {
         switch (dtype) {
@@ -185,7 +179,7 @@ PYBIND11_MODULE(barkeep, m) {
       "value"_a = 0,
       "message"_a = "",
       "interval"_a = 1.,
-      "speed"_a = Speed::None,
+      "speed"_a = py::none(),
       "speed_unit"_a = "",
       "dtype"_a = DType::Int);
 
@@ -203,7 +197,7 @@ PYBIND11_MODULE(barkeep, m) {
          std::string msg,
          double interval,
          ProgressBarStyle style,
-         Speed speed,
+         std::optional<double> speed,
          std::string speed_unit,
          DType dtype) -> py::object {
         switch (dtype) {
@@ -227,7 +221,7 @@ PYBIND11_MODULE(barkeep, m) {
       "message"_a = "",
       "interval"_a = 0.1,
       "style"_a = ProgressBarStyle::Blocks,
-      "speed"_a = Speed::None,
+      "speed"_a = py::none(),
       "speed_unit"_a = "",
       "dtype"_a = DType::Int);
 

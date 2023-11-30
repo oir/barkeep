@@ -8,6 +8,7 @@
 #include <condition_variable>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -356,79 +357,67 @@ using signed_t = typename std::conditional_t<std::is_integral_v<T>,
 template <typename Progress>
 class Speedometer {
  private:
-  Progress& progress_;        // Current amount of work done
-  Speed speed_ = Speed::None; // Time interval to compute speed over
-  std::string speed_unit_;    // unit (message) to display alongside speed
+  Progress& progress_; // Current amount of work done
+  double discount_;
 
+  using ValueType = value_t<Progress>;
+  using SignedType = signed_t<ValueType>;
   using Clock = std::chrono::system_clock;
   using Time = std::chrono::time_point<Clock>;
 
-  Time start_time_, last_start_time_;
+  double progress_increment_sum_ = 0; // (weighted) sum of progress increments
+  Duration duration_increment_sum_{}; // (weighted) sum of duration increments
 
-  value_t<Progress> first_progress_{}, last_progress_{};
+  Time last_start_time_;
+  ValueType last_progress_;
 
  public:
   // Method: render_speed
   // Write speed to given output stream. Speed is a double (written with
   // precision 2), possibly followed by a unit of speed.
-  size_t render_speed(std::ostream& out) {
-    if (speed_ != Speed::None) {
-      std::stringstream ss; // use local stream to avoid disturbing `out` with
-                            // std::fixed and std::setprecision
-      Duration dur = (Clock::now() - start_time_);
-      Duration dur2 = (Clock::now() - last_start_time_);
+  size_t render_speed(std::ostream& out, const std::string& speed_unit) {
+    std::stringstream ss; // use local stream to avoid disturbing `out` with
+                          // std::fixed and std::setprecision
+    Time now = Clock::now();
+    Duration dur = now - last_start_time_;
+    last_start_time_ = now;
 
-      using ValueType = value_t<Progress>;
-      using SignedType = signed_t<ValueType>;
+    ValueType progress_copy = progress_; // to avoid progress_ changing below
+    SignedType progress_increment =
+        SignedType(progress_copy) - SignedType(last_progress_);
+    last_progress_ = progress_copy;
 
-      auto speed = double(SignedType(progress_) - SignedType(first_progress_)) /
-                   dur.count();
-      auto speed2 = double(SignedType(progress_) - SignedType(last_progress_)) /
-                    dur2.count();
+    progress_increment_sum_ =
+        (1 - discount_) * progress_increment_sum_ + progress_increment;
+    duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + dur;
+    double speed = progress_increment_sum_ / duration_increment_sum_.count();
 
-      ss << std::fixed << std::setprecision(2) << "(";
-      if (speed_ == Speed::Overall or speed_ == Speed::Both) { ss << speed; }
-      if (speed_ == Speed::Both) { ss << " | "; }
-      if (speed_ == Speed::Last or speed_ == Speed::Both) { ss << speed2; }
-      if (speed_unit_.empty()) {
-        ss << ") ";
-      } else {
-        ss << " " << speed_unit_ << ") ";
-      }
-
-      auto s = ss.str();
-      out << s;
-
-      last_progress_ = progress_;
-      last_start_time_ = Clock::now();
-      return s.size();
+    ss << std::fixed << std::setprecision(2) << "(" << speed;
+    if (speed_unit.empty()) {
+      ss << ") ";
+    } else {
+      ss << " " << speed_unit << ") ";
     }
-    return 0;
+
+    auto s = ss.str();
+    out << s;
+
+    return s.size();
   }
 
   // Method: start
   // Start computing the speed based on the amount of change in progress
-  void show() {
-    first_progress_ = progress_;
-    start_time_ = Clock::now();
+  void start() {
+    last_progress_ = progress_;
+    last_start_time_ = Clock::now();
   }
-
-  /* Methods: Setters
-   *
-   * speed(Speed)                      - Set how to compute speed among <Speed>
-   *                                     options.
-   * speed_unit(const std::string&) - Set text for unit of speed.
-   */
-
-  void speed(Speed sp) { speed_ = sp; }
-
-  void speed_unit(const std::string& msg) { speed_unit_ = msg; }
 
   // Constructor: Speedometer
   //
   // Parameters:
   //   progress  - Reference to numeric to measure the change of.
-  Speedometer(Progress& progress) : progress_(progress) {}
+  Speedometer(Progress& progress, double discount)
+      : progress_(progress), discount_(discount) {}
 };
 
 // Class: Counter
@@ -438,18 +427,19 @@ class Counter : public AsyncDisplay {
  private:
   Progress* progress_ = nullptr; // current amount of work done
   std::unique_ptr<Speedometer<Progress>> speedom_;
+  std::string speed_unit_ = "it/s"; // unit of speed text next to speed
+
+  std::ostringstream ss_;
 
  protected:
   // Method: render_counts_
   // Write the value of progress to the output stream
   size_t render_counts_(std::ostream& out) {
-    std::stringstream ss;
-    if (std::is_floating_point_v<Progress>) {
-      ss << std::fixed << std::setprecision(2);
-    }
-    ss << *progress_ << " ";
-    auto s = ss.str();
+    ss_ << *progress_ << " ";
+    auto s = ss_.str();
     out << s;
+    ss_.str("");
+    ss_.clear();
     return s.size();
   }
 
@@ -458,7 +448,7 @@ class Counter : public AsyncDisplay {
   size_t render_(std::ostream& out) override {
     size_t len = render_message_(out);
     len += render_counts_(out);
-    len += speedom_->render_speed(out);
+    if (speedom_) { len += speedom_->render_speed(out, speed_unit_); }
     return len;
   }
 
@@ -466,10 +456,7 @@ class Counter : public AsyncDisplay {
     return no_tty_ ? Duration{60.} : Duration{.1};
   }
 
-  void init(Progress* progress) {
-    progress_ = progress;
-    speedom_ = std::make_unique<Speedometer<Progress>>(*progress_);
-  }
+  void init(Progress* progress) { progress_ = progress; }
 
   Counter(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
@@ -487,12 +474,19 @@ class Counter : public AsyncDisplay {
   Counter(const Counter<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
-        speedom_(std::make_unique<Speedometer<Progress>>(*other.speedom_)) {}
+        speed_unit_(other.speed_unit_) {
+    if (other.speedom_) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*other.speedom_);
+    } else {
+      speedom_.reset();
+    }
+  }
 
   Counter(Counter<Progress>&& other)
       : AsyncDisplay(std::move(other)),
         progress_(other.progress_),
-        speedom_(std::move(other.speedom_)) {}
+        speedom_(std::move(other.speedom_)),
+        speed_unit_(other.speed_unit_) {}
 
   ~Counter() { done(); }
 
@@ -503,8 +497,11 @@ class Counter : public AsyncDisplay {
   // Method: start
   // Start displaying the counter
   void show() override {
+    if constexpr (std::is_floating_point_v<Progress>) {
+      ss_ << std::fixed << std::setprecision(2);
+    }
     AsyncDisplay::show();
-    speedom_->show();
+    if (speedom_) { speedom_->start(); }
   }
 
   // Methods: Setters
@@ -512,12 +509,16 @@ class Counter : public AsyncDisplay {
   // speed(Speed)                       - Set how to compute speed, among
   //                                      <Speed> options
   // speed_unit(const std::string&)  - Set unit of speed text next to speed
-  auto& speed(Speed sp) {
-    speedom_->speed(sp);
+  auto& speed(std::optional<double> discount) {
+    if (discount) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
+    } else {
+      speedom_.reset();
+    }
     return *this;
   }
   auto& speed_unit(const std::string& msg) {
-    speedom_->speed_unit(msg);
+    speed_unit_ = msg;
     return *this;
   }
   auto& message(const std::string& msg) {
@@ -548,10 +549,10 @@ class ProgressBar : public AsyncDisplay {
 
   Progress* progress_; // work done so far
   std::unique_ptr<Speedometer<Progress>> speedom_;
+  std::string speed_unit_ = "it/s";    // unit of speed text next to speed
   static constexpr size_t width_ = 30; // width of progress bar
                                        // (TODO: make customizable?)
   ValueType total_{100};               // total work
-  bool counts_ = true; // whether to display counts //TODO: rename this var
 
   Strings partials_; // progress bar display strings
 
@@ -588,21 +589,18 @@ class ProgressBar : public AsyncDisplay {
   // Write progress value with the total, e.g. 50/100, to output stream.
   // Progress width is expanded (and right justified) to match width of total.
   size_t render_counts_(std::ostream& out) {
-    if (counts_) {
-      std::stringstream ss, totals;
-      if (std::is_floating_point_v<Progress>) {
-        ss << std::fixed << std::setprecision(2);
-        totals << std::fixed << std::setprecision(2);
-      }
-      totals << total_;
-      auto width = static_cast<std::streamsize>(totals.str().size());
-      ss.width(width);
-      ss << std::right << *progress_ << "/" << total_ << " ";
-      auto s = ss.str();
-      out << s;
-      return s.size();
+    std::stringstream ss, totals;
+    if (std::is_floating_point_v<Progress>) {
+      ss << std::fixed << std::setprecision(2);
+      totals << std::fixed << std::setprecision(2);
     }
-    return 0;
+    totals << total_;
+    auto width = static_cast<std::streamsize>(totals.str().size());
+    ss.width(width);
+    ss << std::right << *progress_ << "/" << total_ << " ";
+    auto s = ss.str();
+    out << s;
+    return s.size();
   }
 
   // Method: render_percentage_
@@ -624,7 +622,7 @@ class ProgressBar : public AsyncDisplay {
     len += render_percentage_(out);
     len += render_progress_bar_(out);
     len += render_counts_(out);
-    len += speedom_->render_speed(out);
+    if (speedom_) { len += speedom_->render_speed(out, speed_unit_); }
     return len;
   }
 
@@ -633,10 +631,7 @@ class ProgressBar : public AsyncDisplay {
   }
 
  protected:
-  void init(Progress* progress) {
-    progress_ = progress;
-    speedom_ = std::make_unique<Speedometer<Progress>>(*progress_);
-  }
+  void init(Progress* progress) { progress_ = progress; }
 
   ProgressBar(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
@@ -660,17 +655,20 @@ class ProgressBar : public AsyncDisplay {
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
         total_(other.total_),
-        counts_(other.counts_),
         partials_(std::move(other.partials_)) {}
 
   // copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
-        speedom_(std::make_unique<Speedometer<Progress>>(*other.speedom_)),
         total_(other.total_),
-        counts_(other.counts_),
-        partials_(other.partials_) {}
+        partials_(other.partials_) {
+    if (other.speedom_) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*other.speedom_);
+    } else {
+      speedom_.reset();
+    }
+  }
 
   ~ProgressBar() { done(); }
 
@@ -682,7 +680,7 @@ class ProgressBar : public AsyncDisplay {
   // Start displaying the bar
   void show() override {
     AsyncDisplay::show();
-    speedom_->show();
+    if (speedom_) { speedom_->start(); }
   }
 
   // Methods: Setters
@@ -693,13 +691,17 @@ class ProgressBar : public AsyncDisplay {
   // total(ValueType)                   - Set total amount, cannot be 0
   // style(Style)                       - Set style from <ProgressBarStyle>
   //                                      options
-  auto& speed(Speed sp) {
-    speedom_->speed(sp);
+  auto& speed(std::optional<double> discount) {
+    if (discount) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
+    } else {
+      speedom_.reset();
+    }
     return *this;
   }
 
   auto& speed_unit(const std::string& msg) {
-    speedom_->speed_unit(msg);
+    speed_unit_ = msg;
     return *this;
   }
 
