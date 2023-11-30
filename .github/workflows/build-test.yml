@@ -32,5 +32,6 @@ jobs:
         with:
           python-version: '3.9' 
       - run: pip install meson
+      - run: sudo apt install ninja-build
       - run: meson setup build --buildtype=release --warnlevel=3
       - run: meson compile -C build python
