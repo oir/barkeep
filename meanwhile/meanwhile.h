@@ -358,7 +358,7 @@ template <typename Progress>
 class Speedometer {
  private:
   Progress& progress_; // Current amount of work done
-  double alpha_;
+  double discount_;
 
   using ValueType = value_t<Progress>;
   using SignedType = signed_t<ValueType>;
@@ -388,8 +388,8 @@ class Speedometer {
     last_progress_ = progress_copy;
 
     progress_increment_sum_ =
-        (1 - alpha_) * progress_increment_sum_ + progress_increment;
-    duration_increment_sum_ = (1 - alpha_) * duration_increment_sum_ + dur;
+        (1 - discount_) * progress_increment_sum_ + progress_increment;
+    duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + dur;
     double speed = progress_increment_sum_ / duration_increment_sum_.count();
 
     ss << std::fixed << std::setprecision(2) << "(" << speed;
@@ -416,8 +416,8 @@ class Speedometer {
   //
   // Parameters:
   //   progress  - Reference to numeric to measure the change of.
-  Speedometer(Progress& progress, double alpha)
-      : progress_(progress), alpha_(alpha) {}
+  Speedometer(Progress& progress, double discount)
+      : progress_(progress), discount_(discount) {}
 };
 
 // Class: Counter
@@ -509,9 +509,9 @@ class Counter : public AsyncDisplay {
   // speed(Speed)                       - Set how to compute speed, among
   //                                      <Speed> options
   // speed_unit(const std::string&)  - Set unit of speed text next to speed
-  auto& speed(std::optional<double> alpha) {
-    if (alpha) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *alpha);
+  auto& speed(std::optional<double> discount) {
+    if (discount) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
     } else {
       speedom_.reset();
     }
@@ -691,9 +691,9 @@ class ProgressBar : public AsyncDisplay {
   // total(ValueType)                   - Set total amount, cannot be 0
   // style(Style)                       - Set style from <ProgressBarStyle>
   //                                      options
-  auto& speed(std::optional<double> alpha) {
-    if (alpha) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *alpha);
+  auto& speed(std::optional<double> discount) {
+    if (discount) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
     } else {
       speedom_.reset();
     }
