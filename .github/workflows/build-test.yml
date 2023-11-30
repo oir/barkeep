@@ -1,6 +1,10 @@
 name: build
 run-name: ${{ github.actor }} is testing meanwhile
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   build-and-run-tests:
     runs-on: ubuntu-latest
@@ -20,3 +24,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: meanwhile.info
       - run: ./demo.out
+  build-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9' 
+      - run: pip install meson
+      - run: meson setup build --buildtype=release --warnlevel=3
+      - run: meson compile -C build python
