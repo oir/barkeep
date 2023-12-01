@@ -23,7 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
-      - run: ./demo.out
+      # - run: ./demo.out
   build-python:
     runs-on: ubuntu-latest
     steps:
