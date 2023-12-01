@@ -9,7 +9,7 @@ if py.found()
   ]
 
   py.install_sources(
-    subdir: '../meanwhile',
+    subdir: '../barkeep',
     pure: false,
   )
 

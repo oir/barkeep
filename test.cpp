@@ -9,11 +9,11 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <barkeep/barkeep.h>
 #include <catch.hpp>
-#include <meanwhile/meanwhile.h>
 
 using namespace std::chrono_literals;
-using namespace mew;
+using namespace barkeep;
 
 std::vector<std::string> split(const std::string& s, char delim) {
   std::vector<std::string> elems;
