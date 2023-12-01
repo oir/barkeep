@@ -1,10 +1,4 @@
----
-title: Namespaces
-
----
-
 # Namespaces
-
 
 
 
@@ -14,4 +8,4 @@ title: Namespaces
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

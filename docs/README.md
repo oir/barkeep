@@ -10,7 +10,7 @@ including `barkeep.h` in your project.
 
 - Display a waiting animation with a message:
 
-  ```C++
+  ```cpp
   using namespace std::chrono_literals;
   namespace bk = barkeep;
   
@@ -27,7 +27,7 @@ including `barkeep.h` in your project.
 
 - Supports several styles:
 
-  ```C++
+  ```cpp
   auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
   ```
   <picture>
@@ -38,7 +38,7 @@ including `barkeep.h` in your project.
 
 - Display a counter to monitor a numeric variable while waiting:
 
-  ```C++
+  ```cpp
   int work{0};
   auto c = bk::Counter(&work)
     .message("Reading lines")
@@ -59,7 +59,7 @@ including `barkeep.h` in your project.
 
 - Display a progress bar to monitor a numeric variable and measure its completion by comparing against a total:
 
-  ```C++
+  ```cpp
   int work{0};
   auto bar = bk::ProgressBar(&work)
     .message("Reading lines")
@@ -81,7 +81,7 @@ including `barkeep.h` in your project.
 
 - Combine diplays using `|` operator to monitor multiple variables:
 
-  ```C++
+  ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
     bk::ProgressBar(&sents).total(1010).message("Sents") |
@@ -103,7 +103,7 @@ including `barkeep.h` in your project.
 
 - Use "no tty" mode to, e.g., output to log files:
 
-  ```C++
+  ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar = bk::ProgressBar(&sents)
                  .total(401)

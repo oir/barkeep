@@ -1,10 +1,4 @@
----
-title: barkeep::Counter
-
----
-
 # barkeep::Counter
-
 
 
  [More...](#detailed-description)
@@ -12,6 +6,8 @@ title: barkeep::Counter
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
 ## Public Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -28,7 +24,12 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | auto & | **[interval](api/Classes/classbarkeep_1_1_counter.md#function-interval)**(double pd) |
 | auto & | **[no_tty](api/Classes/classbarkeep_1_1_counter.md#function-no_tty)**() |
 
+
+</span>
+
 ## Protected Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -38,9 +39,16 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | void | **[init](api/Classes/classbarkeep_1_1_counter.md#function-init)**(Progress * progress) |
 | | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**(std::ostream & out =std::cout) |
 
+
+</span>
+
 ## Additional inherited members
 
+</span>
+
 **Public Functions inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -50,24 +58,42 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
 | virtual void | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
 
+
+</span>
+
 **Protected Functions inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | void | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**() |
 | size_t | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
 
+
+</span>
+
 **Protected Attributes inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | bool | **[no_tty_](api/Classes/classbarkeep_1_1_async_display.md#variable-no_tty_)**  |
 
+
+</span>
+
 **Friends inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | class | **[Composite](api/Classes/classbarkeep_1_1_async_display.md#friend-composite)**  |
+
+
+</span>
 
 
 ## Detailed Description
@@ -239,4 +265,4 @@ inline Counter(
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

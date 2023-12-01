@@ -1,13 +1,9 @@
----
-title: barkeep
-
----
-
 # barkeep
 
 
-
 ## Classes
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -20,7 +16,12 @@ title: barkeep
 | class | **[barkeep::ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)**  |
 | class | **[barkeep::Speedometer](api/Classes/classbarkeep_1_1_speedometer.md)**  |
 
+
+</span>
+
 ## Types
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -33,13 +34,23 @@ title: barkeep
 | template <typename T \> <br>using typename [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< T >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
 | template <typename T \> <br>using typename std::conditional_t< std::is_integral_v< T >, std::make_signed< T >, std::common_type< T > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
 
+
+</span>
+
 ## Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | auto | **[operator|](api/Namespaces/namespacebarkeep.md#function-operator|)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right) |
 
+
+</span>
+
 ## Attributes
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -169,4 +180,4 @@ static const StringsList progress_partials_ {
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

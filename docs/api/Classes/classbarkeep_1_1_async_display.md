@@ -1,10 +1,4 @@
----
-title: barkeep::AsyncDisplay
-
----
-
 # barkeep::AsyncDisplay
-
 
 
 
@@ -12,6 +6,8 @@ title: barkeep::AsyncDisplay
 Inherited by [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md), [barkeep::Composite](api/Classes/classbarkeep_1_1_composite.md), [barkeep::Counter< Progress >](api/Classes/classbarkeep_1_1_counter.md), [barkeep::ProgressBar< Progress >](api/Classes/classbarkeep_1_1_progress_bar.md)
 
 ## Public Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -23,7 +19,12 @@ Inherited by [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md), [b
 | virtual void | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_async_display.md#function-clone)**() const =0 |
 
+
+</span>
+
 ## Protected Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -36,17 +37,30 @@ Inherited by [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md), [b
 | void | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(double pd) |
 | void | **[no_tty](api/Classes/classbarkeep_1_1_async_display.md#function-no_tty)**() |
 
+
+</span>
+
 ## Protected Attributes
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | bool | **[no_tty_](api/Classes/classbarkeep_1_1_async_display.md#variable-no_tty_)**  |
 
+
+</span>
+
 ## Friends
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | class | **[Composite](api/Classes/classbarkeep_1_1_async_display.md#friend-composite)**  |
+
+
+</span>
 
 ## Public Functions Documentation
 
@@ -207,4 +221,4 @@ friend class Composite(
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

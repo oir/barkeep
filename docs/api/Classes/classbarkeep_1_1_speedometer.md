@@ -1,21 +1,20 @@
----
-title: barkeep::Speedometer
-
----
-
 # barkeep::Speedometer
-
 
 
  [More...](#detailed-description)
 
 ## Public Functions
 
+<span class="api-table">
+
 |                | Name           |
 | -------------- | -------------- |
 | size_t | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, const std::string & speed_unit) |
 | void | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**() |
 | | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**(Progress & progress, double discount) |
+
+
+</span>
 
 ## Detailed Description
 
@@ -55,4 +54,4 @@ inline Speedometer(
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

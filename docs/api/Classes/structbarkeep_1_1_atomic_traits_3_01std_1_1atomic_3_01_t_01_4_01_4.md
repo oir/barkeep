@@ -1,19 +1,18 @@
----
-title: barkeep::AtomicTraits< std::atomic< T > >
-
----
-
 # barkeep::AtomicTraits< std::atomic< T > >
-
 
 
  [More...](#detailed-description)
 
 ## Public Types
 
+<span class="api-table">
+
 |                | Name           |
 | -------------- | -------------- |
 | using T | **[value_type](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md#using-value_type)**  |
+
+
+</span>
 
 ## Detailed Description
 
@@ -33,4 +32,4 @@ using barkeep::AtomicTraits< std::atomic< T > >::value_type =  T;
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

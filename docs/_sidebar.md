@@ -2,5 +2,5 @@
 * [Home](README.md)
 
 API
-* [Classes](api/Classes/)
-* [Namespace **barkeep**](api/Namespaces/namespacebarkeep.md)
+* [Namespaces](api/#Namespaces)
+* [Classes](api/#Classes)

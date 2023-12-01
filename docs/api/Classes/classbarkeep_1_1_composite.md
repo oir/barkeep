@@ -1,10 +1,4 @@
----
-title: barkeep::Composite
-
----
-
 # barkeep::Composite
-
 
 
 
@@ -12,6 +6,8 @@ title: barkeep::Composite
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
 ## Public Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -22,23 +18,40 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_composite.md#function-clone)**() const override |
 | auto & | **[no_tty](api/Classes/classbarkeep_1_1_composite.md#function-no_tty)**() |
 
+
+</span>
+
 ## Protected Functions
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | virtual size_t | **[render_](api/Classes/classbarkeep_1_1_composite.md#function-render_)**(std::ostream & out) override |
 | virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_composite.md#function-default_interval_)**() const override |
 
+
+</span>
+
 ## Protected Attributes
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[left_](api/Classes/classbarkeep_1_1_composite.md#variable-left_)**  |
 | std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[right_](api/Classes/classbarkeep_1_1_composite.md#variable-right_)**  |
 
+
+</span>
+
 ## Additional inherited members
 
+</span>
+
 **Public Functions inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -49,7 +62,12 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | virtual void | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**() |
 | virtual void | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
 
+
+</span>
+
 **Protected Functions inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
@@ -59,11 +77,19 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | void | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(Duration pd) |
 | void | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(double pd) |
 
+
+</span>
+
 **Protected Attributes inherited from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**
+
+<span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
 | bool | **[no_tty_](api/Classes/classbarkeep_1_1_async_display.md#variable-no_tty_)**  |
+
+
+</span>
 
 
 ## Public Functions Documentation
@@ -162,4 +188,4 @@ std::unique_ptr< AsyncDisplay > right_;
 
 -------------------------------
 
-Updated on 2023-11-30 at 21:28:31 -0500
+Updated on 2023-11-30 at 22:33:04 -0500

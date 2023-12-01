@@ -1,3 +1,11 @@
+# Namespaces <!-- {docsify-ignore-all} -->
+
+
+
+* **namespace [barkeep](api/Namespaces/namespacebarkeep.md)** 
+
+
+
 # Classes
 
 
