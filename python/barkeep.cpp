@@ -3,7 +3,7 @@
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
-using namespace mew;
+using namespace barkeep;
 using namespace py::literals;
 
 using Int = std::int64_t;
