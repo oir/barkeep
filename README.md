@@ -1,10 +1,7 @@
-<p align="center">
-  <img src="docs/meanwhile.png" width="300">
-</p>
-
+## barkeep
 
 Small C++ header to display async counters and progress bars. Use it by
-including `meanwhile.h` in your project.
+including `barkeep.h` in your project.
 
 [![build](https://github.com/oir/meanwhile/actions/workflows/build-test.yml/badge.svg)](https://github.com/oir/meanwhile/actions/workflows/build-test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/oir/meanwhile/badge.svg?branch=main)](https://coveralls.io/github/oir/meanwhile?branch=main)

@@ -3,10 +3,10 @@ CXX=g++
 .PHONY: all
 all: test demo
 
-test: test.cpp meanwhile/meanwhile.h
+test: test.cpp barkeep/barkeep.h
 	${CXX} -std=c++17 -pthread -g -Wall -Wextra -Wpedantic -Wsign-conversion -fprofile-arcs -ftest-coverage -I./ -I./extern test.cpp -o test.out
 
-demo: demo.cpp meanwhile/meanwhile.h
+demo: demo.cpp barkeep/barkeep.h
 	${CXX} -std=c++17 -pthread -O3 -Wall -Wextra -Wpedantic -Wsign-conversion -I./ demo.cpp -o demo.out
 
 .PHONY: install

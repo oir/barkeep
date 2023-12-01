@@ -2,14 +2,14 @@
 
 #include <atomic>
 #include <iostream>
-#include <meanwhile/meanwhile.h>
+#include <barkeep/barkeep.h>
 
 int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
-  using namespace mew;
+  namespace bk = barkeep;
 
-  for (auto sty : {Ellipsis, Bar, Moon, Square}) {
-    auto anim = Animation().message("Working").style(sty).interval(0.5s);
+  for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon, bk::Square}) {
+    auto anim = bk::Animation().message("Working").style(sty).interval(0.5s);
     anim.show();
     std::this_thread::sleep_for(10s);
     anim.done();
@@ -19,7 +19,7 @@ int main(int /*argc*/, char** /*argv*/) {
   for (auto speed : speeds) {
     std::atomic<size_t> work{0};
     auto c =
-        Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
+        bk::Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -31,7 +31,7 @@ int main(int /*argc*/, char** /*argv*/) {
   for (auto speed : speeds) {
     float work{0};
     auto c =
-        Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
+        bk::Counter(&work).message("Doing stuff").speed_unit("tk/s").speed(speed);
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -42,7 +42,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   for (auto speed : speeds) {
     unsigned long long work{677};
-    auto c = Counter(&work).message("Decreasing").speed_unit("").speed(speed);
+    auto c = bk::Counter(&work).message("Decreasing").speed_unit("").speed(speed);
     c.show();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
@@ -52,9 +52,9 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   for (auto speed : speeds) {
-    for (auto sty : {Blocks, Bars, Arrow}) {
+    for (auto sty : {bk::Blocks, bk::Bars, bk::Arrow}) {
       std::atomic<size_t> work{0};
-      auto bar = ProgressBar(&work)
+      auto bar = bk::ProgressBar(&work)
                      .total(1010)
                      .message("Doing stuff")
                      .speed_unit("tk/s")
@@ -73,8 +73,8 @@ int main(int /*argc*/, char** /*argv*/) {
     // completion in terms of #sentences but we are also interested in speed
     // in terms of tokens per second.'
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar = ProgressBar(&sents).total(1010).message("Sents").speed(1) |
-               Counter(&toks).message("Toks").speed(1);
+    auto bar = bk::ProgressBar(&sents).total(1010).message("Sents").speed(1) |
+               bk::Counter(&toks).message("Toks").speed(1);
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -86,7 +86,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
   { // Decreasing progress
     unsigned long work{1010};
-    auto bar = ProgressBar(&work).total(1010).speed(1);
+    auto bar = bk::ProgressBar(&work).total(1010).speed(1);
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -102,7 +102,7 @@ int main(int /*argc*/, char** /*argv*/) {
   { // Progress bar with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
     auto bar =
-        ProgressBar(&sents).total(20100).message("Sents").speed(1).no_tty();
+        bk::ProgressBar(&sents).total(20100).message("Sents").speed(1).no_tty();
     bar.show();
     for (int i = 0; i < 20100; i++) {
       std::this_thread::sleep_for(13ms);
@@ -114,8 +114,8 @@ int main(int /*argc*/, char** /*argv*/) {
 
   { // Composite display of a ProgressBar and Counter with no-tty mode
     std::atomic<size_t> sents{0}, toks{0};
-    auto bar = ProgressBar(&sents).total(20100).message("Sents") |
-               Counter(&toks).message("Toks").speed_unit("tok/s").speed(1);
+    auto bar = bk::ProgressBar(&sents).total(20100).message("Sents") |
+               bk::Counter(&toks).message("Toks").speed_unit("tok/s").speed(1);
     bar.no_tty();
     bar.show();
     for (int i = 0; i < 20100; i++) {

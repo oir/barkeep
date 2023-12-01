@@ -1,7 +1,7 @@
 // Author: Ozan Irsoy
 
-#ifndef MEANWHILE_H
-#define MEANWHILE_H
+#ifndef BARKEEP_H
+#define BARKEEP_H
 
 #include <cassert>
 #include <chrono>
@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace mew {
+namespace barkeep {
 
 using Strings = std::vector<std::string>;
 using StringsList = std::vector<Strings>;

@@ -1,5 +1,5 @@
 name: build
-run-name: ${{ github.actor }} is testing meanwhile
+run-name: ${{ github.actor }} is testing barkeep
 on: [push]
 jobs:
   build-and-run-tests:
@@ -12,11 +12,11 @@ jobs:
       - run: |
           gcov -b -p -c test.gcno && \
           lcov -c -d . -o cov.info && \
-          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/extern/*' '*/test.cpp*' -o meanwhile.info
+          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/extern/*' '*/test.cpp*' -o barkeep.info
           rm cov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: meanwhile.info
+          path-to-lcov: barkeep.info
       - run: ./demo.out

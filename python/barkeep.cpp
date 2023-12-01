@@ -1,4 +1,4 @@
-#include <meanwhile/meanwhile.h>
+#include <barkeep/barkeep.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -111,7 +111,7 @@ void some_func(std::optional<std::string> msg) {
 }
 
 PYBIND11_MODULE(barkeep, m) {
-  m.doc() = "Python bindings for meanwhile";
+  m.doc() = "Python bindings for barkeep";
 
   py::enum_<AnimationStyle>(m, "AnimationStyle")
       .value("Ellipsis", AnimationStyle::Ellipsis)
