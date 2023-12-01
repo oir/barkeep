@@ -3,8 +3,8 @@
 Small C++ header to display async counters and progress bars. Use it by
 including `barkeep.h` in your project.
 
-[![build](https://github.com/oir/meanwhile/actions/workflows/build-test.yml/badge.svg)](https://github.com/oir/meanwhile/actions/workflows/build-test.yml)
-[![Coverage Status](https://coveralls.io/repos/github/oir/meanwhile/badge.svg?branch=main)](https://coveralls.io/github/oir/meanwhile?branch=main)
+[![build](https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg)](https://github.com/oir/barkeep/actions/workflows/build-test.yml)
+[![Coverage Status](https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main)](https://coveralls.io/github/oir/barkeep?branch=main)
 
 ---
 
@@ -12,9 +12,9 @@ including `barkeep.h` in your project.
 
   ```C++
   using namespace std::chrono_literals;
-  using namespace mew;
+  namespace bk = barkeep;
   
-  auto anim = Animation().message("Working");
+  auto anim = bk::Animation().message("Working");
   anim.show();
   /* do work */ std::this_thread::sleep_for(10s);
   anim.done();
@@ -28,7 +28,7 @@ including `barkeep.h` in your project.
 - Supports several styles:
 
   ```C++
-  auto anim = Animation().message("Downloading...").style(Earth);
+  auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/anim2-dark.svg" width="700">
@@ -40,9 +40,9 @@ including `barkeep.h` in your project.
 
   ```C++
   int work{0};
-  auto c = Counter(&work)
+  auto c = bk::Counter(&work)
     .message("Reading lines")
-    .speed(Speed::Last)
+    .speed(1.)
     .speed_unit("line/s");
   c.show();
   for (int i = 0; i < 505; i++) {
@@ -61,9 +61,9 @@ including `barkeep.h` in your project.
 
   ```C++
   int work{0};
-  auto bar = ProgressBar(&work)
+  auto bar = bk::ProgressBar(&work)
     .message("Reading lines")
-    .speed(Speed::Last)
+    .speed(1.)
     .speed_unit("line/s")
     .total(505);
   bar.show();
@@ -84,8 +84,8 @@ including `barkeep.h` in your project.
   ```C++
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-    ProgressBar(&sents).total(1010).message("Sents") |
-    Counter(&toks).message("Toks").speed_unit("tok/s").speed(Speed::Last);
+    bk::ProgressBar(&sents).total(1010).message("Sents") |
+    bk::Counter(&toks).message("Toks").speed_unit("tok/s").speed(1.);
   bar.show();
   for (int i = 0; i < 1010; i++) {
     // do work
@@ -105,10 +105,10 @@ including `barkeep.h` in your project.
 
   ```C++
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(&sents)
+  auto bar = bk::ProgressBar(&sents)
                  .total(401)
                  .message("Sents")
-                 .speed(Speed::Last)
+                 .speed(1.)
                  .interval(1.)
                  .no_tty();
   bar.show();
@@ -135,7 +135,7 @@ See `demo.cpp` for more examples.
 ### Notes
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
-- Note that progress variable is taken by reference, which means it needs to outlive the display.
+- Note that progress variable is taken by pointer, which means it needs to outlive the display.
 
 ## Building
 ```
