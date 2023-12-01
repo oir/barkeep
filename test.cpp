@@ -9,8 +9,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
-#include <catch.hpp>
 #include <barkeep/barkeep.h>
+#include <catch.hpp>
 
 using namespace std::chrono_literals;
 using namespace barkeep;

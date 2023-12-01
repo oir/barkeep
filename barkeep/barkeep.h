@@ -739,6 +739,6 @@ class ProgressBar : public AsyncDisplay {
   }
 };
 
-} // namespace mew
+} // namespace barkeep
 
 #endif
