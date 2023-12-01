@@ -8,7 +8,7 @@ set -e
 
 rm -rf docs/api/*  # remove previous generation
 doxygen docs/Doxyfile  # generate xml from C++ code
-doxybook2 -i xml -o docs/api --config docs/config.json --templates docs/template/  # generate md from xml
+doxybook2 -i xml -o docs/api --config docs/config.json --templates docs/orig-templates/  # generate md from xml
 rm -rf xml  # remove intermediate xml
 
 # make some additions to play nicely with docsify
