@@ -10,13 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - run: sudo apt-get install lcov
       - run: make -j2
       - run: ./test.out
       - run: |
           gcov -b -p -c test.gcno && \
           lcov -c -d . -o cov.info && \
-          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/extern/*' '*/test.cpp*' -o barkeep.info
+          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/subprojects/*' '*/test.cpp*' -o barkeep.info
           rm cov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -27,7 +29,10 @@ jobs:
   build-python:
     runs-on: ubuntu-latest
     steps:
+      - run: rm -rf subprojects/Catch2
       - uses: actions/checkout@v4
+        with:
+          submodules: false
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9' 

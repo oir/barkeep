@@ -139,6 +139,6 @@ See `demo.cpp` for more examples.
 
 ## Building
 ```
-make -j2
+make demo
 ./demo
 ```
