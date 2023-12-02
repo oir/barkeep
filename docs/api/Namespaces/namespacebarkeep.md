@@ -8,7 +8,7 @@
 |                | Name           |
 | -------------- | -------------- |
 | class | **[barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md)**  |
-| class | **[barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)**  |
+| class | **[barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)** <br>Base class to handle all asynchronous displays.  |
 | struct | **[barkeep::AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)**  |
 | struct | **[barkeep::AtomicTraits< std::atomic< T > >](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md)**  |
 | class | **[barkeep::Composite](api/Classes/classbarkeep_1_1_composite.md)**  |
@@ -25,14 +25,13 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| enum unsigned short | **[AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { Ellipsis, Clock, Moon, Earth, Bar, Square} |
-| enum unsigned short | **[ProgressBarStyle](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { Bars, Blocks, Arrow} |
-| enum class unsigned short | **[Speed](api/Namespaces/namespacebarkeep.md#enum-speed)** { None, Last, Overall, Both} |
+| enum [unsigned](api/Classes/classbarkeep_1_1_counter.md)[short](api/Classes/classbarkeep_1_1_counter.md) | **[AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { Ellipsis, Clock, Moon, Earth, Bar, Square}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
+| enum [unsigned](api/Classes/classbarkeep_1_1_counter.md)[short](api/Classes/classbarkeep_1_1_counter.md) | **[ProgressBarStyle](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { Bars, Blocks, Arrow}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
 | using std::vector< std::string > | **[Strings](api/Namespaces/namespacebarkeep.md#using-strings)**  |
 | using std::vector< Strings > | **[StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
-| using std::chrono::duration< double, std::ratio< 1 > > | **[Duration](api/Namespaces/namespacebarkeep.md#using-duration)**  |
-| template <typename T \> <br>using typename [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< T >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
-| template <typename T \> <br>using typename std::conditional_t< std::is_integral_v< T >, std::make_signed< T >, std::common_type< T > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
+| using std::chrono::duration< [double](api/Classes/classbarkeep_1_1_counter.md), std::ratio< 1 > > | **[Duration](api/Namespaces/namespacebarkeep.md#using-duration)**  |
+| template <typename T \> <br>using [typename](api/Classes/classbarkeep_1_1_counter.md)[AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< [T](api/Classes/classbarkeep_1_1_counter.md) >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
+| template <typename T \> <br>using [typename](api/Classes/classbarkeep_1_1_counter.md) std::conditional_t< std::is_integral_v< [T](api/Classes/classbarkeep_1_1_counter.md) >, std::make_signed< [T](api/Classes/classbarkeep_1_1_counter.md) >, std::common_type< [T](api/Classes/classbarkeep_1_1_counter.md) > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
 
 
 </span>
@@ -43,7 +42,7 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| auto | **[operator|](api/Namespaces/namespacebarkeep.md#function-operator|)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right) |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[operator|](api/Namespaces/namespacebarkeep.md#function-operator|)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, [const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right) |
 
 
 </span>
@@ -54,8 +53,8 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| const StringsList | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)**  |
-| const StringsList | **[progress_partials_](api/Namespaces/namespacebarkeep.md#variable-progress_partials_)**  |
+| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)**  |
+| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[progress_partials_](api/Namespaces/namespacebarkeep.md#variable-progress_partials_)**  |
 
 ## Types Documentation
 
@@ -72,6 +71,7 @@
 
 
 
+Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md). 
 
 ### enum ProgressBarStyle
 
@@ -83,18 +83,7 @@
 
 
 
-
-### enum Speed
-
-| Enumerator | Value | Description |
-| ---------- | ----- | ----------- |
-| None | |   |
-| Last | |   |
-| Overall | |   |
-| Both | |   |
-
-
-
+Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). 
 
 ### using Strings
 
@@ -140,8 +129,8 @@ using barkeep::signed_t = typedef typename std::conditional_t<std::is_integral_v
 
 ```cpp
 auto operator|(
-    const AsyncDisplay & left,
-    const AsyncDisplay & right
+    constAsyncDisplay & left,
+    constAsyncDisplay & right
 )
 ```
 
@@ -164,6 +153,9 @@ static const StringsList animation_stills_ {
 ```
 
 
+Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this. 
+
+
 ### variable progress_partials_
 
 ```cpp
@@ -175,9 +167,12 @@ static const StringsList progress_partials_ {
 ```
 
 
+Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this. 
+
+
 
 
 
 -------------------------------
 
-Updated on 2023-11-30 at 22:43:39 -0500
+Updated on 2023-12-01 at 22:33:53 -0500

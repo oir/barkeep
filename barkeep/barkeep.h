@@ -23,8 +23,7 @@ using StringsList = std::vector<Strings>;
 // double precision seconds
 using Duration = std::chrono::duration<double, std::ratio<1>>;
 
-// Enum: AnimationStyle
-// Kind of animation being displayed for <Animation>
+/// Kind of animation being displayed for Animation.
 enum AnimationStyle : unsigned short {
   Ellipsis,
   Clock,
@@ -34,9 +33,8 @@ enum AnimationStyle : unsigned short {
   Square,
 };
 
-// Var: animation_stills_
-// Definitions of various stills for <Animation>. <AnimationStyle> indexes into
-// this.
+/// Definitions of various stills for Animation. AnimationStyle indexes into
+/// this.
 const static StringsList animation_stills_{
     {".  ", ".. ", "..."},
     {"🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
@@ -47,26 +45,19 @@ const static StringsList animation_stills_{
     {"▖", "▘", "▝", "▗"},
 };
 
-// Enum: ProgressBarStyle
-// Kind of bar being displayed for <ProgressBar>
+/// Kind of bar being displayed for ProgressBar.
 enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow };
 
-// Var: progress_partials_
-// Definitions of various partial bars for <ProgressBar>.
-// <ProgressBarStyle> indexes into this.
+/// Definitions of various partial bars for ProgressBar.
+/// ProgressBarStyle indexes into this.
 const static StringsList progress_partials_{
     {"|"},
     {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"},
     {">", "="},
 };
 
-// Enum: Speed
-// How to display speed. None displays no speed. Last computes speed in the last
-// interval. Overall computes from the beginning. Both displays both kinds.
-enum class Speed : unsigned short { None, Last, Overall, Both };
 
-// Class: AsyncDisplay
-// Base class to handle asynchronous displays.
+/// Base class to handle all asynchronous displays.
 class AsyncDisplay {
  private:
   Duration interval_{0.0};
@@ -81,14 +72,14 @@ class AsyncDisplay {
   size_t max_rendered_len_ = 0;
 
  protected:
-  // Method: render_
-  // Render a display: animation, progress bar, etc.
+  /// Render a display: animation, progress bar, etc.
+  /// @param out output stream to write to
+  /// @return length of the rendered display
   virtual size_t render_(std::ostream& out) = 0;
 
   virtual Duration default_interval_() const = 0;
 
-  // Method: display_
-  // Display everything (message, maybe with animation, progress bar, etc)
+  /// Display everything (message, maybe with animation, progress bar, etc).
   void display_() {
     if (no_tty_) {
       render_(out_);
@@ -108,8 +99,9 @@ class AsyncDisplay {
  protected:
   bool no_tty_ = false;
 
-  // Method: render_message_
-  // Display the message to output stream
+  /// Display the message to output stream.
+  /// @param out output stream to write to
+  /// @return length of the rendered message
   size_t render_message_(std::ostream& out) const {
     if (not message_.empty()) {
       out << message_ << " ";
@@ -145,9 +137,8 @@ class AsyncDisplay {
 
   virtual ~AsyncDisplay() { done(); }
 
-  // Method: start
-  // Start the display. This starts writing the display in the output stream,
-  // and computing speed if applicable.
+  /// Start the display. This starts writing the display in the output stream,
+  /// and computing speed if applicable.
   virtual void show() {
     if (displayer_) {
       throw std::runtime_error("Display was already started!");
@@ -165,9 +156,8 @@ class AsyncDisplay {
     });
   }
 
-  // Method: done
-  // End the display. This adds a newline to the output stream and stops
-  // writing.
+  /// End the display. This adds a newline to the output stream and stops
+  /// writing.
   virtual void done() {
     if (not displayer_) { return; } // noop if already done() before
     {
@@ -192,9 +182,20 @@ class AsyncDisplay {
   */
 
  protected:
+  /// Set message to be displayed
+  /// @param msg message to be displayed
   void message(const std::string& msg) { message_ = msg; }
+
+  /// Set the interval in which the display is refreshed. This is also the
+  /// interval in which speed is measured if applicable.
+  /// @param pd interval as a Duration
   void interval(Duration pd) { interval_ = pd; }
+
+  /// Overload of interval(Duration) to accept a double argument
+  /// @param pd interval as a double
   void interval(double pd) { interval_ = Duration(pd); }
+
+  /// Enable no-tty mode.
   void no_tty() { no_tty_ = true; }
 
   friend class Composite;

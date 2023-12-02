@@ -9,9 +9,9 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| size_t | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, const std::string & speed_unit) |
-| void | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**() |
-| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**(Progress & progress, double discount) |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit) |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**() |
+| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**([Progress](api/Classes/classbarkeep_1_1_counter.md) & progress, [double](api/Classes/classbarkeep_1_1_counter.md) discount) |
 
 
 </span>
@@ -19,7 +19,7 @@
 ## Detailed Description
 
 ```cpp
-template <typename Progress >
+template <typenameProgress >
 class barkeep::Speedometer;
 ```
 
@@ -54,4 +54,4 @@ inline Speedometer(
 
 -------------------------------
 
-Updated on 2023-11-30 at 22:43:39 -0500
+Updated on 2023-12-01 at 22:33:53 -0500
