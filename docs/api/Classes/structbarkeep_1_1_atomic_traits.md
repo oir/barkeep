@@ -1,7 +1,10 @@
 # barkeep::AtomicTraits
 
 
- [More...](#detailed-description)
+Trait class to extract underlying value type from numerics and std::atomics of numerics.  [More...](#detailed-description)
+
+
+`#include <barkeep.h>`
 
 ## Public Types
 
@@ -21,6 +24,7 @@ template <typenameT >
 struct barkeep::AtomicTraits;
 ```
 
+Trait class to extract underlying value type from numerics and std::atomics of numerics. 
 ## Public Types Documentation
 
 ### using value_type
@@ -32,4 +36,4 @@ using barkeep::AtomicTraits< T >::value_type =  T;
 
 -------------------------------
 
-Updated on 2023-12-01 at 22:33:53 -0500
+Updated on 2023-12-02 at 13:34:20 -0500

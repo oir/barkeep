@@ -38,6 +38,9 @@ shutil.rmtree("xml/")
 os.remove("docs/api/Classes/README.md")
 os.remove("docs/api/Namespaces/README.md")
 
+def content_fixes(content: str) -> str:
+    return content.replace("operator|", "operator\|")
+
 
 def merge_files(input_glob: str, output: str, increment_title_levels: bool = True):
     # concatenate individual class pages into one page
@@ -47,14 +50,16 @@ def merge_files(input_glob: str, output: str, increment_title_levels: bool = Tru
         classes[i] = re.sub(
             r"^Updated on .+ at .+ .+$", "", classes[i], flags=re.MULTILINE
         )
-    catted = "\n\n".join(classes)
+    catted = content_fixes("\n\n".join(classes))
 
     # increase markdown title levels by one
     if increment_title_levels:
         catted = re.sub(r"^#", "##", catted, flags=re.MULTILINE)
 
-    # for f in class_files:
-    #    os.remove(f)
+    for f in class_files:
+       fixed = content_fixes(open(f).read())
+       open(f, "w").write(fixed)
+
     open(output, "w").write(catted)
 
 

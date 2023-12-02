@@ -7,14 +7,14 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| class | **[barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md)**  |
+| class | **[barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md)** <br>Displays a simple animation with a message.  |
 | class | **[barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)** <br>Base class to handle all asynchronous displays.  |
-| struct | **[barkeep::AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)**  |
+| struct | **[barkeep::AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)** <br>Trait class to extract underlying value type from numerics and std::atomics of numerics.  |
 | struct | **[barkeep::AtomicTraits< std::atomic< T > >](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md)**  |
-| class | **[barkeep::Composite](api/Classes/classbarkeep_1_1_composite.md)**  |
-| class | **[barkeep::Counter](api/Classes/classbarkeep_1_1_counter.md)**  |
-| class | **[barkeep::ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)**  |
-| class | **[barkeep::Speedometer](api/Classes/classbarkeep_1_1_speedometer.md)**  |
+| class | **[barkeep::Composite](api/Classes/classbarkeep_1_1_composite.md)** <br>Creates a composite display out of two display that shows them side by side. For instance, you can combine two [Counter](api/Classes/classbarkeep_1_1_counter.md) objects to monitor two variables.  |
+| class | **[barkeep::Counter](api/Classes/classbarkeep_1_1_counter.md)** <br>Monitors and displays a single numeric variable.  |
+| class | **[barkeep::ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)** <br>Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed.  |
+| class | **[barkeep::Speedometer](api/Classes/classbarkeep_1_1_speedometer.md)** <br>Helper class to measure and display speed of progress.  |
 
 
 </span>
@@ -42,7 +42,7 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[operator|](api/Namespaces/namespacebarkeep.md#function-operator|)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, [const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right) |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[operator\|](api/Namespaces/namespacebarkeep.md#function-operator\|)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, [const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right)<br>Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
 
 
 </span>
@@ -53,8 +53,8 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[progress_partials_](api/Namespaces/namespacebarkeep.md#variable-progress_partials_)**  |
+| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
+| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[progress_partials_](api/Namespaces/namespacebarkeep.md#variable-progress_partials_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
 
 ## Types Documentation
 
@@ -125,15 +125,16 @@ using barkeep::signed_t = typedef typename std::conditional_t<std::is_integral_v
 
 ## Functions Documentation
 
-### function operator|
+### function operator\|
 
 ```cpp
-auto operator|(
+auto operator\|(
     constAsyncDisplay & left,
     constAsyncDisplay & right
 )
 ```
 
+Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md). 
 
 
 ## Attributes Documentation
@@ -152,9 +153,7 @@ static const StringsList animation_stills_ {
 };
 ```
 
-
 Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this. 
-
 
 ### variable progress_partials_
 
@@ -166,13 +165,11 @@ static const StringsList progress_partials_ {
 };
 ```
 
-
 Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this. 
-
 
 
 
 
 -------------------------------
 
-Updated on 2023-12-01 at 22:33:53 -0500
+Updated on 2023-12-02 at 13:34:20 -0500

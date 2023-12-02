@@ -32,4 +32,4 @@ using barkeep::AtomicTraits< std::atomic< T > >::value_type =  T;
 
 -------------------------------
 
-Updated on 2023-12-01 at 22:33:53 -0500
+Updated on 2023-12-02 at 13:34:20 -0500

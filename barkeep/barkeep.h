@@ -172,14 +172,6 @@ class AsyncDisplay {
 
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
 
-  /* Methods: Setters
-
-     message          - Set message
-     interval(Duration) - Set the interval in which the display is refreshed.
-     This is also the interval in which speed is measured if applicable.
-     interval(double)
-     - Set the interval by seconds as a double argument
-  */
 
  protected:
   /// Set message to be displayed
@@ -201,8 +193,7 @@ class AsyncDisplay {
   friend class Composite;
 };
 
-// Class: Animation
-// Displays a simple animation with a message.
+/// Displays a simple animation with a message.
 class Animation : public AsyncDisplay {
  private:
   unsigned short frame_ = 0;
@@ -225,12 +216,8 @@ class Animation : public AsyncDisplay {
  public:
   using Style = AnimationStyle;
 
-  /* Constructor: Animation
-
-     Parameters:
-
-       out  - Output stream to print
-  */
+  /// Constructor.
+  /// @param out output stream to write to
   Animation(std::ostream& out = std::cout)
       : AsyncDisplay(out),
         stills_(animation_stills_[static_cast<unsigned short>(Ellipsis)]) {}
@@ -243,46 +230,43 @@ class Animation : public AsyncDisplay {
     return std::make_unique<Animation>(*this);
   }
 
-  // Methods: Setters
-  //
-  // style - Set animation style using one of <AnimationStyle>.
+  /// Set animation style using one of AnimationStyle.
+  /// @param sty 
+  /// @return reference to self
   auto& style(Style sty) {
     stills_ = animation_stills_[static_cast<unsigned short>(sty)];
     return *this;
   }
 
-  /* Methods: Setters
-
-     message          - Set message
-     interval(Duration) - Set the interval in which the display is refreshed.
-     This is also the interval in which speed is measured if applicable.
-     interval(double)
-     - Set the interval by seconds as a double argument
-  */
+  /// Set message to be displayed.  @param msg  @return reference to self
   auto& message(const std::string& msg) {
     AsyncDisplay::message(msg);
     return *this;
   }
 
+  /// Set interval in which the animation is refreshed.
+  /// @param pd  @return reference to self
   auto& interval(Duration pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
 
+  /// Overload of interval(Duration) to accept a double argument
+  /// @param pd  @return reference to self
   auto& interval(double pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
 
+  /// Enable no-tty mode.  @return reference to self
   auto& no_tty() {
     AsyncDisplay::no_tty();
     return *this;
   }
 };
 
-// Class: Composite
-// Creates a composite display out of two display that shows them side by side.
-// For instance, you can combine two <Counter>s to monitor two variables.
+/// Creates a composite display out of two display that shows them side by side.
+/// For instance, you can combine two Counter objects to monitor two variables.
 class Composite : public AsyncDisplay {
  protected:
   std::unique_ptr<AsyncDisplay> left_, right_;
@@ -307,7 +291,7 @@ class Composite : public AsyncDisplay {
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
     if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
-  // Copy constructor
+  /// Copy constructor clones child displays.
   Composite(const Composite& other)
       : AsyncDisplay(other),
         left_(other.left_->clone()),
@@ -319,6 +303,7 @@ class Composite : public AsyncDisplay {
     return std::make_unique<Composite>(*this);
   }
 
+  /// Enable no-tty mode.  @return reference to self
   auto& no_tty() {
     AsyncDisplay::no_tty();
     left_->no_tty();
@@ -327,14 +312,14 @@ class Composite : public AsyncDisplay {
   }
 };
 
-// Function: operator|
-// Pipe operator can be used to combine two displays into a <Composite>.
+
+/// Pipe operator can be used to combine two displays into a Composite.
 auto operator|(const AsyncDisplay& left, const AsyncDisplay& right) {
   return Composite(left.clone(), right.clone());
 }
 
-// Trait class to extract underlying value type from numerics and
-// std::atomics of numerics.
+/// Trait class to extract underlying value type from numerics and
+/// std::atomics of numerics.
 template <typename T>
 struct AtomicTraits {
   using value_type = T;
@@ -353,8 +338,7 @@ using signed_t = typename std::conditional_t<std::is_integral_v<T>,
                                              std::make_signed<T>,
                                              std::common_type<T>>::type;
 
-// Class: Speedometer
-// Helper class to measure and display speed of progress.
+/// Helper class to measure and display speed of progress.
 template <typename Progress>
 class Speedometer {
  private:
@@ -373,9 +357,8 @@ class Speedometer {
   ValueType last_progress_;
 
  public:
-  // Method: render_speed
-  // Write speed to given output stream. Speed is a double (written with
-  // precision 2), possibly followed by a unit of speed.
+  /// Write speed to given output stream. Speed is a double (written with
+  /// precision 2), possibly followed by a unit of speed.
   size_t render_speed(std::ostream& out, const std::string& speed_unit) {
     std::stringstream ss; // use local stream to avoid disturbing `out` with
                           // std::fixed and std::setprecision
@@ -406,23 +389,27 @@ class Speedometer {
     return s.size();
   }
 
-  // Method: start
-  // Start computing the speed based on the amount of change in progress
+  /// Start computing the speed based on the amount of change in progress.
   void start() {
     last_progress_ = progress_;
     last_start_time_ = Clock::now();
   }
 
-  // Constructor: Speedometer
-  //
-  // Parameters:
-  //   progress  - Reference to numeric to measure the change of.
+  /// Constructor.
+  /// @param progress Reference to numeric to measure the change of.
+  /// @param discount Discount factor in [0, 1] to use in computing the speed.
+  ///                 Previous increments are weighted by (1-discount).
+  ///                 If discount is 0, all increments are weighted equally.
+  ///                 If discount is 1, only the most recent increment is considered.
   Speedometer(Progress& progress, double discount)
-      : progress_(progress), discount_(discount) {}
+      : progress_(progress), discount_(discount) {
+    if (discount < 0 or discount > 1) {
+      throw std::runtime_error("Discount must be in [0, 1]");
+    }
+  }
 };
 
-// Class: Counter
-// Monitors and displays a single numeric variable
+/// Monitors and displays a single numeric variable
 template <typename Progress = size_t>
 class Counter : public AsyncDisplay {
  private:
@@ -433,8 +420,8 @@ class Counter : public AsyncDisplay {
   std::ostringstream ss_;
 
  protected:
-  // Method: render_counts_
-  // Write the value of progress to the output stream
+  /// Write the value of progress to the output stream
+  /// @param out output stream to write to  @return length of the rendered value
   size_t render_counts_(std::ostream& out) {
     ss_ << *progress_ << " ";
     auto s = ss_.str();
@@ -444,8 +431,8 @@ class Counter : public AsyncDisplay {
     return s.size();
   }
 
-  // Method: render_
-  // Write the value of progress with the message to the output stream
+  /// Write the value of progress with the message to the output stream
+  /// @param out output stream to write to  @return length of the rendered string
   size_t render_(std::ostream& out) override {
     size_t len = render_message_(out);
     len += render_counts_(out);
@@ -453,6 +440,8 @@ class Counter : public AsyncDisplay {
     return len;
   }
 
+  /// Default interval in which the display is refreshed, if interval() is not invoked.
+  /// @return default interval
   Duration default_interval_() const override {
     return no_tty_ ? Duration{60.} : Duration{.1};
   }
@@ -462,11 +451,9 @@ class Counter : public AsyncDisplay {
   Counter(std::ostream& out = std::cout) : AsyncDisplay(out) {}
 
  public:
-  // Constructor: Counter
-  //
-  // Parameters:
-  //   progress - Variable to be monitored and displayed
-  //   out      - Output stream to write to
+  /// Constructor.
+  /// @param progress Variable to be monitored and displayed
+  /// @param out Output stream to write to
   Counter(Progress* progress, std::ostream& out = std::cout)
       : AsyncDisplay(out) {
     init(progress);
@@ -495,8 +482,7 @@ class Counter : public AsyncDisplay {
     return std::make_unique<Counter>(*this);
   }
 
-  // Method: start
-  // Start displaying the counter
+  /// Start displaying the counter
   void show() override {
     if constexpr (std::is_floating_point_v<Progress>) {
       ss_ << std::fixed << std::setprecision(2);
@@ -505,11 +491,13 @@ class Counter : public AsyncDisplay {
     if (speedom_) { speedom_->start(); }
   }
 
-  // Methods: Setters
-  //
-  // speed(Speed)                       - Set how to compute speed, among
-  //                                      <Speed> options
-  // speed_unit(const std::string&)  - Set unit of speed text next to speed
+  /// Set how to compute speed.
+  /// @param discount Discount factor in [0, 1] to use in computing the speed.
+  ///                 Previous increments are weighted by (1-discount).
+  ///                 If discount is 0, all increments are weighted equally.
+  ///                 If discount is 1, only the most recent increment is considered.
+  ///                 If discount is `std::nullopt`, speed is not computed.
+  /// @return reference to self
   auto& speed(std::optional<double> discount) {
     if (discount) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
@@ -518,31 +506,43 @@ class Counter : public AsyncDisplay {
     }
     return *this;
   }
+
+  /// Set unit of speed text next to speed.
+  /// @param msg unit of speed  @return reference to self
   auto& speed_unit(const std::string& msg) {
     speed_unit_ = msg;
     return *this;
   }
+
+  /// Set message to be displayed. @param msg Message  @return reference to self
   auto& message(const std::string& msg) {
     AsyncDisplay::message(msg);
     return *this;
   }
+
+  /// Set interval in which the display is refreshed.
+  /// @param pd interval as a Duration  @return reference to self
   auto& interval(Duration pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
+
+  /// Overload of interval(Duration) to accept a double argument
+  /// @param pd interval as a double  @return reference to self
   auto& interval(double pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
+
+  /// Enable no-tty mode.  @return reference to self
   auto& no_tty() {
     AsyncDisplay::no_tty();
     return *this;
   }
 };
 
-// Class: ProgressBar
-// Displays a progress bar, by comparing the progress value being monitored to a
-// given total value. Optionally reports speed.
+/// Displays a progress bar, by comparing the progress value being monitored to a
+/// given total value. Optionally reports speed.
 template <typename Progress>
 class ProgressBar : public AsyncDisplay {
  private:
@@ -558,9 +558,8 @@ class ProgressBar : public AsyncDisplay {
   Strings partials_; // progress bar display strings
 
  protected:
-  // Method: render_progress_bar_
-  // Compute the shape of the progress bar based on progress and write to output
-  // stream.
+  /// Compute the shape of the progress bar based on progress and write to output
+  /// stream.
   size_t render_progress_bar_(std::ostream& out) {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
@@ -586,9 +585,8 @@ class ProgressBar : public AsyncDisplay {
     return width_ + 3;
   }
 
-  // Method: render_counts_
-  // Write progress value with the total, e.g. 50/100, to output stream.
-  // Progress width is expanded (and right justified) to match width of total.
+  /// Write progress value with the total, e.g. 50/100, to output stream.
+  /// Progress width is expanded (and right justified) to match width of total.
   size_t render_counts_(std::ostream& out) {
     std::stringstream ss, totals;
     if (std::is_floating_point_v<Progress>) {
@@ -604,8 +602,7 @@ class ProgressBar : public AsyncDisplay {
     return s.size();
   }
 
-  // Method: render_percentage_
-  // Write the percent completed to output stream
+  /// Write the percent completed to output stream
   size_t render_percentage_(std::ostream& out) {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
@@ -616,8 +613,7 @@ class ProgressBar : public AsyncDisplay {
     return s.size();
   }
 
-  // Method: render_
-  // Run all of the individual render methods to write everything to stream
+  /// Run all of the individual render methods to write everything to stream
   size_t render_(std::ostream& out) override {
     size_t len = render_message_(out);
     len += render_percentage_(out);
@@ -639,18 +635,16 @@ class ProgressBar : public AsyncDisplay {
  public:
   using Style = ProgressBarStyle;
 
-  // Constructor: ProgressBar
-  //
-  // Parameters:
-  //   progress - Variable to be monitored to measure completion
-  //   out      - Output stream to write to
+  /// Constructor.
+  /// @param progress Variable to be monitored to measure completion
+  /// @param out      Output stream to write to
   ProgressBar(Progress* progress, std::ostream& out = std::cout)
       : AsyncDisplay(out),
         partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {
     init(progress);
   }
 
-  // move constructor
+  /// move constructor
   ProgressBar(ProgressBar<Progress>&& other)
       : AsyncDisplay(std::move(other)),
         progress_(other.progress_),
@@ -658,7 +652,7 @@ class ProgressBar : public AsyncDisplay {
         total_(other.total_),
         partials_(std::move(other.partials_)) {}
 
-  // copy constructor
+  /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
@@ -677,21 +671,19 @@ class ProgressBar : public AsyncDisplay {
     return std::make_unique<ProgressBar>(*this);
   }
 
-  // Method: start
-  // Start displaying the bar
+  /// Start displaying the bar.
   void show() override {
     AsyncDisplay::show();
     if (speedom_) { speedom_->start(); }
   }
 
-  // Methods: Setters
-  //
-  // speed(Speed)                       - Set how to compute speed, among
-  //                                      <Speed> options
-  // speed_unit(const std::string&)  - Set unit of speed text next to speed
-  // total(ValueType)                   - Set total amount, cannot be 0
-  // style(Style)                       - Set style from <ProgressBarStyle>
-  //                                      options
+  /// Set how to compute speed.
+  /// @param discount Discount factor in [0, 1] to use in computing the speed.
+  ///                 Previous increments are weighted by (1-discount).
+  ///                 If discount is 0, all increments are weighted equally.
+  ///                 If discount is 1, only the most recent increment is considered.
+  ///                 If discount is `std::nullopt`, speed is not computed.
+  /// @return reference to self
   auto& speed(std::optional<double> discount) {
     if (discount) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
@@ -701,11 +693,15 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 
+  /// Set unit of speed text next to speed.
+  /// @param msg unit of speed  @return reference to self
   auto& speed_unit(const std::string& msg) {
     speed_unit_ = msg;
     return *this;
   }
 
+  /// Set total amount of work to be done, for the progress bar to be full.
+  /// @param tot total amount of work  @return reference to self  
   auto& total(ValueType tot) {
     if (tot == 0) {
       throw std::runtime_error("Progress total cannot be zero!");
@@ -714,26 +710,33 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 
+  /// Set progress bar style.  @param sty Style  @return reference to self
   auto& style(Style sty) {
     partials_ = progress_partials_[static_cast<unsigned short>(sty)];
     return *this;
   }
 
+  /// Set message to be displayed.  @param msg Message  @return reference to self
   auto& message(const std::string& msg) {
     AsyncDisplay::message(msg);
     return *this;
   }
 
+  /// Set interval in which the display is refreshed.
+  /// @param pd interval as a Duration  @return reference to self
   auto& interval(Duration pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
 
+  /// Overload of interval(Duration) to accept a double argument
+  /// @param pd interval as a double  @return reference to self
   auto& interval(double pd) {
     AsyncDisplay::interval(pd);
     return *this;
   }
 
+  /// Enable no-tty mode.  @return reference to self
   auto& no_tty() {
     AsyncDisplay::no_tty();
     return *this;

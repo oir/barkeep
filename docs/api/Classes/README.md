@@ -1,7 +1,10 @@
 ## barkeep::Animation
 
 
+Displays a simple animation with a message. 
 
+
+`#include <barkeep.h>`
 
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
@@ -22,16 +25,16 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(std::ostream & out =std::cout) |
+| | **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(std::ostream & out =std::cout)<br>Constructor.  |
 | | **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([const](api/Classes/classbarkeep_1_1_counter.md)[Animation](api/Classes/classbarkeep_1_1_animation.md) & other) =default |
 | | **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([Animation](api/Classes/classbarkeep_1_1_animation.md) && ) =default |
 | | **[~Animation](api/Classes/classbarkeep_1_1_animation.md#function-~animation)**() |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_animation.md#function-clone)**() const override |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[style](api/Classes/classbarkeep_1_1_animation.md#function-style)**(Style sty) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_animation.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_animation.md#function-interval)**(Duration pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_animation.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_animation.md#function-no_tty)**() |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[style](api/Classes/classbarkeep_1_1_animation.md#function-style)**(Style sty)<br>Set animation style using one of AnimationStyle.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_animation.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set message to be displayed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_animation.md#function-interval)**(Duration pd)<br>Set interval in which the animation is refreshed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_animation.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd)<br>Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_animation.md#function-interval) to accept a double argument.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_animation.md#function-no_tty)**()<br>Enable no-tty mode.  |
 
 
 </span>
@@ -42,7 +45,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_animation.md#function-render_)**(std::ostream & out) override |
+| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_animation.md#function-render_)**(std::ostream & out) override<br>Render a display: animation, progress bar, etc.  |
 | virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_animation.md#function-default_interval_)**() const override |
 
 
@@ -62,8 +65,8 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**()<br>Start the display. This starts writing the display in the output stream, and computing speed if applicable.  |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()<br>End the display. This adds a newline to the output stream and stops writing.  |
 
 
 </span>
@@ -75,7 +78,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 |                | Name           |
 | -------------- | -------------- |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()<br>Display everything (message, maybe with animation, progress bar, etc).  |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const<br>Display the message to output stream.  |
 
 
 </span>
@@ -122,6 +125,12 @@ inline Animation(
 )
 ```
 
+Constructor. 
+
+**Parameters**: 
+
+  * **out** output stream to write to 
+
 
 #### function Animation
 
@@ -166,6 +175,14 @@ inline auto & style(
 )
 ```
 
+Set animation style using one of AnimationStyle. 
+
+**Parameters**: 
+
+  * **sty** 
+
+
+**Return**: reference to self 
 
 #### function message
 
@@ -175,6 +192,14 @@ inline auto & message(
 )
 ```
 
+Set message to be displayed. 
+
+**Parameters**: 
+
+  * **msg** 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -184,6 +209,14 @@ inline auto & interval(
 )
 ```
 
+Set interval in which the animation is refreshed. 
+
+**Parameters**: 
+
+  * **pd** 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -193,6 +226,14 @@ inline auto & interval(
 )
 ```
 
+Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_animation.md#function-interval) to accept a double argument. 
+
+**Parameters**: 
+
+  * **pd** 
+
+
+**Return**: reference to self 
 
 #### function no_tty
 
@@ -200,6 +241,9 @@ inline auto & interval(
 inline auto & no_tty()
 ```
 
+Enable no-tty mode. 
+
+**Return**: reference to self 
 
 ### Protected Functions Documentation
 
@@ -211,6 +255,7 @@ inline virtual size_t render_(
 ) override
 ```
 
+Render a display: animation, progress bar, etc. 
 
 **Parameters**: 
 
@@ -220,9 +265,6 @@ inline virtual size_t render_(
 **Return**: length of the rendered display 
 
 **Reimplements**: [barkeep::AsyncDisplay::render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
-
-
-Render a display: animation, progress bar, etc. 
 
 
 #### function default_interval_
@@ -259,8 +301,8 @@ Inherited by [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md), [b
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**()<br>Start the display. This starts writing the display in the output stream, and computing speed if applicable.  |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()<br>End the display. This adds a newline to the output stream and stops writing.  |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_async_display.md#function-clone)**() const =0 |
 
 
@@ -272,13 +314,13 @@ Inherited by [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md), [b
 
 |                | Name           |
 | -------------- | -------------- |
-| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**(std::ostream & out) =0 |
+| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**(std::ostream & out) =0<br>Render a display: animation, progress bar, etc.  |
 | virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const =0 |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()<br>Display everything (message, maybe with animation, progress bar, etc).  |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[message](api/Classes/classbarkeep_1_1_async_display.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(Duration pd) |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd) |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const<br>Display the message to output stream.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[message](api/Classes/classbarkeep_1_1_async_display.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set message to be displayed.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(Duration pd)<br>Set the interval in which the display is refreshed. This is also the interval in which speed is measured if applicable.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd)<br>Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_async_display.md#function-interval) to accept a double argument.  |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[no_tty](api/Classes/classbarkeep_1_1_async_display.md#function-no_tty)**()<br>Enable no-tty mode.  |
 
 
@@ -348,11 +390,9 @@ inline virtual ~AsyncDisplay()
 inline virtual void show()
 ```
 
+Start the display. This starts writing the display in the output stream, and computing speed if applicable. 
 
 **Reimplemented by**: [barkeep::Counter::show](api/Classes/classbarkeep_1_1_counter.md#function-show), [barkeep::ProgressBar::show](api/Classes/classbarkeep_1_1_progress_bar.md#function-show)
-
-
-Start the display. This starts writing the display in the output stream, and computing speed if applicable. 
 
 
 #### function done
@@ -361,9 +401,7 @@ Start the display. This starts writing the display in the output stream, and com
 inline virtual void done()
 ```
 
-
 End the display. This adds a newline to the output stream and stops writing. 
-
 
 #### function clone
 
@@ -385,6 +423,7 @@ virtual size_t render_(
 ) =0
 ```
 
+Render a display: animation, progress bar, etc. 
 
 **Parameters**: 
 
@@ -394,9 +433,6 @@ virtual size_t render_(
 **Return**: length of the rendered display 
 
 **Reimplemented by**: [barkeep::Animation::render_](api/Classes/classbarkeep_1_1_animation.md#function-render_), [barkeep::Composite::render_](api/Classes/classbarkeep_1_1_composite.md#function-render_), [barkeep::Counter::render_](api/Classes/classbarkeep_1_1_counter.md#function-render_), [barkeep::ProgressBar::render_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)
-
-
-Render a display: animation, progress bar, etc. 
 
 
 #### function default_interval_
@@ -425,6 +461,7 @@ inline size_t render_message_(
 ) const
 ```
 
+Display the message to output stream. 
 
 **Parameters**: 
 
@@ -432,9 +469,6 @@ inline size_t render_message_(
 
 
 **Return**: length of the rendered message 
-
-Display the message to output stream. 
-
 
 #### function message
 
@@ -444,13 +478,11 @@ inline void message(
 )
 ```
 
+Set message to be displayed. 
 
 **Parameters**: 
 
   * **msg** message to be displayed 
-
-
-Set message to be displayed 
 
 
 #### function interval
@@ -461,13 +493,11 @@ inline void interval(
 )
 ```
 
+Set the interval in which the display is refreshed. This is also the interval in which speed is measured if applicable. 
 
 **Parameters**: 
 
   * **pd** interval as a Duration 
-
-
-Set the interval in which the display is refreshed. This is also the interval in which speed is measured if applicable. 
 
 
 #### function interval
@@ -478,13 +508,11 @@ inline void interval(
 )
 ```
 
+Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_async_display.md#function-interval) to accept a double argument. 
 
 **Parameters**: 
 
   * **pd** interval as a double 
-
-
-Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_async_display.md#function-interval) to accept a double argument 
 
 
 #### function no_tty
@@ -522,7 +550,10 @@ friend class Composite(
 ## barkeep::Composite
 
 
+Creates a composite display out of two display that shows them side by side. For instance, you can combine two [Counter](api/Classes/classbarkeep_1_1_counter.md) objects to monitor two variables. 
 
+
+`#include <barkeep.h>`
 
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
@@ -533,11 +564,11 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 |                | Name           |
 | -------------- | -------------- |
 | | **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**(std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > left, std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > right) |
-| | **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**([const](api/Classes/classbarkeep_1_1_counter.md)[Composite](api/Classes/classbarkeep_1_1_composite.md) & other) |
+| | **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**([const](api/Classes/classbarkeep_1_1_counter.md)[Composite](api/Classes/classbarkeep_1_1_composite.md) & other)<br>Copy constructor clones child displays.  |
 | | **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**([Composite](api/Classes/classbarkeep_1_1_composite.md) && other) =default |
 | | **[~Composite](api/Classes/classbarkeep_1_1_composite.md#function-~composite)**() |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_composite.md#function-clone)**() const override |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_composite.md#function-no_tty)**() |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_composite.md#function-no_tty)**()<br>Enable no-tty mode.  |
 
 
 </span>
@@ -548,7 +579,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_composite.md#function-render_)**(std::ostream & out) override |
+| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_composite.md#function-render_)**(std::ostream & out) override<br>Render a display: animation, progress bar, etc.  |
 | virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_composite.md#function-default_interval_)**() const override |
 
 
@@ -580,8 +611,8 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**()<br>Start the display. This starts writing the display in the output stream, and computing speed if applicable.  |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()<br>End the display. This adds a newline to the output stream and stops writing.  |
 
 
 </span>
@@ -593,10 +624,10 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 |                | Name           |
 | -------------- | -------------- |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()<br>Display everything (message, maybe with animation, progress bar, etc).  |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[message](api/Classes/classbarkeep_1_1_async_display.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(Duration pd) |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd) |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const<br>Display the message to output stream.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[message](api/Classes/classbarkeep_1_1_async_display.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set message to be displayed.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**(Duration pd)<br>Set the interval in which the display is refreshed. This is also the interval in which speed is measured if applicable.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[interval](api/Classes/classbarkeep_1_1_async_display.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd)<br>Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_async_display.md#function-interval) to accept a double argument.  |
 
 
 </span>
@@ -633,6 +664,7 @@ inline Composite(
 )
 ```
 
+Copy constructor clones child displays. 
 
 #### function Composite
 
@@ -666,6 +698,9 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 inline auto & no_tty()
 ```
 
+Enable no-tty mode. 
+
+**Return**: reference to self 
 
 ### Protected Functions Documentation
 
@@ -677,6 +712,7 @@ inline virtual size_t render_(
 ) override
 ```
 
+Render a display: animation, progress bar, etc. 
 
 **Parameters**: 
 
@@ -686,9 +722,6 @@ inline virtual size_t render_(
 **Return**: length of the rendered display 
 
 **Reimplements**: [barkeep::AsyncDisplay::render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
-
-
-Render a display: animation, progress bar, etc. 
 
 
 #### function default_interval_
@@ -724,7 +757,10 @@ std::unique_ptr< AsyncDisplay > right_;
 ## barkeep::Counter
 
 
- [More...](#detailed-description)
+Monitors and displays a single numeric variable.  [More...](#detailed-description)
+
+
+`#include <barkeep.h>`
 
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
@@ -734,18 +770,18 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress, std::ostream & out =std::cout) |
+| | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress, std::ostream & out =std::cout)<br>Constructor.  |
 | | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**([const](api/Classes/classbarkeep_1_1_counter.md)[Counter](api/Classes/classbarkeep_1_1_counter.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > & other) |
 | | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**([Counter](api/Classes/classbarkeep_1_1_counter.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > && other) |
 | | **[~Counter](api/Classes/classbarkeep_1_1_counter.md#function-~counter)**() |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_counter.md#function-clone)**() const override |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_counter.md#function-show)**() override |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed](api/Classes/classbarkeep_1_1_counter.md#function-speed)**(std::optional< [double](api/Classes/classbarkeep_1_1_counter.md) > discount) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed_unit](api/Classes/classbarkeep_1_1_counter.md#function-speed_unit)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_counter.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_counter.md#function-interval)**(Duration pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_counter.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_counter.md#function-no_tty)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_counter.md#function-show)**() override<br>Start displaying the counter.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed](api/Classes/classbarkeep_1_1_counter.md#function-speed)**(std::optional< [double](api/Classes/classbarkeep_1_1_counter.md) > discount)<br>Set how to compute speed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed_unit](api/Classes/classbarkeep_1_1_counter.md#function-speed_unit)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set unit of speed text next to speed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_counter.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set message to be displayed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_counter.md#function-interval)**(Duration pd)<br>Set interval in which the display is refreshed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_counter.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd)<br>Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_counter.md#function-interval) to accept a double argument.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_counter.md#function-no_tty)**()<br>Enable no-tty mode.  |
 
 
 </span>
@@ -756,9 +792,9 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_counts_](api/Classes/classbarkeep_1_1_counter.md#function-render_counts_)**(std::ostream & out) |
-| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_counter.md#function-render_)**(std::ostream & out) override |
-| virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_counter.md#function-default_interval_)**() const override |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_counts_](api/Classes/classbarkeep_1_1_counter.md#function-render_counts_)**(std::ostream & out)<br>Write the value of progress to the output stream.  |
+| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_counter.md#function-render_)**(std::ostream & out) override<br>Write the value of progress with the message to the output stream.  |
+| virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_counter.md#function-default_interval_)**() const override<br>Default interval in which the display is refreshed, if [interval()](api/Classes/classbarkeep_1_1_counter.md#function-interval) is not invoked.  |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[init](api/Classes/classbarkeep_1_1_counter.md#function-init)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress) |
 | | **[Counter](api/Classes/classbarkeep_1_1_counter.md#function-counter)**(std::ostream & out =std::cout) |
 
@@ -779,7 +815,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()<br>End the display. This adds a newline to the output stream and stops writing.  |
 
 
 </span>
@@ -791,7 +827,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 |                | Name           |
 | -------------- | -------------- |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()<br>Display everything (message, maybe with animation, progress bar, etc).  |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const<br>Display the message to output stream.  |
 
 
 </span>
@@ -826,6 +862,7 @@ template <typenameProgress  =size_t>
 class barkeep::Counter;
 ```
 
+Monitors and displays a single numeric variable. 
 ### Public Functions Documentation
 
 #### function Counter
@@ -836,6 +873,13 @@ inline Counter(
     std::ostream & out =std::cout
 )
 ```
+
+Constructor. 
+
+**Parameters**: 
+
+  * **progress** Variable to be monitored and displayed 
+  * **out** Output stream to write to 
 
 
 #### function Counter
@@ -879,11 +923,9 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 inline virtual void show() override
 ```
 
+Start displaying the counter. 
 
 **Reimplements**: [barkeep::AsyncDisplay::show](api/Classes/classbarkeep_1_1_async_display.md#function-show)
-
-
-Start the display. This starts writing the display in the output stream, and computing speed if applicable. 
 
 
 #### function speed
@@ -894,6 +936,14 @@ inline auto & speed(
 )
 ```
 
+Set how to compute speed. 
+
+**Parameters**: 
+
+  * **discount** Discount factor in [0, 1] to use in computing the speed. Previous increments are weighted by (1-discount). If discount is 0, all increments are weighted equally. If discount is 1, only the most recent increment is considered. If discount is `std::nullopt`, speed is not computed. 
+
+
+**Return**: reference to self 
 
 #### function speed_unit
 
@@ -903,6 +953,14 @@ inline auto & speed_unit(
 )
 ```
 
+Set unit of speed text next to speed. 
+
+**Parameters**: 
+
+  * **msg** unit of speed 
+
+
+**Return**: reference to self 
 
 #### function message
 
@@ -912,6 +970,14 @@ inline auto & message(
 )
 ```
 
+Set message to be displayed. 
+
+**Parameters**: 
+
+  * **msg** Message 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -921,6 +987,14 @@ inline auto & interval(
 )
 ```
 
+Set interval in which the display is refreshed. 
+
+**Parameters**: 
+
+  * **pd** interval as a Duration 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -930,6 +1004,14 @@ inline auto & interval(
 )
 ```
 
+Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_counter.md#function-interval) to accept a double argument. 
+
+**Parameters**: 
+
+  * **pd** interval as a double 
+
+
+**Return**: reference to self 
 
 #### function no_tty
 
@@ -937,6 +1019,9 @@ inline auto & interval(
 inline auto & no_tty()
 ```
 
+Enable no-tty mode. 
+
+**Return**: reference to self 
 
 ### Protected Functions Documentation
 
@@ -948,6 +1033,14 @@ inline size_t render_counts_(
 )
 ```
 
+Write the value of progress to the output stream. 
+
+**Parameters**: 
+
+  * **out** output stream to write to 
+
+
+**Return**: length of the rendered value 
 
 #### function render_
 
@@ -957,18 +1050,16 @@ inline virtual size_t render_(
 ) override
 ```
 
+Write the value of progress with the message to the output stream. 
 
 **Parameters**: 
 
   * **out** output stream to write to 
 
 
-**Return**: length of the rendered display 
+**Return**: length of the rendered string 
 
 **Reimplements**: [barkeep::AsyncDisplay::render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
-
-
-Render a display: animation, progress bar, etc. 
 
 
 #### function default_interval_
@@ -977,6 +1068,9 @@ Render a display: animation, progress bar, etc.
 inline virtual Duration default_interval_() const override
 ```
 
+Default interval in which the display is refreshed, if [interval()](api/Classes/classbarkeep_1_1_counter.md#function-interval) is not invoked. 
+
+**Return**: default interval 
 
 **Reimplements**: [barkeep::AsyncDisplay::default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)
 
@@ -1006,7 +1100,10 @@ inline Counter(
 ## barkeep::ProgressBar
 
 
- [More...](#detailed-description)
+Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed.  [More...](#detailed-description)
+
+
+`#include <barkeep.h>`
 
 Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)
 
@@ -1027,20 +1124,20 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress, std::ostream & out =std::cout) |
-| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > && other) |
-| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([const](api/Classes/classbarkeep_1_1_counter.md)[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > & other) |
+| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress, std::ostream & out =std::cout)<br>Constructor.  |
+| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > && other)<br>move constructor  |
+| | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([const](api/Classes/classbarkeep_1_1_counter.md)[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [Progress](api/Classes/classbarkeep_1_1_counter.md) > & other)<br>copy constructor  |
 | | **[~ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-~progressbar)**() |
 | virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > | **[clone](api/Classes/classbarkeep_1_1_progress_bar.md#function-clone)**() const override |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_progress_bar.md#function-show)**() override |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed](api/Classes/classbarkeep_1_1_progress_bar.md#function-speed)**(std::optional< [double](api/Classes/classbarkeep_1_1_counter.md) > discount) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed_unit](api/Classes/classbarkeep_1_1_progress_bar.md#function-speed_unit)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[total](api/Classes/classbarkeep_1_1_progress_bar.md#function-total)**([ValueType](api/Classes/classbarkeep_1_1_counter.md) tot) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[style](api/Classes/classbarkeep_1_1_progress_bar.md#function-style)**(Style sty) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_progress_bar.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval)**(Duration pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_progress_bar.md#function-no_tty)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/classbarkeep_1_1_progress_bar.md#function-show)**() override<br>Start displaying the bar.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed](api/Classes/classbarkeep_1_1_progress_bar.md#function-speed)**(std::optional< [double](api/Classes/classbarkeep_1_1_counter.md) > discount)<br>Set how to compute speed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[speed_unit](api/Classes/classbarkeep_1_1_progress_bar.md#function-speed_unit)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set unit of speed text next to speed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[total](api/Classes/classbarkeep_1_1_progress_bar.md#function-total)**([ValueType](api/Classes/classbarkeep_1_1_counter.md) tot)<br>Set total amount of work to be done, for the progress bar to be full.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[style](api/Classes/classbarkeep_1_1_progress_bar.md#function-style)**(Style sty)<br>Set progress bar style.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[message](api/Classes/classbarkeep_1_1_progress_bar.md#function-message)**([const](api/Classes/classbarkeep_1_1_counter.md) std::string & msg)<br>Set message to be displayed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval)**(Duration pd)<br>Set interval in which the display is refreshed.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[interval](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval)**([double](api/Classes/classbarkeep_1_1_counter.md) pd)<br>Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval) to accept a double argument.  |
+| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[no_tty](api/Classes/classbarkeep_1_1_progress_bar.md#function-no_tty)**()<br>Enable no-tty mode.  |
 
 
 </span>
@@ -1051,10 +1148,10 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_progress_bar_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_progress_bar_)**(std::ostream & out) |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_counts_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_counts_)**(std::ostream & out) |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_percentage_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_percentage_)**(std::ostream & out) |
-| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)**(std::ostream & out) override |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_progress_bar_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_progress_bar_)**(std::ostream & out)<br>Compute the shape of the progress bar based on progress and write to output stream.  |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_counts_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_counts_)**(std::ostream & out)<br>Write progress value with the total, e.g. 50/100, to output stream. Progress width is expanded (and right justified) to match width of total.  |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_percentage_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_percentage_)**(std::ostream & out)<br>Write the percent completed to output stream.  |
+| virtual [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)**(std::ostream & out) override<br>Run all of the individual render methods to write everything to stream.  |
 | virtual Duration | **[default_interval_](api/Classes/classbarkeep_1_1_progress_bar.md#function-default_interval_)**() const override |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[init](api/Classes/classbarkeep_1_1_progress_bar.md#function-init)**([Progress](api/Classes/classbarkeep_1_1_counter.md) * progress) |
 | | **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**(std::ostream & out =std::cout) |
@@ -1076,7 +1173,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
-| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**() |
+| virtual [void](api/Classes/classbarkeep_1_1_counter.md) | **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()<br>End the display. This adds a newline to the output stream and stops writing.  |
 
 
 </span>
@@ -1088,7 +1185,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 |                | Name           |
 | -------------- | -------------- |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()<br>Display everything (message, maybe with animation, progress bar, etc).  |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**(std::ostream & out) const<br>Display the message to output stream.  |
 
 
 </span>
@@ -1123,6 +1220,7 @@ template <typenameProgress >
 class barkeep::ProgressBar;
 ```
 
+Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed. 
 ### Public Types Documentation
 
 #### using Style
@@ -1143,6 +1241,13 @@ inline ProgressBar(
 )
 ```
 
+Constructor. 
+
+**Parameters**: 
+
+  * **progress** Variable to be monitored to measure completion 
+  * **out** Output stream to write to 
+
 
 #### function ProgressBar
 
@@ -1152,6 +1257,7 @@ inline ProgressBar(
 )
 ```
 
+move constructor 
 
 #### function ProgressBar
 
@@ -1161,6 +1267,7 @@ inline ProgressBar(
 )
 ```
 
+copy constructor 
 
 #### function ~ProgressBar
 
@@ -1185,11 +1292,9 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 inline virtual void show() override
 ```
 
+Start displaying the bar. 
 
 **Reimplements**: [barkeep::AsyncDisplay::show](api/Classes/classbarkeep_1_1_async_display.md#function-show)
-
-
-Start the display. This starts writing the display in the output stream, and computing speed if applicable. 
 
 
 #### function speed
@@ -1200,6 +1305,14 @@ inline auto & speed(
 )
 ```
 
+Set how to compute speed. 
+
+**Parameters**: 
+
+  * **discount** Discount factor in [0, 1] to use in computing the speed. Previous increments are weighted by (1-discount). If discount is 0, all increments are weighted equally. If discount is 1, only the most recent increment is considered. If discount is `std::nullopt`, speed is not computed. 
+
+
+**Return**: reference to self 
 
 #### function speed_unit
 
@@ -1209,6 +1322,14 @@ inline auto & speed_unit(
 )
 ```
 
+Set unit of speed text next to speed. 
+
+**Parameters**: 
+
+  * **msg** unit of speed 
+
+
+**Return**: reference to self 
 
 #### function total
 
@@ -1218,6 +1339,14 @@ inline auto & total(
 )
 ```
 
+Set total amount of work to be done, for the progress bar to be full. 
+
+**Parameters**: 
+
+  * **tot** total amount of work 
+
+
+**Return**: reference to self 
 
 #### function style
 
@@ -1227,6 +1356,14 @@ inline auto & style(
 )
 ```
 
+Set progress bar style. 
+
+**Parameters**: 
+
+  * **sty** Style 
+
+
+**Return**: reference to self 
 
 #### function message
 
@@ -1236,6 +1373,14 @@ inline auto & message(
 )
 ```
 
+Set message to be displayed. 
+
+**Parameters**: 
+
+  * **msg** Message 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -1245,6 +1390,14 @@ inline auto & interval(
 )
 ```
 
+Set interval in which the display is refreshed. 
+
+**Parameters**: 
+
+  * **pd** interval as a Duration 
+
+
+**Return**: reference to self 
 
 #### function interval
 
@@ -1254,6 +1407,14 @@ inline auto & interval(
 )
 ```
 
+Overload of [interval(Duration)](api/Classes/classbarkeep_1_1_progress_bar.md#function-interval) to accept a double argument. 
+
+**Parameters**: 
+
+  * **pd** interval as a double 
+
+
+**Return**: reference to self 
 
 #### function no_tty
 
@@ -1261,6 +1422,9 @@ inline auto & interval(
 inline auto & no_tty()
 ```
 
+Enable no-tty mode. 
+
+**Return**: reference to self 
 
 ### Protected Functions Documentation
 
@@ -1272,6 +1436,7 @@ inline size_t render_progress_bar_(
 )
 ```
 
+Compute the shape of the progress bar based on progress and write to output stream. 
 
 #### function render_counts_
 
@@ -1281,6 +1446,7 @@ inline size_t render_counts_(
 )
 ```
 
+Write progress value with the total, e.g. 50/100, to output stream. Progress width is expanded (and right justified) to match width of total. 
 
 #### function render_percentage_
 
@@ -1290,6 +1456,7 @@ inline size_t render_percentage_(
 )
 ```
 
+Write the percent completed to output stream. 
 
 #### function render_
 
@@ -1299,18 +1466,9 @@ inline virtual size_t render_(
 ) override
 ```
 
-
-**Parameters**: 
-
-  * **out** output stream to write to 
-
-
-**Return**: length of the rendered display 
+Run all of the individual render methods to write everything to stream. 
 
 **Reimplements**: [barkeep::AsyncDisplay::render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
-
-
-Render a display: animation, progress bar, etc. 
 
 
 #### function default_interval_
@@ -1348,7 +1506,10 @@ inline ProgressBar(
 ## barkeep::Speedometer
 
 
- [More...](#detailed-description)
+Helper class to measure and display speed of progress.  [More...](#detailed-description)
+
+
+`#include <barkeep.h>`
 
 ### Public Functions
 
@@ -1356,9 +1517,9 @@ inline ProgressBar(
 
 |                | Name           |
 | -------------- | -------------- |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit) |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**() |
-| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**([Progress](api/Classes/classbarkeep_1_1_counter.md) & progress, [double](api/Classes/classbarkeep_1_1_counter.md) discount) |
+| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit)<br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**()<br>Start computing the speed based on the amount of change in progress.  |
+| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**([Progress](api/Classes/classbarkeep_1_1_counter.md) & progress, [double](api/Classes/classbarkeep_1_1_counter.md) discount)<br>Constructor.  |
 
 
 </span>
@@ -1370,6 +1531,7 @@ template <typenameProgress >
 class barkeep::Speedometer;
 ```
 
+Helper class to measure and display speed of progress. 
 ### Public Functions Documentation
 
 #### function render_speed
@@ -1381,6 +1543,7 @@ inline size_t render_speed(
 )
 ```
 
+Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed. 
 
 #### function start
 
@@ -1388,6 +1551,7 @@ inline size_t render_speed(
 inline void start()
 ```
 
+Start computing the speed based on the amount of change in progress. 
 
 #### function Speedometer
 
@@ -1398,6 +1562,13 @@ inline Speedometer(
 )
 ```
 
+Constructor. 
+
+**Parameters**: 
+
+  * **progress** Reference to numeric to measure the change of. 
+  * **discount** Discount factor in [0, 1] to use in computing the speed. Previous increments are weighted by (1-discount). If discount is 0, all increments are weighted equally. If discount is 1, only the most recent increment is considered. 
+
 
 -------------------------------
 
@@ -1406,7 +1577,10 @@ inline Speedometer(
 ## barkeep::AtomicTraits
 
 
- [More...](#detailed-description)
+Trait class to extract underlying value type from numerics and std::atomics of numerics.  [More...](#detailed-description)
+
+
+`#include <barkeep.h>`
 
 ### Public Types
 
@@ -1426,6 +1600,7 @@ template <typenameT >
 struct barkeep::AtomicTraits;
 ```
 
+Trait class to extract underlying value type from numerics and std::atomics of numerics. 
 ### Public Types Documentation
 
 #### using value_type
@@ -1473,4 +1648,4 @@ using barkeep::AtomicTraits< std::atomic< T > >::value_type =  T;
 
 -------------------------------
 
-Updated on 2023-12-01 at 22:33:53 -0500
+Updated on 2023-12-02 at 13:34:20 -0500
