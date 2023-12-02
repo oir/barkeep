@@ -10,7 +10,7 @@
 #include <tuple>
 #include <vector>
 #include <barkeep/barkeep.h>
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 using namespace std::chrono_literals;
 using namespace barkeep;
