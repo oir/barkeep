@@ -10,7 +10,7 @@ including `barkeep.h` in your project.
 
 - Display a waiting animation with a message:
 
-  ```C++
+  ```cpp
   using namespace std::chrono_literals;
   namespace bk = barkeep;
   
@@ -20,25 +20,25 @@ including `barkeep.h` in your project.
   anim.done();
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/anim1-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/anim1-light.svg" width="700">
-    <img src="docs/anim1-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/anim1-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/anim1-light.svg" width="700">
+    <img src="rec/anim1-light.svg" width="700">
   </picture>
 
 - Supports several styles:
 
-  ```C++
+  ```cpp
   auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/anim2-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/anim2-light.svg" width="700">
-    <img src="docs/anim2-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/anim2-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/anim2-light.svg" width="700">
+    <img src="rec/anim2-light.svg" width="700">
   </picture>
 
 - Display a counter to monitor a numeric variable while waiting:
 
-  ```C++
+  ```cpp
   int work{0};
   auto c = bk::Counter(&work)
     .message("Reading lines")
@@ -52,14 +52,14 @@ including `barkeep.h` in your project.
   c.done();
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/counter-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/counter-light.svg" width="700">
-    <img src="docs/counter-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/counter-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/counter-light.svg" width="700">
+    <img src="rec/counter-light.svg" width="700">
   </picture>
 
 - Display a progress bar to monitor a numeric variable and measure its completion by comparing against a total:
 
-  ```C++
+  ```cpp
   int work{0};
   auto bar = bk::ProgressBar(&work)
     .message("Reading lines")
@@ -74,14 +74,14 @@ including `barkeep.h` in your project.
   bar.done();
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/bar-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/bar-light.svg" width="700">
-    <img src="docs/bar-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/bar-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/bar-light.svg" width="700">
+    <img src="rec/bar-light.svg" width="700">
   </picture>
 
 - Combine diplays using `|` operator to monitor multiple variables:
 
-  ```C++
+  ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
     bk::ProgressBar(&sents).total(1010).message("Sents") |
@@ -96,14 +96,14 @@ including `barkeep.h` in your project.
   bar.done();
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/composite-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/composite-light.svg" width="700">
-    <img src="docs/composite-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/composite-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/composite-light.svg" width="700">
+    <img src="rec/composite-light.svg" width="700">
   </picture>
 
 - Use "no tty" mode to, e.g., output to log files:
 
-  ```C++
+  ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar = bk::ProgressBar(&sents)
                  .total(401)
@@ -120,9 +120,9 @@ including `barkeep.h` in your project.
   bar.done();
   ```
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/notty-dark.svg" width="700">
-    <source media="(prefers-color-scheme: light)" srcset="docs/notty-light.svg" width="700">
-    <img src="docs/notty-light.svg" width="700">
+    <source media="(prefers-color-scheme: dark)" srcset="rec/notty-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/notty-light.svg" width="700">
+    <img src="rec/notty-light.svg" width="700">
   </picture>
 
   `no_tty` achieves two things:

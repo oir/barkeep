@@ -226,10 +226,10 @@ Composite factory_helper<Composite>() {
          Counter(&progress, hide).speed(1);
 }
 
-using DisplayTypeList =
+using DisplayTypes =
     std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
-TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
+TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   auto orig = factory_helper<TestType>();
   orig.show();
   SECTION("Running copy & move") {
@@ -246,7 +246,15 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypeList) {
   CHECK_NOTHROW(orig.done());
 }
 
-TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypeList) {
+using SpeedyTypes = std::tuple<Counter<>, ProgressBar<float>>;
+
+TEMPLATE_LIST_TEST_CASE("Invalid speed discount", "[edges]", SpeedyTypes) {
+  auto orig = factory_helper<TestType>();
+  double invalid = GENERATE(as<double>(), -1, 1.1);
+  CHECK_THROWS(orig.speed(invalid));
+}
+
+TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
     { // lifetime
       auto display = factory_helper<TestType>();
@@ -255,7 +263,7 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypeList) {
   }());
 }
 
-TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypeList) {
+TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
     auto orig = factory_helper<TestType>();
     auto copy = orig;
@@ -267,7 +275,7 @@ TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypeList) {
   }());
 }
 
-TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypeList) {
+TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
     auto orig = factory_helper<TestType>();
     auto clone = orig.clone();
