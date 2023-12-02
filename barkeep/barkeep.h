@@ -718,8 +718,8 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 
-  /// Set message to be displayed.  @param msg Message  @return reference to
-  /// self
+  /// Set message to be displayed.
+  /// @param msg Message  @return reference to self
   auto& message(const std::string& msg) {
     AsyncDisplay::message(msg);
     return *this;
