@@ -29,6 +29,7 @@ jobs:
   build-python:
     runs-on: ubuntu-latest
     steps:
+      - run: rm -rf subprojects/Catch2
       - uses: actions/checkout@v4
         with:
           submodules: false
