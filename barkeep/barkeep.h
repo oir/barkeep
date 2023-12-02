@@ -56,7 +56,6 @@ const static StringsList progress_partials_{
     {">", "="},
 };
 
-
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
  private:
@@ -172,7 +171,6 @@ class AsyncDisplay {
 
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
 
-
  protected:
   /// Set message to be displayed
   /// @param msg message to be displayed
@@ -231,7 +229,7 @@ class Animation : public AsyncDisplay {
   }
 
   /// Set animation style using one of AnimationStyle.
-  /// @param sty 
+  /// @param sty
   /// @return reference to self
   auto& style(Style sty) {
     stills_ = animation_stills_[static_cast<unsigned short>(sty)];
@@ -311,7 +309,6 @@ class Composite : public AsyncDisplay {
     return *this;
   }
 };
-
 
 /// Pipe operator can be used to combine two displays into a Composite.
 auto operator|(const AsyncDisplay& left, const AsyncDisplay& right) {
@@ -400,7 +397,8 @@ class Speedometer {
   /// @param discount Discount factor in [0, 1] to use in computing the speed.
   ///                 Previous increments are weighted by (1-discount).
   ///                 If discount is 0, all increments are weighted equally.
-  ///                 If discount is 1, only the most recent increment is considered.
+  ///                 If discount is 1, only the most recent increment is
+  ///                 considered.
   Speedometer(Progress& progress, double discount)
       : progress_(progress), discount_(discount) {
     if (discount < 0 or discount > 1) {
@@ -432,7 +430,8 @@ class Counter : public AsyncDisplay {
   }
 
   /// Write the value of progress with the message to the output stream
-  /// @param out output stream to write to  @return length of the rendered string
+  /// @param out output stream to write to  @return length of the rendered
+  /// string
   size_t render_(std::ostream& out) override {
     size_t len = render_message_(out);
     len += render_counts_(out);
@@ -440,7 +439,8 @@ class Counter : public AsyncDisplay {
     return len;
   }
 
-  /// Default interval in which the display is refreshed, if interval() is not invoked.
+  /// Default interval in which the display is refreshed, if interval() is not
+  /// invoked.
   /// @return default interval
   Duration default_interval_() const override {
     return no_tty_ ? Duration{60.} : Duration{.1};
@@ -495,8 +495,9 @@ class Counter : public AsyncDisplay {
   /// @param discount Discount factor in [0, 1] to use in computing the speed.
   ///                 Previous increments are weighted by (1-discount).
   ///                 If discount is 0, all increments are weighted equally.
-  ///                 If discount is 1, only the most recent increment is considered.
-  ///                 If discount is `std::nullopt`, speed is not computed.
+  ///                 If discount is 1, only the most recent increment is
+  ///                 considered. If discount is `std::nullopt`, speed is not
+  ///                 computed.
   /// @return reference to self
   auto& speed(std::optional<double> discount) {
     if (discount) {
@@ -541,8 +542,8 @@ class Counter : public AsyncDisplay {
   }
 };
 
-/// Displays a progress bar, by comparing the progress value being monitored to a
-/// given total value. Optionally reports speed.
+/// Displays a progress bar, by comparing the progress value being monitored to
+/// a given total value. Optionally reports speed.
 template <typename Progress>
 class ProgressBar : public AsyncDisplay {
  private:
@@ -558,8 +559,8 @@ class ProgressBar : public AsyncDisplay {
   Strings partials_; // progress bar display strings
 
  protected:
-  /// Compute the shape of the progress bar based on progress and write to output
-  /// stream.
+  /// Compute the shape of the progress bar based on progress and write to
+  /// output stream.
   size_t render_progress_bar_(std::ostream& out) {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
@@ -681,8 +682,9 @@ class ProgressBar : public AsyncDisplay {
   /// @param discount Discount factor in [0, 1] to use in computing the speed.
   ///                 Previous increments are weighted by (1-discount).
   ///                 If discount is 0, all increments are weighted equally.
-  ///                 If discount is 1, only the most recent increment is considered.
-  ///                 If discount is `std::nullopt`, speed is not computed.
+  ///                 If discount is 1, only the most recent increment is
+  ///                 considered. If discount is `std::nullopt`, speed is not
+  ///                 computed.
   /// @return reference to self
   auto& speed(std::optional<double> discount) {
     if (discount) {
@@ -701,7 +703,7 @@ class ProgressBar : public AsyncDisplay {
   }
 
   /// Set total amount of work to be done, for the progress bar to be full.
-  /// @param tot total amount of work  @return reference to self  
+  /// @param tot total amount of work  @return reference to self
   auto& total(ValueType tot) {
     if (tot == 0) {
       throw std::runtime_error("Progress total cannot be zero!");
@@ -716,7 +718,8 @@ class ProgressBar : public AsyncDisplay {
     return *this;
   }
 
-  /// Set message to be displayed.  @param msg Message  @return reference to self
+  /// Set message to be displayed.  @param msg Message  @return reference to
+  /// self
   auto& message(const std::string& msg) {
     AsyncDisplay::message(msg);
     return *this;
