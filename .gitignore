@@ -5,4 +5,5 @@
 *.gcno
 *.gcda
 
-subprojects/*/
+subprojects/pybind11*/
+subprojects/packagecache/
