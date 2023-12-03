@@ -58,7 +58,7 @@ const static StringsList progress_partials_{
 
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
- private:
+ protected:
   Duration interval_{0.0};
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
@@ -66,32 +66,32 @@ class AsyncDisplay {
   bool complete_ = false;
 
   std::string message_;
-  std::ostream& out_;
-
   size_t max_rendered_len_ = 0;
 
  protected:
+  std::ostream* out_;
+
+ protected:
   /// Render a display: animation, progress bar, etc.
-  /// @param out output stream to write to
   /// @return length of the rendered display
-  virtual size_t render_(std::ostream& out) = 0;
+  virtual size_t render_() = 0;
 
   virtual Duration default_interval_() const = 0;
 
   /// Display everything (message, maybe with animation, progress bar, etc).
   void display_() {
     if (no_tty_) {
-      render_(out_);
-      out_ << std::endl;
+      render_();
+      *out_ << std::endl;
     } else {
-      out_ << "\r";
-      size_t len = render_(out_);
+      *out_ << "\r";
+      size_t len = render_();
       if (len < max_rendered_len_) { // hide previous render if smaller
-        out_ << std::string(max_rendered_len_ - len, ' ');
+        *out_ << std::string(max_rendered_len_ - len, ' ');
       } else {
         max_rendered_len_ = len;
       }
-      out_ << std::flush;
+      *out_ << std::flush;
     }
   }
 
@@ -99,18 +99,24 @@ class AsyncDisplay {
   bool no_tty_ = false;
 
   /// Display the message to output stream.
-  /// @param out output stream to write to
   /// @return length of the rendered message
-  size_t render_message_(std::ostream& out) const {
+  size_t render_message_() const {
     if (not message_.empty()) {
-      out << message_ << " ";
+      *out_ << message_ << " ";
       return message_.size() + 1;
     }
     return 0;
   }
 
+  /// Join the display thread. Protected because python bindings need to
+  /// override to handle GIL.
+  virtual void join() {
+    displayer_->join();
+    displayer_.reset();
+  }
+
  public:
-  AsyncDisplay(std::ostream& out = std::cout) : out_(out) {}
+  AsyncDisplay(std::ostream* out = &std::cout) : out_(out) {}
 
   AsyncDisplay(const AsyncDisplay& other)
       : interval_(other.interval_),
@@ -142,7 +148,7 @@ class AsyncDisplay {
     if (displayer_) {
       throw std::runtime_error("Display was already started!");
     }
-    displayer_ = std::make_unique<std::thread>([this]() {
+    displayer_ = std::make_unique<std::thread>([&]() {
       display_();
       while (true) {
         std::unique_lock<std::mutex> lock(completion_m_);
@@ -150,13 +156,16 @@ class AsyncDisplay {
             interval_ != Duration{0.} ? interval_ : default_interval_();
         completion_.wait_for(lock, interval);
         display_();
-        if (complete_) { break; }
+        if (complete_) {
+          // Final newline to avoid overwriting the display
+          *out_ << std::endl;
+          break;
+        }
       }
     });
   }
 
-  /// End the display. This adds a newline to the output stream and stops
-  /// writing.
+  /// End the display.
   virtual void done() {
     if (not displayer_) { return; } // noop if already done() before
     {
@@ -164,9 +173,7 @@ class AsyncDisplay {
       complete_ = true;
     }
     completion_.notify_all();
-    displayer_->join();
-    displayer_.reset();
-    out_ << std::endl;
+    join();
   }
 
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
@@ -198,9 +205,9 @@ class Animation : public AsyncDisplay {
   Strings stills_;
 
  protected:
-  size_t render_(std::ostream& out) override {
-    size_t len = render_message_(out);
-    out << stills_[frame_] << " ";
+  size_t render_() override {
+    size_t len = render_message_();
+    *out_ << stills_[frame_] << " ";
     len += (stills_[frame_].size() + 1);
     frame_ = (frame_ + 1) % stills_.size();
     return len;
@@ -216,7 +223,7 @@ class Animation : public AsyncDisplay {
 
   /// Constructor.
   /// @param out output stream to write to
-  Animation(std::ostream& out = std::cout)
+  Animation(std::ostream* out = &std::cout)
       : AsyncDisplay(out),
         stills_(animation_stills_[static_cast<unsigned short>(Ellipsis)]) {}
 
@@ -269,10 +276,10 @@ class Composite : public AsyncDisplay {
  protected:
   std::unique_ptr<AsyncDisplay> left_, right_;
 
-  size_t render_(std::ostream& out) override {
-    size_t len = left_->render_(out);
-    out << " ";
-    len += right_->render_(out);
+  size_t render_() override {
+    size_t len = left_->render_();
+    *out_ << " ";
+    len += right_->render_();
     return len + 1;
   }
 
@@ -287,14 +294,16 @@ class Composite : public AsyncDisplay {
         left_(std::move(left)),
         right_(std::move(right)) {
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
+    right_->out_ = left_->out_;
     if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
   /// Copy constructor clones child displays.
   Composite(const Composite& other)
       : AsyncDisplay(other),
         left_(other.left_->clone()),
-        right_(other.right_->clone()) {}
-  Composite(Composite&& other) = default;
+        right_(other.right_->clone()) {
+    right_->out_ = left_->out_;
+  }
   ~Composite() { done(); }
 
   std::unique_ptr<AsyncDisplay> clone() const override {
@@ -356,7 +365,7 @@ class Speedometer {
  public:
   /// Write speed to given output stream. Speed is a double (written with
   /// precision 2), possibly followed by a unit of speed.
-  size_t render_speed(std::ostream& out, const std::string& speed_unit) {
+  size_t render_speed(std::ostream* out, const std::string& speed_unit) {
     std::stringstream ss; // use local stream to avoid disturbing `out` with
                           // std::fixed and std::setprecision
     Time now = Clock::now();
@@ -381,7 +390,7 @@ class Speedometer {
     }
 
     auto s = ss.str();
-    out << s;
+    *out << s;
 
     return s.size();
   }
@@ -419,23 +428,22 @@ class Counter : public AsyncDisplay {
 
  protected:
   /// Write the value of progress to the output stream
-  /// @param out output stream to write to  @return length of the rendered value
-  size_t render_counts_(std::ostream& out) {
+  /// @return length of the rendered value
+  size_t render_counts_() {
     ss_ << *progress_ << " ";
     auto s = ss_.str();
-    out << s;
+    *out_ << s;
     ss_.str("");
     ss_.clear();
     return s.size();
   }
 
   /// Write the value of progress with the message to the output stream
-  /// @param out output stream to write to  @return length of the rendered
-  /// string
-  size_t render_(std::ostream& out) override {
-    size_t len = render_message_(out);
-    len += render_counts_(out);
-    if (speedom_) { len += speedom_->render_speed(out, speed_unit_); }
+  /// @return length of the rendered string
+  size_t render_() override {
+    size_t len = render_message_();
+    len += render_counts_();
+    if (speedom_) { len += speedom_->render_speed(out_, speed_unit_); }
     return len;
   }
 
@@ -446,17 +454,19 @@ class Counter : public AsyncDisplay {
     return no_tty_ ? Duration{60.} : Duration{.1};
   }
 
-  void init(Progress* progress) { progress_ = progress; }
+  void init(Progress* progress, std::ostream* out) {
+    progress_ = progress;
+    out_ = out;
+  }
 
-  Counter(std::ostream& out = std::cout) : AsyncDisplay(out) {}
+  Counter(std::ostream* out = &std::cout) : AsyncDisplay(out) {}
 
  public:
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
   /// @param out Output stream to write to
-  Counter(Progress* progress, std::ostream& out = std::cout)
-      : AsyncDisplay(out) {
-    init(progress);
+  Counter(Progress* progress, std::ostream* out = &std::cout) : AsyncDisplay() {
+    init(progress, out);
   }
 
   Counter(const Counter<Progress>& other)
@@ -561,7 +571,7 @@ class ProgressBar : public AsyncDisplay {
  protected:
   /// Compute the shape of the progress bar based on progress and write to
   /// output stream.
-  size_t render_progress_bar_(std::ostream& out) {
+  size_t render_progress_bar_() {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
     int on = int(ValueType(width_) * progress_copy / total_);
@@ -579,16 +589,16 @@ class ProgressBar : public AsyncDisplay {
     auto off = width_ - size_t(on) - size_t(partial > 0);
 
     // draw progress bar
-    out << "|";
-    for (int i = 0; i < on; i++) { out << partials_.back(); }
-    if (partial > 0) { out << partials_.at(partial - 1); }
-    out << std::string(off, ' ') << "| ";
+    *out_ << "|";
+    for (int i = 0; i < on; i++) { *out_ << partials_.back(); }
+    if (partial > 0) { *out_ << partials_.at(partial - 1); }
+    *out_ << std::string(off, ' ') << "| ";
     return width_ + 3;
   }
 
   /// Write progress value with the total, e.g. 50/100, to output stream.
   /// Progress width is expanded (and right justified) to match width of total.
-  size_t render_counts_(std::ostream& out) {
+  size_t render_counts_() {
     std::stringstream ss, totals;
     if (std::is_floating_point_v<Progress>) {
       ss << std::fixed << std::setprecision(2);
@@ -599,28 +609,28 @@ class ProgressBar : public AsyncDisplay {
     ss.width(width);
     ss << std::right << *progress_ << "/" << total_ << " ";
     auto s = ss.str();
-    out << s;
+    *out_ << s;
     return s.size();
   }
 
   /// Write the percent completed to output stream
-  size_t render_percentage_(std::ostream& out) {
+  size_t render_percentage_() {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss.width(6);
     ss << std::right << *progress_ * 100. / total_ << "% ";
     auto s = ss.str();
-    out << s;
+    *out_ << s;
     return s.size();
   }
 
   /// Run all of the individual render methods to write everything to stream
-  size_t render_(std::ostream& out) override {
-    size_t len = render_message_(out);
-    len += render_percentage_(out);
-    len += render_progress_bar_(out);
-    len += render_counts_(out);
-    if (speedom_) { len += speedom_->render_speed(out, speed_unit_); }
+  size_t render_() override {
+    size_t len = render_message_();
+    len += render_percentage_();
+    len += render_progress_bar_();
+    len += render_counts_();
+    if (speedom_) { len += speedom_->render_speed(out_, speed_unit_); }
     return len;
   }
 
@@ -629,9 +639,12 @@ class ProgressBar : public AsyncDisplay {
   }
 
  protected:
-  void init(Progress* progress) { progress_ = progress; }
+  void init(Progress* progress, std::ostream* out) {
+    progress_ = progress;
+    out_ = out;
+  }
 
-  ProgressBar(std::ostream& out = std::cout) : AsyncDisplay(out) {}
+  ProgressBar(std::ostream* out = &std::cout) : AsyncDisplay(out) {}
 
  public:
   using Style = ProgressBarStyle;
@@ -639,10 +652,10 @@ class ProgressBar : public AsyncDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored to measure completion
   /// @param out      Output stream to write to
-  ProgressBar(Progress* progress, std::ostream& out = std::cout)
-      : AsyncDisplay(out),
+  ProgressBar(Progress* progress, std::ostream* out = &std::cout)
+      : AsyncDisplay(),
         partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {
-    init(progress);
+    init(progress, out);
   }
 
   /// move constructor

@@ -58,7 +58,7 @@ TEST_CASE("Animation", "[anim]") {
   auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Square);
   auto no_tty = GENERATE(true, false);
 
-  auto anim = Animation(out).message("Working").style(sty).interval(0.1);
+  auto anim = Animation(&out).message("Working").style(sty).interval(0.1);
   if (no_tty) { anim.no_tty(); }
 
   anim.show();
@@ -81,7 +81,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, out)
+  auto ctr = Counter(&amount, &out)
                  .message("Doing things")
                  .interval(0.001)
                  .speed(sp)
@@ -139,7 +139,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   bool no_tty = GENERATE(true, false);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, out)
+  auto ctr = Counter(&amount, &out)
                  .message("Doing things")
                  .interval(0.01)
                  .speed(sp)
@@ -175,7 +175,7 @@ TEST_CASE("Decreasing counter", "[counter]") {
   std::stringstream out;
   int amount = 101;
 
-  auto ctr = Counter(&amount, out).message("Doing things").interval(0.01);
+  auto ctr = Counter(&amount, &out).message("Doing things").interval(0.01);
   ctr.show();
 
   for (size_t i = 0; i < 101; i++) {
@@ -201,29 +201,29 @@ Display factory_helper();
 template <>
 Animation factory_helper<Animation>() {
   static std::stringstream hide;
-  return Animation(hide);
+  return Animation(&hide);
 }
 
 template <>
 Counter<> factory_helper<Counter<>>() {
   static size_t progress;
   static std::stringstream hide;
-  return Counter(&progress, hide).speed(1);
+  return Counter(&progress, &hide).speed(1);
 }
 
 template <>
 ProgressBar<float> factory_helper<ProgressBar<float>>() {
   static float progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, hide).speed(1);
+  return ProgressBar(&progress, &hide).speed(1);
 }
 
 template <>
 Composite factory_helper<Composite>() {
   static size_t progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, hide).speed(1) |
-         Counter(&progress, hide).speed(1);
+  return ProgressBar(&progress, &hide).speed(1) |
+         Counter(&progress, &hide).speed(1);
 }
 
 using DisplayTypes =
@@ -290,7 +290,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 
   bool no_tty = GENERATE(true, false);
 
-  auto bar = ProgressBar(&progress, out)
+  auto bar = ProgressBar(&progress, &out)
                  .total(50)
                  .message("Computing")
                  .interval(0.001);
@@ -317,7 +317,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(&progress, out)
+  auto bar = ProgressBar(&progress, &out)
                  .total(50)
                  .message("Computing")
                  .interval(0.001)
@@ -367,12 +367,12 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(&sents, out)
+  auto bar = ProgressBar(&sents, &out)
                  .total(505)
                  .message("Sents")
                  .style(Bars)
                  .interval(0.01) |
-             Counter(&toks, out).message("Toks").speed_unit("tok/s").speed(1);
+             Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
