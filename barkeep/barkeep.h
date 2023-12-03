@@ -294,14 +294,16 @@ class Composite : public AsyncDisplay {
         left_(std::move(left)),
         right_(std::move(right)) {
     AsyncDisplay::interval(min(left_->interval_, right_->interval_));
+    right_->out_ = left_->out_;
     if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
   /// Copy constructor clones child displays.
   Composite(const Composite& other)
       : AsyncDisplay(other),
         left_(other.left_->clone()),
-        right_(other.right_->clone()) {}
-  Composite(Composite&& other) = default;
+        right_(other.right_->clone()) {
+    right_->out_ = left_->out_;
+  }
   ~Composite() { done(); }
 
   std::unique_ptr<AsyncDisplay> clone() const override {
@@ -463,8 +465,7 @@ class Counter : public AsyncDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
   /// @param out Output stream to write to
-  Counter(Progress* progress, std::ostream* out = &std::cout)
-      : AsyncDisplay() {
+  Counter(Progress* progress, std::ostream* out = &std::cout) : AsyncDisplay() {
     init(progress, out);
   }
 

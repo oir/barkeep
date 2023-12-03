@@ -16,20 +16,22 @@ enum class DType { Int, Float, AtomicInt, AtomicFloat };
 
 #include <iostream>
 
-class PyFileStream : public std::stringbuf, public std::ostream {
- private:
+struct PyFileStream : public std::stringbuf, public std::ostream {
   py::object file_;
 
   int sync() override {
     py::gil_scoped_acquire acquire;
-    file_.attr("write")(str());
-    file_.attr("flush")();
+    py::print(str(),
+              py::arg("file") = file_,
+              py::arg("flush") = true,
+              py::arg("end") = "");
     str("");
+    py::gil_scoped_release release;
     return 0;
   }
 
- public:
-  PyFileStream(py::object file) : std::stringbuf(), std::ostream(this), file_(std::move(file)) {}
+  PyFileStream(py::object file)
+      : std::stringbuf(), std::ostream(this), file_(std::move(file)) {}
 };
 
 template <typename T>
@@ -38,17 +40,19 @@ class Counter_ : public Counter<T> {
   using Counter<T>::render_;
   using Counter<T>::default_interval_;
 
+  void init() {
+    Counter<T>::init(&*work, file_ ? (std::ostream*)&*file_ : &std::cout);
+  }
+
  public:
-  std::unique_ptr<T> work = std::make_unique<T>(0);
-  std::unique_ptr<PyFileStream> file_ = nullptr;
+  std::shared_ptr<T> work = std::make_shared<T>(0);
+  std::shared_ptr<PyFileStream> file_ = nullptr;
 
   Counter_(py::object file = py::none()) {
-    if (file.is_none()) {
-      this->init(&*work, &std::cout);
-    } else {
-      file_ = std::make_unique<PyFileStream>(std::move(file));
-      this->init(&*work, &*file_);
+    if (not file.is_none()) {
+      file_ = std::make_shared<PyFileStream>(std::move(file));
     }
+    init();
   }
 
   void join() override {
@@ -60,15 +64,19 @@ class Counter_ : public Counter<T> {
       AsyncDisplay::join();
     }
   }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Counter_>(*this);
+  }
 };
 
 template <typename T>
 std::unique_ptr<AsyncDisplay> make_counter(value_t<T> value,
-                        py::object file,
-                        std::string msg,
-                        double interval,
-                        std::optional<double> discount,
-                        std::string speed_unit) {
+                                           py::object file,
+                                           std::string msg,
+                                           double interval,
+                                           std::optional<double> discount,
+                                           std::string speed_unit) {
   auto counter = std::make_unique<Counter_<T>>(file);
   *counter->work = value;
   counter->message(msg);
@@ -100,28 +108,54 @@ class ProgressBar_ : public ProgressBar<T> {
   using ProgressBar<T>::render_;
   using ProgressBar<T>::default_interval_;
 
+  void init() {
+    ProgressBar<T>::init(&*work, file_ ? (std::ostream*)&*file_ : &std::cout);
+  }
+
  public:
   std::shared_ptr<T> work = std::make_shared<T>(0);
-  ProgressBar_() { this->init(&*work, &std::cout); }
+  std::shared_ptr<PyFileStream> file_ = nullptr;
+
+  ProgressBar_(py::object file = py::none()) {
+    if (not file.is_none()) {
+      file_ = std::make_shared<PyFileStream>(std::move(file));
+    }
+    init();
+  }
+
+  void join() override {
+    if (file_) {
+      // release gil because displayer thread needs it to write
+      py::gil_scoped_release release;
+      AsyncDisplay::join();
+    } else {
+      AsyncDisplay::join();
+    }
+  }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<ProgressBar_>(*this);
+  }
 };
 
 template <typename T>
-py::object make_progress_bar(value_t<T> value,
-                             value_t<T> total,
-                             std::string msg,
-                             double interval,
-                             ProgressBarStyle style,
-                             std::optional<double> discount,
-                             std::string speed_unit) {
-  ProgressBar_<T> bar;
-  *bar.work = value;
-  bar.total(total);
-  bar.message(msg);
-  bar.interval(interval);
-  bar.style(style);
-  bar.speed(discount);
-  bar.speed_unit(speed_unit);
-  return py::cast(bar);
+std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
+                                                value_t<T> total,
+                                                py::object file,
+                                                std::string msg,
+                                                double interval,
+                                                ProgressBarStyle style,
+                                                std::optional<double> discount,
+                                                std::string speed_unit) {
+  auto bar = std::make_unique<ProgressBar_<T>>(file);
+  *bar->work = value;
+  bar->total(total);
+  bar->message(msg);
+  bar->interval(interval);
+  bar->style(style);
+  bar->speed(discount);
+  bar->speed_unit(speed_unit);
+  return bar;
 };
 
 template <typename T>
@@ -139,6 +173,16 @@ void bind_template_progress_bar(py::module& m, char const* name) {
           },
           py::is_operator());
 }
+
+class Composite_ : public Composite {
+ public:
+  using Composite::Composite;
+
+  void join() override {
+    py::gil_scoped_release release;
+    AsyncDisplay::join();
+  }
+};
 
 PYBIND11_MODULE(barkeep, m) {
   m.doc() = "Python bindings for barkeep";
@@ -196,23 +240,19 @@ PYBIND11_MODULE(barkeep, m) {
         std::unique_ptr<AsyncDisplay> rval;
         switch (dtype) {
         case DType::Int:
-          rval = make_counter<Int>(value, file, msg, interval, speed, speed_unit);
-          break;
+          return make_counter<Int>(
+              value, file, msg, interval, speed, speed_unit);
         case DType::Float:
-          rval = make_counter<Float>(value, file, msg, interval, speed, speed_unit);
-          break;
+          return make_counter<Float>(
+              value, file, msg, interval, speed, speed_unit);
         case DType::AtomicInt:
-          rval = make_counter<AtomicInt>(
+          return make_counter<AtomicInt>(
               value, file, msg, interval, speed, speed_unit);
-              break;
         case DType::AtomicFloat:
-          rval = make_counter<AtomicFloat>(
+          return make_counter<AtomicFloat>(
               value, file, msg, interval, speed, speed_unit);
-              break;
-        default: throw std::runtime_error("Unknown dtype");
+        default: throw std::runtime_error("Unknown dtype"); return {};
         }
-
-        return rval;
       },
       "value"_a = 0,
       "file"_a = py::none(),
@@ -221,7 +261,7 @@ PYBIND11_MODULE(barkeep, m) {
       "speed"_a = py::none(),
       "speed_unit"_a = "",
       "dtype"_a = DType::Int,
-      py::keep_alive<0, 2>());
+      py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
   bind_template_progress_bar<Int>(m, "IntProgressBar");
   bind_template_progress_bar<Float>(m, "FloatProgressBar");
@@ -234,47 +274,44 @@ PYBIND11_MODULE(barkeep, m) {
       "ProgressBar",
       [](double value, // TODO: Make value match the specified dtype
          double total,
+         py::object file,
          std::string msg,
          double interval,
          ProgressBarStyle style,
          std::optional<double> speed,
          std::string speed_unit,
-         DType dtype) -> py::object {
+         DType dtype) -> std::unique_ptr<AsyncDisplay> {
         switch (dtype) {
         case DType::Int:
           return make_progress_bar<Int>(
-              value, total, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit);
         case DType::Float:
           return make_progress_bar<Float>(
-              value, total, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit);
         case DType::AtomicInt:
           return make_progress_bar<AtomicInt>(
-              value, total, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit);
         case DType::AtomicFloat:
           return make_progress_bar<AtomicFloat>(
-              value, total, msg, interval, style, speed, speed_unit);
-        default: throw std::runtime_error("Unknown dtype"); return py::none();
+              value, total, file, msg, interval, style, speed, speed_unit);
+        default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
       "value"_a = 0,
       "total"_a = 100,
+      "file"_a = py::none(),
       "message"_a = "",
       "interval"_a = 0.1,
       "style"_a = ProgressBarStyle::Blocks,
       "speed"_a = py::none(),
       "speed_unit"_a = "",
-      "dtype"_a = DType::Int);
+      "dtype"_a = DType::Int,
+      py::keep_alive<0, 3>()); // keep file alive while the bar is alive
 
-  py::class_<Composite, AsyncDisplay>(m, "Composite");
+  py::class_<Composite_, AsyncDisplay>(m, "Composite");
 
   async_display.def("__or__",
                     [](AsyncDisplay& self, const AsyncDisplay& other) {
-                      return Composite(self.clone(), other.clone());
+                      return Composite_(self.clone(), other.clone());
                     });
-
-  m.def("say_hi", [](py::object handle) {
-    //handle.attr("write")("Hello from C++!\n");
-    PyFileStream stream(handle);
-    ((std::ostream&)stream) << "Hello from C++!\n" << std::flush;
-  });
 }
