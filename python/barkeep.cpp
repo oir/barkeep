@@ -34,6 +34,32 @@ struct PyFileStream : public std::stringbuf, public std::ostream {
       : std::stringbuf(), std::ostream(this), file_(std::move(file)) {}
 };
 
+class Animation_ : public Animation {
+ public:
+  std::shared_ptr<PyFileStream> file_ = nullptr;
+
+  Animation_(py::object file = py::none()) {
+    if (not file.is_none()) {
+      file_ = std::make_shared<PyFileStream>(std::move(file));
+    }
+    out_ = file_ ? (std::ostream*)&*file_ : &std::cout;
+  }
+
+  void join() override {
+    if (file_) {
+      // release gil because displayer thread needs it to write
+      py::gil_scoped_release release;
+      AsyncDisplay::join();
+    } else {
+      AsyncDisplay::join();
+    }
+  }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Animation_>(*this);
+  }
+};
+
 template <typename T>
 class Counter_ : public Counter<T> {
  protected:
@@ -213,13 +239,23 @@ PYBIND11_MODULE(barkeep, m) {
                            .def("show", &AsyncDisplay::show)
                            .def("done", &AsyncDisplay::done);
 
-  py::class_<Animation, AsyncDisplay>(m, "Animation")
-      .def(py::init([](std::string msg, double interval, AnimationStyle style) {
-             return Animation().message(msg).interval(interval).style(style);
+  py::class_<Animation_, AsyncDisplay>(m, "Animation")
+      .def(py::init([](py::object file,
+                       std::string msg,
+                       double interval,
+                       AnimationStyle style) {
+             Animation_ a(file);
+             a.message(msg);
+             a.interval(interval);
+             a.style(style);
+             return a;
            }),
+           "file"_a = py::none(),
            "message"_a = "",
            "interval"_a = 1.,
-           "style"_a = AnimationStyle::Ellipsis);
+           "style"_a = AnimationStyle::Ellipsis,
+           py::keep_alive<0, 1>()); // keep file alive while the animation is
+                                    // alive);
 
   bind_template_counter<Int>(m, "IntCounter");
   bind_template_counter<Float>(m, "FloatCounter");
