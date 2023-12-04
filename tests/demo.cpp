@@ -8,7 +8,7 @@ int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
   namespace bk = barkeep;
 
-  for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon, bk::Square}) {
+  for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
     auto anim = bk::Animation().message("Working").style(sty).interval(0.5s);
     anim.show();
     std::this_thread::sleep_for(10s);
@@ -74,6 +74,17 @@ int main(int /*argc*/, char** /*argv*/) {
     }
   }
 
+  { // Decreasing progress
+    unsigned long work{1010};
+    auto bar = bk::ProgressBar(&work).total(1010).speed(1);
+    bar.show();
+    for (int i = 0; i < 1010; i++) {
+      std::this_thread::sleep_for(13ms);
+      work--;
+    }
+    bar.done();
+  }
+
   { // Composite display of a ProgressBar and Counter. We want to measure
     // completion in terms of #sentences but we are also interested in speed
     // in terms of tokens per second.'
@@ -89,15 +100,19 @@ int main(int /*argc*/, char** /*argv*/) {
     bar.done();
   }
 
-  { // Decreasing progress
-    unsigned long work{1010};
-    auto bar = bk::ProgressBar(&work).total(1010).speed(1);
-    bar.show();
+  { // Composite display of three counters
+    std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
+    auto counters = bk::Counter(&squares).message("Squares").speed(0.1) |
+                    bk::Counter(&cubes).message("Cubes").speed(0.1) |
+                    bk::Counter(&hypercubes).message("Hypercubes").speed(0.1);
+    counters.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
-      work--;
+      squares += (1 + size_t(rand()) % 5);
+      cubes += (1 + size_t(rand()) % 10);
+      hypercubes += (1 + size_t(rand()) % 20);
     }
-    bar.done();
+    counters.done();
   }
 
   std::cout << "\nWarning: To illustrate infrequent writes, no-tty"
