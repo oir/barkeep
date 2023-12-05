@@ -1,4 +1,11 @@
-from barkeep import Animation, AnimationStyle, Counter, DType, ProgressBar, ProgressBarStyle
+from barkeep import (
+    Animation,
+    AnimationStyle,
+    Counter,
+    DType,
+    ProgressBar,
+    ProgressBarStyle,
+)
 import time
 import random
 
@@ -15,38 +22,48 @@ speeds = [None, 0, 0.1, 1]
 
 for speed in speeds:
     work = Counter(message="Doing stuff", speed=speed, speed_unit="tk/s")
-    work.show();
+    work.show()
     for i in range(1010):
-      time.sleep(0.013)
-      work += 1
-    work.done();
+        time.sleep(0.013)
+        work += 1
+    work.done()
 
 for speed in speeds:
-    work = Counter(message="Doing stuff", speed=speed, speed_unit="tk/s", dtype=DType.Float)
-    work.show();
+    work = Counter(
+        message="Doing stuff", speed=speed, speed_unit="tk/s", dtype=DType.Float
+    )
+    work.show()
     for i in range(1010):
-      time.sleep(0.013)
-      work += 0.213
-    work.done();
+        time.sleep(0.013)
+        work += 0.213
+    work.done()
 
 for speed in speeds:
-    work = Counter(value=677, message="Decreasing", speed=speed, speed_unit="", dtype=DType.AtomicInt)
-    work.show();
+    work = Counter(
+        value=677,
+        message="Decreasing",
+        speed=speed,
+        speed_unit="",
+        dtype=DType.AtomicInt,
+    )
+    work.show()
     while work > 0:
-      time.sleep(0.013)
-      work -= 1
-    work.done();
+        time.sleep(0.013)
+        work -= 1
+    work.done()
 
 styles = [ProgressBarStyle.Bars, ProgressBarStyle.Arrow, ProgressBarStyle.Blocks]
 
 for speed in speeds:
     for sty in styles:
-        work = ProgressBar(total=1010, message="Doing stuff", speed=speed, speed_unit="tk/s", style=sty)
-        work.show();
+        work = ProgressBar(
+            total=1010, message="Doing stuff", speed=speed, speed_unit="tk/s", style=sty
+        )
+        work.show()
         for i in range(1010):
             time.sleep(0.013)
             work += 1
-        work.done();
+        work.done()
 
 # Decreasing bar
 bar = ProgressBar(value=1010, total=1010, speed=1)
