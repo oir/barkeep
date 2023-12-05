@@ -1,5 +1,6 @@
 #include <barkeep/barkeep.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
@@ -94,19 +95,28 @@ class Counter_ : public Counter<T> {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Counter_>(*this);
   }
+
+  auto& operator+=(value_t<T> v) { *work += v; return *this; }
+  auto& operator-=(value_t<T> v) { *work -= v; return *this; }
+  bool operator>(value_t<T> v) const { return *work > v; }
+  bool operator<(value_t<T> v) const { return *work < v; }
+  bool operator>=(value_t<T> v) const { return *work >= v; }
+  bool operator<=(value_t<T> v) const { return *work <= v; }
+  bool operator==(value_t<T> v) const { return *work == v; }
+  bool operator!=(value_t<T> v) const { return *work != v; }
 };
 
 template <typename T>
 std::unique_ptr<AsyncDisplay> make_counter(value_t<T> value,
                                            py::object file,
                                            std::string msg,
-                                           double interval,
+                                           std::optional<double> interval,
                                            std::optional<double> discount,
                                            std::string speed_unit) {
   auto counter = std::make_unique<Counter_<T>>(file);
   *counter->work = value;
   counter->message(msg);
-  counter->interval(interval);
+  if (interval) { counter->interval(*interval); }
   counter->speed(discount);
   counter->speed_unit(speed_unit);
   return counter;
@@ -119,13 +129,14 @@ void bind_template_counter(py::module& m, char const* name) {
           "work",
           [](Counter_<T>& c) -> value_t<T> { return *c.work; },
           [](Counter_<T>& c, value_t<T> v) { *c.work = v; })
-      .def(
-          "__iadd__",
-          [](Counter_<T>* c, value_t<T> v) {
-            *c->work += v;
-            return c;
-          },
-          py::is_operator());
+      .def(py::self += value_t<T>())
+      .def(py::self -= value_t<T>())
+      .def(py::self > value_t<T>())
+      .def(py::self < value_t<T>())
+      .def(py::self >= value_t<T>())
+      .def(py::self <= value_t<T>())
+      .def(py::self == value_t<T>())
+      .def(py::self != value_t<T>());
 }
 
 template <typename T>
@@ -162,6 +173,15 @@ class ProgressBar_ : public ProgressBar<T> {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<ProgressBar_>(*this);
   }
+
+  auto& operator+=(value_t<T> v) { *work += v; return *this; }
+  auto& operator-=(value_t<T> v) { *work -= v; return *this; }
+  bool operator>(value_t<T> v) const { return *work > v; }
+  bool operator<(value_t<T> v) const { return *work < v; }
+  bool operator>=(value_t<T> v) const { return *work >= v; }
+  bool operator<=(value_t<T> v) const { return *work <= v; }
+  bool operator==(value_t<T> v) const { return *work == v; }
+  bool operator!=(value_t<T> v) const { return *work != v; }
 };
 
 template <typename T>
@@ -169,7 +189,7 @@ std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
                                                 value_t<T> total,
                                                 py::object file,
                                                 std::string msg,
-                                                double interval,
+                                                std::optional<double> interval,
                                                 ProgressBarStyle style,
                                                 std::optional<double> discount,
                                                 std::string speed_unit) {
@@ -177,7 +197,7 @@ std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
   *bar->work = value;
   bar->total(total);
   bar->message(msg);
-  bar->interval(interval);
+  if (interval) { bar->interval(*interval); }
   bar->style(style);
   bar->speed(discount);
   bar->speed_unit(speed_unit);
@@ -191,13 +211,14 @@ void bind_template_progress_bar(py::module& m, char const* name) {
           "work",
           [](ProgressBar_<T>& c) -> value_t<T> { return *c.work; },
           [](ProgressBar_<T>& c, value_t<T> v) { *c.work = v; })
-      .def(
-          "__iadd__",
-          [](ProgressBar_<T>* c, value_t<T> v) {
-            *c->work += v;
-            return c;
-          },
-          py::is_operator());
+      .def(py::self += value_t<T>())
+      .def(py::self -= value_t<T>())
+      .def(py::self > value_t<T>())
+      .def(py::self < value_t<T>())
+      .def(py::self >= value_t<T>())
+      .def(py::self <= value_t<T>())
+      .def(py::self == value_t<T>())
+      .def(py::self != value_t<T>());
 }
 
 class Composite_ : public Composite {
@@ -223,7 +244,7 @@ PYBIND11_MODULE(barkeep, m) {
       .export_values();
 
   py::enum_<ProgressBarStyle>(m, "ProgressBarStyle")
-      .value("Bar", ProgressBarStyle::Bars)
+      .value("Bars", ProgressBarStyle::Bars)
       .value("Blocks", ProgressBarStyle::Blocks)
       .value("Arrow", ProgressBarStyle::Arrow)
       .export_values();
@@ -269,7 +290,7 @@ PYBIND11_MODULE(barkeep, m) {
       [](double value, // TODO: Make value match the specified dtype
          py::object file,
          std::string msg,
-         double interval,
+         std::optional<double> interval,
          std::optional<double> speed,
          std::string speed_unit,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
@@ -293,7 +314,7 @@ PYBIND11_MODULE(barkeep, m) {
       "value"_a = 0,
       "file"_a = py::none(),
       "message"_a = "",
-      "interval"_a = 1.,
+      "interval"_a = py::none(),
       "speed"_a = py::none(),
       "speed_unit"_a = "",
       "dtype"_a = DType::Int,
@@ -312,7 +333,7 @@ PYBIND11_MODULE(barkeep, m) {
          double total,
          py::object file,
          std::string msg,
-         double interval,
+         std::optional<double> interval,
          ProgressBarStyle style,
          std::optional<double> speed,
          std::string speed_unit,
@@ -337,7 +358,7 @@ PYBIND11_MODULE(barkeep, m) {
       "total"_a = 100,
       "file"_a = py::none(),
       "message"_a = "",
-      "interval"_a = 0.1,
+      "interval"_a = py::none(),
       "style"_a = ProgressBarStyle::Blocks,
       "speed"_a = py::none(),
       "speed_unit"_a = "",

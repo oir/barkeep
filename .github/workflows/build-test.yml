@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  build-and-run-tests:
+  build-and-test-for-cpp:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
       # - run: ./demo.out
-  build-python:
+  build-and-test-for-python:
     runs-on: ubuntu-latest
     steps:
       - run: rm -rf subprojects/Catch2
@@ -36,7 +36,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9' 
-      - run: pip install meson
+      - run: pip install meson pytest
       - run: sudo apt install ninja-build
       - run: meson setup build --buildtype=release --warnlevel=3
       - run: meson compile -C build python
+      - run: PYTHONPATH=build/python pytest python/tests/test.py

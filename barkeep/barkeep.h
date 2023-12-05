@@ -58,7 +58,7 @@ const static StringsList progress_partials_{
 
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
- protected:
+ private:
   Duration interval_{0.0};
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
@@ -108,6 +108,11 @@ class AsyncDisplay {
     return 0;
   }
 
+  /// Start the display but do not show.
+  /// This typically means start measuring speed if applicable, without
+  /// displaying anything.
+  virtual void start() {}
+
   /// Join the display thread. Protected because python bindings need to
   /// override to handle GIL.
   virtual void join() {
@@ -148,12 +153,15 @@ class AsyncDisplay {
     if (displayer_) {
       throw std::runtime_error("Display was already started!");
     }
+    start();
+
     displayer_ = std::make_unique<std::thread>([&]() {
       display_();
       while (true) {
         std::unique_lock<std::mutex> lock(completion_m_);
         auto interval =
             interval_ != Duration{0.} ? interval_ : default_interval_();
+        
         completion_.wait_for(lock, interval);
         display_();
         if (complete_) {
@@ -285,6 +293,11 @@ class Composite : public AsyncDisplay {
 
   Duration default_interval_() const override {
     return left_->default_interval_();
+  }
+
+  void start() override {
+    left_->start();
+    right_->start();
   }
 
  public:
@@ -459,6 +472,13 @@ class Counter : public AsyncDisplay {
     out_ = out;
   }
 
+  void start() override {
+    if constexpr (std::is_floating_point_v<Progress>) {
+      ss_ << std::fixed << std::setprecision(2);
+    }
+    if (speedom_) { speedom_->start(); }
+  }
+
   Counter(std::ostream* out = &std::cout) : AsyncDisplay(out) {}
 
  public:
@@ -492,14 +512,6 @@ class Counter : public AsyncDisplay {
     return std::make_unique<Counter>(*this);
   }
 
-  /// Start displaying the counter
-  void show() override {
-    if constexpr (std::is_floating_point_v<Progress>) {
-      ss_ << std::fixed << std::setprecision(2);
-    }
-    AsyncDisplay::show();
-    if (speedom_) { speedom_->start(); }
-  }
 
   /// Set how to compute speed.
   /// @param discount Discount factor in [0, 1] to use in computing the speed.
@@ -638,6 +650,10 @@ class ProgressBar : public AsyncDisplay {
     return no_tty_ ? Duration{60.} : Duration{.1};
   }
 
+  void start() override {
+    if (speedom_) { speedom_->start(); }
+  }
+
  protected:
   void init(Progress* progress, std::ostream* out) {
     progress_ = progress;
@@ -683,12 +699,6 @@ class ProgressBar : public AsyncDisplay {
 
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<ProgressBar>(*this);
-  }
-
-  /// Start displaying the bar.
-  void show() override {
-    AsyncDisplay::show();
-    if (speedom_) { speedom_->start(); }
   }
 
   /// Set how to compute speed.
