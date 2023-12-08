@@ -1,4 +1,11 @@
-from barkeep import Animation, AnimationStyle, Counter, DType, ProgressBar, ProgressBarStyle
+from barkeep import (
+    Animation,
+    AnimationStyle,
+    Counter,
+    DType,
+    ProgressBar,
+    ProgressBarStyle,
+)
 import pytest
 
 import io
@@ -21,14 +28,15 @@ def check_anim(parts: list[str], msg: str, stills: list[str]):
         part = parts[i]
         assert part == (msg + " " + stills[j] + " ")
 
+
 animation_styles = [
-            AnimationStyle.Ellipsis,
-            AnimationStyle.Clock,
-            AnimationStyle.Moon,
-            AnimationStyle.Earth,
-            AnimationStyle.Bar,
-            AnimationStyle.Square,
-        ]
+    AnimationStyle.Ellipsis,
+    AnimationStyle.Clock,
+    AnimationStyle.Moon,
+    AnimationStyle.Earth,
+    AnimationStyle.Bar,
+    AnimationStyle.Square,
+]
 animation_stills = [
     [".  ", ".. ", "..."],
     ["🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
@@ -39,9 +47,9 @@ animation_stills = [
     ["▖", "▘", "▝", "▗"],
 ]  # fmt: skip
 
-@pytest.mark.parametrize("i,sty", enumerate(animation_styles))
-def test_animation(i:int, sty:AnimationStyle):
 
+@pytest.mark.parametrize("i,sty", enumerate(animation_styles))
+def test_animation(i: int, sty: AnimationStyle):
     out = io.StringIO()
 
     anim = Animation(message="Working", style=sty, interval=0.1, file=out)
@@ -52,7 +60,9 @@ def test_animation(i:int, sty:AnimationStyle):
     check_anim(check_and_get_parts(out.getvalue()), "Working", animation_stills[i])
 
 
-@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize(
+    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+)
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
@@ -76,7 +86,9 @@ def test_constant_counter(dtype, amount, discount, unit):
 
     parts = check_and_get_parts(out.getvalue())
 
-    amountstr = f"{amount:.2f}" if dtype in [DType.Float, DType.AtomicFloat] else f"{amount:d}"
+    amountstr = (
+        f"{amount:.2f}" if dtype in [DType.Float, DType.AtomicFloat] else f"{amount:d}"
+    )
 
     expected = f"Doing things {amountstr} "
     if discount == 1:
@@ -89,17 +101,19 @@ def test_constant_counter(dtype, amount, discount, unit):
         assert part == expected
 
 
-def extract_counts(prefix:str, parts:list[str], py_dtype):
+def extract_counts(prefix: str, parts: list[str], py_dtype):
     rval = []
     for part in parts:
         assert part.startswith(prefix)
         i = part.find(" ", len(prefix))
-        countstr = part[len(prefix):i]
+        countstr = part[len(prefix) : i]
         rval.append(py_dtype(countstr))
     return rval
 
 
-@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize(
+    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+)
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
@@ -130,7 +144,7 @@ def test_counter(dtype, amount, discount, unit):
 
     for i in range(1, len(counts)):
         assert counts[i] >= counts[i - 1]
-    
+
     expected = amount
     if dtype in [DType.Float, DType.AtomicFloat]:
         expected += 121.2
@@ -139,8 +153,9 @@ def test_counter(dtype, amount, discount, unit):
     assert counts[-1] == expected
 
 
-
-@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize(
+    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+)
 def test_decreasing_counter(dtype):
     out = io.StringIO()
 
@@ -179,7 +194,10 @@ def factory_helper(display_type):
         return Animation(file=hide) | Counter(file=hide) | ProgressBar(file=hide)
     raise Exception("Invalid display type!")
 
-@pytest.mark.parametrize("display_type", ["animation", "counter", "progressbar", "composite"])
+
+@pytest.mark.parametrize(
+    "display_type", ["animation", "counter", "progressbar", "composite"]
+)
 def test_running_compose(display_type):
     orig = factory_helper(display_type)
     orig.show()
@@ -187,13 +205,17 @@ def test_running_compose(display_type):
         composite = orig | orig
         composite.done()
 
-@pytest.mark.parametrize("display_type", ["animation", "counter", "progressbar", "composite"])
+
+@pytest.mark.parametrize(
+    "display_type", ["animation", "counter", "progressbar", "composite"]
+)
 def test_running_compose_extra(display_type):
     orig = factory_helper(display_type)
     orig.show()
     with pytest.raises(Exception):
         composite = orig | orig | orig
         composite.done()
+
 
 @pytest.mark.parametrize("Display", [Counter, ProgressBar])
 @pytest.mark.parametrize("discount", [-1, 1.1])
@@ -202,8 +224,12 @@ def test_invalid_speed_discount(Display, discount):
         Display(speed=discount)
 
 
-@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
-@pytest.mark.parametrize("sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow])
+@pytest.mark.parametrize(
+    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+)
+@pytest.mark.parametrize(
+    "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow]
+)
 def test_progress_bar(dtype, sty):
     out = io.StringIO()
 
@@ -232,7 +258,9 @@ def test_progress_bar(dtype, sty):
         last_spaces = spaces
 
 
-@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize(
+    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+)
 @pytest.mark.parametrize("above", [True, False])
 def test_progress_bar_overflow(dtype, above):
     out = io.StringIO()
@@ -249,7 +277,7 @@ def test_progress_bar_overflow(dtype, above):
     bar.show()
     for i in range(50):
         time.sleep(0.0013)
-        bar += (1 if above else -1)
+        bar += 1 if above else -1
     bar.done()
 
     parts = check_and_get_parts(out.getvalue())
