@@ -1,8 +1,9 @@
-from barkeep import Animation, AnimationStyle, Counter, DType, ProgressBar
+from barkeep import Animation, AnimationStyle, Counter, DType, ProgressBar, ProgressBarStyle
 import pytest
 
 import io
 import time
+import random
 
 
 def check_and_get_parts(s: str, no_tty: bool = False) -> list[str]:
@@ -193,3 +194,122 @@ def test_running_compose_extra(display_type):
     with pytest.raises(Exception):
         composite = orig | orig | orig
         composite.done()
+
+@pytest.mark.parametrize("Display", [Counter, ProgressBar])
+@pytest.mark.parametrize("discount", [-1, 1.1])
+def test_invalid_speed_discount(Display, discount):
+    with pytest.raises(Exception):
+        Display(speed=discount)
+
+
+@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize("sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow])
+def test_progress_bar(dtype, sty):
+    out = io.StringIO()
+
+    bar = ProgressBar(
+        value=0,
+        total=50,
+        message="Computing",
+        interval=0.001,
+        file=out,
+        dtype=dtype,
+        style=sty,
+    )
+    bar.show()
+    for i in range(50):
+        time.sleep(0.0013)
+        bar += 1
+    bar.done()
+
+    parts = check_and_get_parts(out.getvalue())
+
+    # Check that space is shrinking
+    last_spaces = 100000
+    for part in parts:
+        spaces = part.count(" ")
+        assert spaces <= last_spaces
+        last_spaces = spaces
+
+
+@pytest.mark.parametrize("dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat])
+@pytest.mark.parametrize("above", [True, False])
+def test_progress_bar_overflow(dtype, above):
+    out = io.StringIO()
+
+    bar = ProgressBar(
+        value=50 if above else 0,
+        total=50,
+        message="Computing",
+        interval=0.001,
+        file=out,
+        dtype=dtype,
+        style=ProgressBarStyle.Bars,
+    )
+    bar.show()
+    for i in range(50):
+        time.sleep(0.0013)
+        bar += (1 if above else -1)
+    bar.done()
+
+    parts = check_and_get_parts(out.getvalue())
+    expected = "|" * 32 if above else "|" + " " * 30 + "|"
+    for part in parts:
+        assert expected in part
+
+
+def test_composite_bar_counter():
+    out = io.StringIO()
+
+    sents = 0
+    toks = 0
+    bar = ProgressBar(
+        value=sents,
+        total=505,
+        message="Sents",
+        interval=0.01,
+        file=out,
+        style=ProgressBarStyle.Bars,
+    ) | Counter(
+        value=toks,
+        message="Toks",
+        speed_unit="tok/s",
+        speed=1,
+        file=out,
+    )
+    bar.show()
+    for i in range(505):
+        time.sleep(0.0013)
+        sents += 1
+        toks += 1 + random.randrange(5)
+    bar.done()
+
+    parts = check_and_get_parts(out.getvalue())
+    last_spaces = 100000
+    last_count = 0
+
+    for part in parts:
+        assert part.startswith("Sents ")
+        assert part[54:61] == "  Toks "
+        part = part.rstrip()
+        assert part[-7:] == " tok/s)"
+
+        # check bar correctness
+        bar_part = part[14:46]
+        spaces = bar_part.count(" ")
+        assert spaces <= last_spaces
+        last_spaces = spaces
+        i = 1
+        while bar_part[i] != " " and i < 31:
+            assert bar_part[i] == "|"
+            i += 1
+        while i < 31:
+            assert bar_part[i] == " "
+            i += 1
+
+        # check counter correctness
+        count_part = part[61:]
+        i = count_part.find(" ")
+        count = int(count_part[:i])
+        assert count >= last_count
+        last_count = count
