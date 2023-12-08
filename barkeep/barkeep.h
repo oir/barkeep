@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <vector>
 
+
 namespace barkeep {
 
 using Strings = std::vector<std::string>;
@@ -58,7 +59,7 @@ const static StringsList progress_partials_{
 
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
- private:
+ protected:
   Duration interval_{0.0};
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
@@ -151,20 +152,25 @@ class AsyncDisplay {
   /// and computing speed if applicable.
   virtual void show() {
     if (displayer_) {
-      throw std::runtime_error("Display was already started!");
+      return; // noop if already show()n before
     }
     start();
 
     displayer_ = std::make_unique<std::thread>([&]() {
       display_();
       while (true) {
-        std::unique_lock<std::mutex> lock(completion_m_);
+        bool complete = false;
         auto interval =
             interval_ != Duration{0.} ? interval_ : default_interval_();
-        
-        completion_.wait_for(lock, interval);
+        {
+          std::unique_lock<std::mutex> lock(completion_m_);
+          if (not complete_) {
+            completion_.wait_for(lock, interval);
+          }
+          complete = complete_;
+        }
         display_();
-        if (complete_) {
+        if (complete) {
           // Final newline to avoid overwriting the display
           *out_ << std::endl;
           break;
@@ -183,6 +189,8 @@ class AsyncDisplay {
     completion_.notify_all();
     join();
   }
+
+  bool running() const { return displayer_ != nullptr; }
 
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
 
@@ -473,7 +481,7 @@ class Counter : public AsyncDisplay {
   }
 
   void start() override {
-    if constexpr (std::is_floating_point_v<Progress>) {
+    if constexpr (std::is_floating_point_v<value_t<Progress>>) {
       ss_ << std::fixed << std::setprecision(2);
     }
     if (speedom_) { speedom_->start(); }

@@ -27,7 +27,6 @@ struct PyFileStream : public std::stringbuf, public std::ostream {
               py::arg("flush") = true,
               py::arg("end") = "");
     str("");
-    py::gil_scoped_release release;
     return 0;
   }
 
@@ -368,7 +367,16 @@ PYBIND11_MODULE(barkeep, m) {
   py::class_<Composite_, AsyncDisplay>(m, "Composite");
 
   async_display.def("__or__",
-                    [](AsyncDisplay& self, const AsyncDisplay& other) {
+                    [](AsyncDisplay& self, AsyncDisplay& other) {
+                      if (self.running() or other.running()) {
+                        // not sure why this is necessary, but it prevents segfaults.
+                        // maybe pybind11 implicit copies are causing problems when destructor
+                        // attempts a done() ?
+                        self.done();
+                        other.done();
+                        throw std::runtime_error(
+                            "Cannot combine running AsyncDisplay objects!");
+                      }
                       return Composite_(self.clone(), other.clone());
                     });
 }
