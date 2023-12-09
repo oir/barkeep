@@ -241,7 +241,8 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
     CHECK_THROWS([&]() { orig | orig; }());
     CHECK_THROWS([&]() { orig | orig | orig; }());
   }
-  SECTION("Double start") { CHECK_THROWS(orig.show()); }
+  // This is now a no-op, instead of error.
+  CHECK_NOTHROW(orig.show());
   orig.done();
   CHECK_NOTHROW(orig.done());
 }
