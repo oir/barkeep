@@ -1,6 +1,6 @@
 #include <barkeep/barkeep.h>
-#include <pybind11/pybind11.h>
 #include <pybind11/operators.h>
+#include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 namespace py = pybind11;
@@ -95,8 +95,14 @@ class Counter_ : public Counter<T> {
     return std::make_unique<Counter_>(*this);
   }
 
-  auto& operator+=(value_t<T> v) { *work += v; return *this; }
-  auto& operator-=(value_t<T> v) { *work -= v; return *this; }
+  auto& operator+=(value_t<T> v) {
+    *work += v;
+    return *this;
+  }
+  auto& operator-=(value_t<T> v) {
+    *work -= v;
+    return *this;
+  }
   bool operator>(value_t<T> v) const { return *work > v; }
   bool operator<(value_t<T> v) const { return *work < v; }
   bool operator>=(value_t<T> v) const { return *work >= v; }
@@ -173,8 +179,14 @@ class ProgressBar_ : public ProgressBar<T> {
     return std::make_unique<ProgressBar_>(*this);
   }
 
-  auto& operator+=(value_t<T> v) { *work += v; return *this; }
-  auto& operator-=(value_t<T> v) { *work -= v; return *this; }
+  auto& operator+=(value_t<T> v) {
+    *work += v;
+    return *this;
+  }
+  auto& operator-=(value_t<T> v) {
+    *work -= v;
+    return *this;
+  }
   bool operator>(value_t<T> v) const { return *work > v; }
   bool operator<(value_t<T> v) const { return *work < v; }
   bool operator>=(value_t<T> v) const { return *work >= v; }
@@ -366,17 +378,15 @@ PYBIND11_MODULE(barkeep, m) {
 
   py::class_<Composite_, AsyncDisplay>(m, "Composite");
 
-  async_display.def("__or__",
-                    [](AsyncDisplay& self, AsyncDisplay& other) {
-                      if (self.running() or other.running()) {
-                        // not sure why this is necessary, but it prevents segfaults.
-                        // maybe pybind11 implicit copies are causing problems when destructor
-                        // attempts a done() ?
-                        self.done();
-                        other.done();
-                        throw std::runtime_error(
-                            "Cannot combine running AsyncDisplay objects!");
-                      }
-                      return Composite_(self.clone(), other.clone());
-                    });
+  async_display.def("__or__", [](AsyncDisplay& self, AsyncDisplay& other) {
+    if (self.running() or other.running()) {
+      // not sure why this is necessary, but it prevents segfaults.
+      // maybe pybind11 implicit copies are causing problems when destructor
+      // attempts a done() ?
+      self.done();
+      other.done();
+      throw std::runtime_error("Cannot combine running AsyncDisplay objects!");
+    }
+    return Composite_(self.clone(), other.clone());
+  });
 }

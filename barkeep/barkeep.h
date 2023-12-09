@@ -15,7 +15,6 @@
 #include <type_traits>
 #include <vector>
 
-
 namespace barkeep {
 
 using Strings = std::vector<std::string>;
@@ -164,9 +163,7 @@ class AsyncDisplay {
             interval_ != Duration{0.} ? interval_ : default_interval_();
         {
           std::unique_lock<std::mutex> lock(completion_m_);
-          if (not complete_) {
-            completion_.wait_for(lock, interval);
-          }
+          if (not complete_) { completion_.wait_for(lock, interval); }
           complete = complete_;
         }
         display_();
@@ -519,7 +516,6 @@ class Counter : public AsyncDisplay {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Counter>(*this);
   }
-
 
   /// Set how to compute speed.
   /// @param discount Discount factor in [0, 1] to use in computing the speed.
