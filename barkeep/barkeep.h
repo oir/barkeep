@@ -63,7 +63,7 @@ class AsyncDisplay {
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
   std::mutex completion_m_;
-  bool complete_ = false;
+  std::atomic<bool> complete_ = false;
 
   std::string message_;
   size_t max_rendered_len_ = 0;
@@ -125,7 +125,7 @@ class AsyncDisplay {
 
   AsyncDisplay(const AsyncDisplay& other)
       : interval_(other.interval_),
-        complete_(other.complete_),
+        complete_(bool(other.complete_)),
         message_(other.message_),
         out_(other.out_),
         no_tty_(other.no_tty_) {
@@ -136,7 +136,7 @@ class AsyncDisplay {
 
   AsyncDisplay(AsyncDisplay&& other)
       : interval_(other.interval_),
-        complete_(other.complete_),
+        complete_(bool(other.complete_)),
         out_(other.out_),
         no_tty_(other.no_tty_) {
     if (other.displayer_) {
@@ -158,16 +158,14 @@ class AsyncDisplay {
     displayer_ = std::make_unique<std::thread>([&]() {
       display_();
       while (true) {
-        bool complete = false;
         auto interval =
             interval_ != Duration{0.} ? interval_ : default_interval_();
         {
           std::unique_lock<std::mutex> lock(completion_m_);
           if (not complete_) { completion_.wait_for(lock, interval); }
-          complete = complete_;
         }
         display_();
-        if (complete) {
+        if (complete_) {
           // Final newline to avoid overwriting the display
           *out_ << std::endl;
           break;
@@ -179,10 +177,7 @@ class AsyncDisplay {
   /// End the display.
   virtual void done() {
     if (not displayer_) { return; } // noop if already done() before
-    {
-      std::lock_guard<std::mutex> lock(completion_m_);
-      complete_ = true;
-    }
+    complete_ = true;
     completion_.notify_all();
     join();
   }
