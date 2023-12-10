@@ -51,7 +51,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: false
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
           CIBW_BUILD: cp39-*
+          CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
