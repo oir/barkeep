@@ -17,7 +17,7 @@ def check_and_get_parts(s: str, no_tty: bool = False) -> list[str]:
     if not no_tty:
         assert s[0] == "\r"
     assert s[-1] == "\n"
-    parts = s[0:-1].split("\n") if no_tty else s[1:-1].split("\r")
+    parts = s[0:-2].split("\n") if no_tty else s[1:-1].split("\r")
     assert len(parts) > 0
     return parts
 
@@ -66,7 +66,8 @@ def test_animation(i: int, sty: AnimationStyle):
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
-def test_constant_counter(dtype, amount, discount, unit):
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_constant_counter(dtype, amount, discount, unit, no_tty):
     out = io.StringIO()
 
     ctr = Counter(
@@ -76,6 +77,7 @@ def test_constant_counter(dtype, amount, discount, unit):
         speed=discount,
         speed_unit=unit,
         file=out,
+        no_tty=no_tty,
         dtype=dtype,
     )
     ctr.show()
@@ -84,7 +86,7 @@ def test_constant_counter(dtype, amount, discount, unit):
         # no work
     ctr.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
 
     amountstr = (
         f"{amount:.2f}" if dtype in [DType.Float, DType.AtomicFloat] else f"{amount:d}"
@@ -117,7 +119,8 @@ def extract_counts(prefix: str, parts: list[str], py_dtype):
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
-def test_counter(dtype, amount, discount, unit):
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_counter(dtype, amount, discount, unit, no_tty):
     out = io.StringIO()
 
     ctr = Counter(
@@ -127,6 +130,7 @@ def test_counter(dtype, amount, discount, unit):
         speed=discount,
         speed_unit=unit,
         file=out,
+        no_tty=no_tty,
         dtype=dtype,
     )
     ctr.show()
@@ -139,7 +143,7 @@ def test_counter(dtype, amount, discount, unit):
         ctr += increment
     ctr.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
     counts = extract_counts("Doing things ", parts, py_dtype)
 
     for i in range(1, len(counts)):
@@ -156,7 +160,8 @@ def test_counter(dtype, amount, discount, unit):
 @pytest.mark.parametrize(
     "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
 )
-def test_decreasing_counter(dtype):
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_decreasing_counter(dtype, no_tty):
     out = io.StringIO()
 
     ctr = Counter(
@@ -164,6 +169,7 @@ def test_decreasing_counter(dtype):
         message="Doing things",
         interval=0.01,
         file=out,
+        no_tty=no_tty,
         dtype=dtype,
     )
     ctr.show()
@@ -173,7 +179,7 @@ def test_decreasing_counter(dtype):
         ctr -= 1
     ctr.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
     py_dtype = float if dtype in [DType.Float, DType.AtomicFloat] else int
     counts = extract_counts("Doing things ", parts, py_dtype)
 
@@ -230,7 +236,8 @@ def test_invalid_speed_discount(Display, discount):
 @pytest.mark.parametrize(
     "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow]
 )
-def test_progress_bar(dtype, sty):
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_progress_bar(dtype, sty, no_tty):
     out = io.StringIO()
 
     bar = ProgressBar(
@@ -241,6 +248,7 @@ def test_progress_bar(dtype, sty):
         file=out,
         dtype=dtype,
         style=sty,
+        no_tty=no_tty,
     )
     bar.show()
     for i in range(50):
@@ -248,7 +256,7 @@ def test_progress_bar(dtype, sty):
         bar += 1
     bar.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
 
     # Check that space is shrinking
     last_spaces = 100000
@@ -262,7 +270,8 @@ def test_progress_bar(dtype, sty):
     "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
 )
 @pytest.mark.parametrize("above", [True, False])
-def test_progress_bar_overflow(dtype, above):
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_progress_bar_overflow(dtype, above, no_tty):
     out = io.StringIO()
 
     bar = ProgressBar(
@@ -273,6 +282,7 @@ def test_progress_bar_overflow(dtype, above):
         file=out,
         dtype=dtype,
         style=ProgressBarStyle.Bars,
+        no_tty=no_tty,
     )
     bar.show()
     for i in range(50):
@@ -280,13 +290,14 @@ def test_progress_bar_overflow(dtype, above):
         bar += 1 if above else -1
     bar.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
     expected = "|" * 32 if above else "|" + " " * 30 + "|"
     for part in parts:
         assert expected in part
 
 
-def test_composite_bar_counter():
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_composite_bar_counter(no_tty):
     out = io.StringIO()
 
     sents = 0
@@ -298,6 +309,7 @@ def test_composite_bar_counter():
         interval=0.01,
         file=out,
         style=ProgressBarStyle.Bars,
+        no_tty=no_tty,
     ) | Counter(
         value=toks,
         message="Toks",
@@ -312,7 +324,7 @@ def test_composite_bar_counter():
         toks += 1 + random.randrange(5)
     bar.done()
 
-    parts = check_and_get_parts(out.getvalue())
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
     last_spaces = 100000
     last_count = 0
 

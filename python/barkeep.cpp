@@ -117,13 +117,15 @@ std::unique_ptr<AsyncDisplay> make_counter(value_t<T> value,
                                            std::string msg,
                                            std::optional<double> interval,
                                            std::optional<double> discount,
-                                           std::string speed_unit) {
+                                           std::string speed_unit,
+                                           bool no_tty = false) {
   auto counter = std::make_unique<Counter_<T>>(file);
   *counter->work = value;
   counter->message(msg);
   if (interval) { counter->interval(*interval); }
   counter->speed(discount);
   counter->speed_unit(speed_unit);
+  if (no_tty) { counter->no_tty(); }
   return counter;
 };
 
@@ -203,7 +205,8 @@ std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
                                                 std::optional<double> interval,
                                                 ProgressBarStyle style,
                                                 std::optional<double> discount,
-                                                std::string speed_unit) {
+                                                std::string speed_unit,
+                                                bool no_tty = false) {
   auto bar = std::make_unique<ProgressBar_<T>>(file);
   *bar->work = value;
   bar->total(total);
@@ -212,6 +215,7 @@ std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
   bar->style(style);
   bar->speed(discount);
   bar->speed_unit(speed_unit);
+  if (no_tty) { bar->no_tty(); }
   return bar;
 };
 
@@ -275,17 +279,20 @@ PYBIND11_MODULE(barkeep, m) {
       .def(py::init([](py::object file,
                        std::string msg,
                        double interval,
-                       AnimationStyle style) {
+                       AnimationStyle style,
+                       bool no_tty) {
              Animation_ a(file);
              a.message(msg);
              a.interval(interval);
              a.style(style);
+             if (no_tty) { a.no_tty(); }
              return a;
            }),
            "file"_a = py::none(),
            "message"_a = "",
            "interval"_a = 1.,
            "style"_a = AnimationStyle::Ellipsis,
+           "no_tty"_a = false,
            py::keep_alive<0, 1>()); // keep file alive while the animation is
                                     // alive);
 
@@ -304,21 +311,22 @@ PYBIND11_MODULE(barkeep, m) {
          std::optional<double> interval,
          std::optional<double> speed,
          std::string speed_unit,
+         bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         std::unique_ptr<AsyncDisplay> rval;
         switch (dtype) {
         case DType::Int:
           return make_counter<Int>(
-              value, file, msg, interval, speed, speed_unit);
+              value, file, msg, interval, speed, speed_unit, no_tty);
         case DType::Float:
           return make_counter<Float>(
-              value, file, msg, interval, speed, speed_unit);
+              value, file, msg, interval, speed, speed_unit, no_tty);
         case DType::AtomicInt:
           return make_counter<AtomicInt>(
-              value, file, msg, interval, speed, speed_unit);
+              value, file, msg, interval, speed, speed_unit, no_tty);
         case DType::AtomicFloat:
           return make_counter<AtomicFloat>(
-              value, file, msg, interval, speed, speed_unit);
+              value, file, msg, interval, speed, speed_unit, no_tty);
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
@@ -328,6 +336,7 @@ PYBIND11_MODULE(barkeep, m) {
       "interval"_a = py::none(),
       "speed"_a = py::none(),
       "speed_unit"_a = "",
+      "no_tty"_a = false,
       "dtype"_a = DType::Int,
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
@@ -348,20 +357,21 @@ PYBIND11_MODULE(barkeep, m) {
          ProgressBarStyle style,
          std::optional<double> speed,
          std::string speed_unit,
+         bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         switch (dtype) {
         case DType::Int:
           return make_progress_bar<Int>(
-              value, total, file, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
         case DType::Float:
           return make_progress_bar<Float>(
-              value, total, file, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
         case DType::AtomicInt:
           return make_progress_bar<AtomicInt>(
-              value, total, file, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
         case DType::AtomicFloat:
           return make_progress_bar<AtomicFloat>(
-              value, total, file, msg, interval, style, speed, speed_unit);
+              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
@@ -373,6 +383,7 @@ PYBIND11_MODULE(barkeep, m) {
       "style"_a = ProgressBarStyle::Blocks,
       "speed"_a = py::none(),
       "speed_unit"_a = "",
+      "no_tty"_a = false,
       "dtype"_a = DType::Int,
       py::keep_alive<0, 3>()); // keep file alive while the bar is alive
 
