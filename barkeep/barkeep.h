@@ -3,6 +3,7 @@
 #ifndef BARKEEP_H
 #define BARKEEP_H
 
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <condition_variable>
