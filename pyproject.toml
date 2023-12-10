@@ -3,15 +3,19 @@ build-backend = 'mesonpy'
 requires = ['meson-python']
 
 [tool.meson-python.args]
+compile = ['python']
 install = ['--tags=runtime,python-runtime']
 
 [project]
 name = 'barkeep'
 version = '0.0.1'
 description = ''
-readme = 'README.md'
+readme = 'docs/README.md'
 requires-python = '>=3.9'
 license = {file = 'LICENSE'}
 authors = [
   {name = 'Ozan Irsoy'},
 ]
+
+[tool.cibuildwheel]
+build-verbosity = "3"
