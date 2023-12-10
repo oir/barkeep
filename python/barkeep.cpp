@@ -275,14 +275,10 @@ PYBIND11_MODULE(barkeep, m) {
         };
 
         switch (dtype) {
-        case DType::Int:
-          return make_counter(Int());
-        case DType::Float:
-          return make_counter(Float());
-        case DType::AtomicInt:
-          return make_counter(AtomicInt());
-        case DType::AtomicFloat:
-          return make_counter(AtomicFloat());
+        case DType::Int: return make_counter(Int());
+        case DType::Float: return make_counter(Float());
+        case DType::AtomicInt: return make_counter(AtomicInt());
+        case DType::AtomicFloat: return make_counter(AtomicFloat());
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
@@ -319,30 +315,25 @@ PYBIND11_MODULE(barkeep, m) {
          std::string speed_unit,
          bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
-        auto make_progress_bar =
-            [&](auto pv) {
-              using T = decltype(pv);
-              auto bar = std::make_unique<ProgressBar_<T>>(file);
-              *bar->work = value;
-              bar->total(total);
-              bar->message(msg);
-              if (interval) { bar->interval(*interval); }
-              bar->style(style);
-              bar->speed(speed);
-              bar->speed_unit(speed_unit);
-              if (no_tty) { bar->no_tty(); }
-              return bar;
-            };
+        auto make_progress_bar = [&](auto pv) {
+          using T = decltype(pv);
+          auto bar = std::make_unique<ProgressBar_<T>>(file);
+          *bar->work = value;
+          bar->total(total);
+          bar->message(msg);
+          if (interval) { bar->interval(*interval); }
+          bar->style(style);
+          bar->speed(speed);
+          bar->speed_unit(speed_unit);
+          if (no_tty) { bar->no_tty(); }
+          return bar;
+        };
 
         switch (dtype) {
-        case DType::Int:
-          return make_progress_bar(Int());
-        case DType::Float:
-          return make_progress_bar(Float());
-        case DType::AtomicInt:
-          return make_progress_bar(AtomicInt());
-        case DType::AtomicFloat:
-          return make_progress_bar(AtomicFloat());
+        case DType::Int: return make_progress_bar(Int());
+        case DType::Float: return make_progress_bar(Float());
+        case DType::AtomicInt: return make_progress_bar(AtomicInt());
+        case DType::AtomicFloat: return make_progress_bar(AtomicFloat());
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
