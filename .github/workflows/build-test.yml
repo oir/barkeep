@@ -58,6 +58,10 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
+      - name: Install g++ for macos
+        if: runner.os == 'macOS'
+        run: |
+          brew install gcc@11
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
