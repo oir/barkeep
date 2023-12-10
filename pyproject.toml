@@ -20,6 +20,6 @@ authors = [
 [tool.cibuildwheel]
 build-verbosity = "3"
 
-[tool.cibuildwheel.musllinux]
-build-verbosity = "3"
+[[tool.cibuildwheel.overrides]]
+select = "*-musllinux*"
 environment = { CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
