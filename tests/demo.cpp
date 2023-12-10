@@ -8,18 +8,6 @@ int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
   namespace bk = barkeep;
 
-  {
-    int c = 0;
-    auto ctr = bk::Counter(&c).message("Counting").interval(1).no_tty();
-    ctr.show();
-    for (int i = 0; i < 10; i++) {
-      std::this_thread::sleep_for(1.2s);
-      c++;
-    }
-  }
-
-  return 0;
-
   for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
     auto anim = bk::Animation().message("Working").style(sty).interval(0.5s);
     anim.show();
