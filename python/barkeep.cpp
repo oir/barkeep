@@ -112,41 +112,6 @@ class Counter_ : public Counter<T> {
 };
 
 template <typename T>
-std::unique_ptr<AsyncDisplay> make_counter(value_t<T> value,
-                                           py::object file,
-                                           std::string msg,
-                                           std::optional<double> interval,
-                                           std::optional<double> discount,
-                                           std::string speed_unit,
-                                           bool no_tty = false) {
-  auto counter = std::make_unique<Counter_<T>>(file);
-  *counter->work = value;
-  counter->message(msg);
-  if (interval) { counter->interval(*interval); }
-  counter->speed(discount);
-  counter->speed_unit(speed_unit);
-  if (no_tty) { counter->no_tty(); }
-  return counter;
-};
-
-template <typename T>
-void bind_template_counter(py::module& m, char const* name) {
-  py::class_<Counter_<T>, AsyncDisplay>(m, name)
-      .def_property(
-          "work",
-          [](Counter_<T>& c) -> value_t<T> { return *c.work; },
-          [](Counter_<T>& c, value_t<T> v) { *c.work = v; })
-      .def(py::self += value_t<T>())
-      .def(py::self -= value_t<T>())
-      .def(py::self > value_t<T>())
-      .def(py::self < value_t<T>())
-      .def(py::self >= value_t<T>())
-      .def(py::self <= value_t<T>())
-      .def(py::self == value_t<T>())
-      .def(py::self != value_t<T>());
-}
-
-template <typename T>
 class ProgressBar_ : public ProgressBar<T> {
  protected:
   using ProgressBar<T>::render_;
@@ -196,45 +161,6 @@ class ProgressBar_ : public ProgressBar<T> {
   bool operator==(value_t<T> v) const { return *work == v; }
   bool operator!=(value_t<T> v) const { return *work != v; }
 };
-
-template <typename T>
-std::unique_ptr<AsyncDisplay> make_progress_bar(value_t<T> value,
-                                                value_t<T> total,
-                                                py::object file,
-                                                std::string msg,
-                                                std::optional<double> interval,
-                                                ProgressBarStyle style,
-                                                std::optional<double> discount,
-                                                std::string speed_unit,
-                                                bool no_tty = false) {
-  auto bar = std::make_unique<ProgressBar_<T>>(file);
-  *bar->work = value;
-  bar->total(total);
-  bar->message(msg);
-  if (interval) { bar->interval(*interval); }
-  bar->style(style);
-  bar->speed(discount);
-  bar->speed_unit(speed_unit);
-  if (no_tty) { bar->no_tty(); }
-  return bar;
-};
-
-template <typename T>
-void bind_template_progress_bar(py::module& m, char const* name) {
-  py::class_<ProgressBar_<T>, AsyncDisplay>(m, name)
-      .def_property(
-          "work",
-          [](ProgressBar_<T>& c) -> value_t<T> { return *c.work; },
-          [](ProgressBar_<T>& c, value_t<T> v) { *c.work = v; })
-      .def(py::self += value_t<T>())
-      .def(py::self -= value_t<T>())
-      .def(py::self > value_t<T>())
-      .def(py::self < value_t<T>())
-      .def(py::self >= value_t<T>())
-      .def(py::self <= value_t<T>())
-      .def(py::self == value_t<T>())
-      .def(py::self != value_t<T>());
-}
 
 class Composite_ : public Composite {
  public:
@@ -296,13 +222,34 @@ PYBIND11_MODULE(barkeep, m) {
            py::keep_alive<0, 1>()); // keep file alive while the animation is
                                     // alive);
 
-  bind_template_counter<Int>(m, "IntCounter");
-  bind_template_counter<Float>(m, "FloatCounter");
-  bind_template_counter<AtomicInt>(m, "AtomicIntCounter");
-  bind_template_counter<AtomicFloat>(m, "AtomicFloatCounter");
+  auto bind_display = [&](auto& m, auto disp, auto pv, const char* name) {
+    using T = decltype(pv);
+    using Disp = decltype(disp);
+    py::class_<Disp, AsyncDisplay>(m, name)
+        .def_property(
+            "value",
+            [](Disp& c) -> value_t<T> { return *c.work; },
+            [](Disp& c, value_t<T> v) { *c.work = v; })
+        .def(py::self += value_t<T>())
+        .def(py::self -= value_t<T>())
+        .def(py::self > value_t<T>())
+        .def(py::self < value_t<T>())
+        .def(py::self >= value_t<T>())
+        .def(py::self <= value_t<T>())
+        .def(py::self == value_t<T>())
+        .def(py::self != value_t<T>());
+  };
+
+  auto bind_counter = [&](auto& m, auto pv, const char* name) {
+    bind_display(m, Counter_<decltype(pv)>(), decltype(pv)(), name);
+  };
+
+  bind_counter(m, Int(), "IntCounter");
+  bind_counter(m, Float(), "FloatCounter");
+  bind_counter(m, AtomicInt(), "AtomicIntCounter");
+  bind_counter(m, AtomicFloat(), "AtomicFloatCounter");
 
   // Factory function for all instantiations of Counter_
-
   m.def(
       "Counter",
       [](double value, // TODO: Make value match the specified dtype
@@ -314,19 +261,28 @@ PYBIND11_MODULE(barkeep, m) {
          bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         std::unique_ptr<AsyncDisplay> rval;
+
+        auto make_counter = [&](auto pv) {
+          using T = decltype(pv);
+          auto counter = std::make_unique<Counter_<T>>(file);
+          *counter->work = value;
+          counter->message(msg);
+          if (interval) { counter->interval(*interval); }
+          counter->speed(speed);
+          counter->speed_unit(speed_unit);
+          if (no_tty) { counter->no_tty(); }
+          return counter;
+        };
+
         switch (dtype) {
         case DType::Int:
-          return make_counter<Int>(
-              value, file, msg, interval, speed, speed_unit, no_tty);
+          return make_counter(Int());
         case DType::Float:
-          return make_counter<Float>(
-              value, file, msg, interval, speed, speed_unit, no_tty);
+          return make_counter(Float());
         case DType::AtomicInt:
-          return make_counter<AtomicInt>(
-              value, file, msg, interval, speed, speed_unit, no_tty);
+          return make_counter(AtomicInt());
         case DType::AtomicFloat:
-          return make_counter<AtomicFloat>(
-              value, file, msg, interval, speed, speed_unit, no_tty);
+          return make_counter(AtomicFloat());
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
@@ -340,10 +296,14 @@ PYBIND11_MODULE(barkeep, m) {
       "dtype"_a = DType::Int,
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
-  bind_template_progress_bar<Int>(m, "IntProgressBar");
-  bind_template_progress_bar<Float>(m, "FloatProgressBar");
-  bind_template_progress_bar<AtomicInt>(m, "AtomicIntProgressBar");
-  bind_template_progress_bar<AtomicFloat>(m, "AtomicFloatProgressBar");
+  auto bind_progress_bar = [&](auto& m, auto pv, const char* name) {
+    bind_display(m, ProgressBar_<decltype(pv)>(), decltype(pv)(), name);
+  };
+
+  bind_progress_bar(m, Int(), "IntProgressBar");
+  bind_progress_bar(m, Float(), "FloatProgressBar");
+  bind_progress_bar(m, AtomicInt(), "AtomicIntProgressBar");
+  bind_progress_bar(m, AtomicFloat(), "AtomicFloatProgressBar");
 
   // Factory function for all instantiations of ProgressBar_
 
@@ -359,47 +319,30 @@ PYBIND11_MODULE(barkeep, m) {
          std::string speed_unit,
          bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
+        auto make_progress_bar =
+            [&](auto pv) {
+              using T = decltype(pv);
+              auto bar = std::make_unique<ProgressBar_<T>>(file);
+              *bar->work = value;
+              bar->total(total);
+              bar->message(msg);
+              if (interval) { bar->interval(*interval); }
+              bar->style(style);
+              bar->speed(speed);
+              bar->speed_unit(speed_unit);
+              if (no_tty) { bar->no_tty(); }
+              return bar;
+            };
+
         switch (dtype) {
         case DType::Int:
-          return make_progress_bar<Int>(value,
-                                        total,
-                                        file,
-                                        msg,
-                                        interval,
-                                        style,
-                                        speed,
-                                        speed_unit,
-                                        no_tty);
+          return make_progress_bar(Int());
         case DType::Float:
-          return make_progress_bar<Float>(value,
-                                          total,
-                                          file,
-                                          msg,
-                                          interval,
-                                          style,
-                                          speed,
-                                          speed_unit,
-                                          no_tty);
+          return make_progress_bar(Float());
         case DType::AtomicInt:
-          return make_progress_bar<AtomicInt>(value,
-                                              total,
-                                              file,
-                                              msg,
-                                              interval,
-                                              style,
-                                              speed,
-                                              speed_unit,
-                                              no_tty);
+          return make_progress_bar(AtomicInt());
         case DType::AtomicFloat:
-          return make_progress_bar<AtomicFloat>(value,
-                                                total,
-                                                file,
-                                                msg,
-                                                interval,
-                                                style,
-                                                speed,
-                                                speed_unit,
-                                                no_tty);
+          return make_progress_bar(AtomicFloat());
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
