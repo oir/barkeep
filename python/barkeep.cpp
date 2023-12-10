@@ -361,17 +361,45 @@ PYBIND11_MODULE(barkeep, m) {
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         switch (dtype) {
         case DType::Int:
-          return make_progress_bar<Int>(
-              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
+          return make_progress_bar<Int>(value,
+                                        total,
+                                        file,
+                                        msg,
+                                        interval,
+                                        style,
+                                        speed,
+                                        speed_unit,
+                                        no_tty);
         case DType::Float:
-          return make_progress_bar<Float>(
-              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
+          return make_progress_bar<Float>(value,
+                                          total,
+                                          file,
+                                          msg,
+                                          interval,
+                                          style,
+                                          speed,
+                                          speed_unit,
+                                          no_tty);
         case DType::AtomicInt:
-          return make_progress_bar<AtomicInt>(
-              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
+          return make_progress_bar<AtomicInt>(value,
+                                              total,
+                                              file,
+                                              msg,
+                                              interval,
+                                              style,
+                                              speed,
+                                              speed_unit,
+                                              no_tty);
         case DType::AtomicFloat:
-          return make_progress_bar<AtomicFloat>(
-              value, total, file, msg, interval, style, speed, speed_unit, no_tty);
+          return make_progress_bar<AtomicFloat>(value,
+                                                total,
+                                                file,
+                                                msg,
+                                                interval,
+                                                style,
+                                                speed,
+                                                speed_unit,
+                                                no_tty);
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
