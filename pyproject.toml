@@ -19,6 +19,8 @@ authors = [
 
 [tool.cibuildwheel]
 build-verbosity = "3"
+test-requires = "pytest"
+test-command = "pytest python/tests/test.py"
 
 [[tool.cibuildwheel.overrides]]
 select = "*-musllinux*"
