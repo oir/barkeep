@@ -29,5 +29,5 @@ select = "*-macosx_arm64*" # TODO: use g++ when cross compiling
 environment = { CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
 
 [[tool.cibuildwheel.overrides]]
-select = "*-macosx*"
+select = "*-macosx_x86_64*"
 environment = { CXX = "g++-11" }
