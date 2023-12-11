@@ -21,7 +21,11 @@ authors = [
 build-verbosity = "3"
 
 [[tool.cibuildwheel.overrides]]
-select = "*-musllinux*|*-macosx_arm64*" # TODO: use g++ when mac cross compiling
+select = "*-musllinux*"
+environment = { CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
+
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_arm64*" # TODO: use g++ when cross compiling
 environment = { CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
 
 [[tool.cibuildwheel.overrides]]
