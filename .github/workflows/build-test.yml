@@ -7,15 +7,16 @@ on:
     branches: [ main ]
 jobs:
   build-and-test-for-cpp:
+    name: "Build and test for C++"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: sudo apt-get install lcov
-      - run: make -j2
-      - run: ./test.out
       - run: |
+          sudo apt-get install lcov
+          make -j2
+          ./test.out
           gcov -b -p -c test.gcno && \
           lcov -c -d . -o cov.info && \
           lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/subprojects/*' '*/test.cpp*' -o barkeep.info
@@ -27,17 +28,39 @@ jobs:
           path-to-lcov: barkeep.info
       # - run: ./demo.out
   build-and-test-for-python:
+    name: "Build and test for Python"
     runs-on: ubuntu-latest
     steps:
-      - run: rm -rf subprojects/Catch2
       - uses: actions/checkout@v4
         with:
           submodules: false
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9' 
-      - run: pip install meson pytest
-      - run: sudo apt install ninja-build
-      - run: meson setup build --buildtype=release --warnlevel=3
-      - run: meson compile -C build python
-      - run: PYTHONPATH=build/python pytest python/tests/test.py
+      - run: |
+          pip install meson pytest
+          sudo apt install ninja-build
+          meson setup build --buildtype=release --warnlevel=3
+          meson compile -C build python
+          PYTHONPATH=build/python pytest python/tests/test.py
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-11]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.2
+        env:
+          CIBW_BUILD: cp39-*
+          CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
+          CIBW_ARCHS_MACOS: x86_64 arm64

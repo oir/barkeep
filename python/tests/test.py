@@ -7,10 +7,27 @@ from barkeep import (
     ProgressBarStyle,
 )
 import pytest
+import random
 
 import io
 import time
-import random
+
+if not hasattr(DType, "AtomicFloat"):
+    DType.AtomicFloat = None
+
+dtypes = [
+    DType.Int,
+    DType.Float,
+    DType.AtomicInt,
+    DType.AtomicFloat,
+]
+
+@pytest.fixture()
+def dtype(request):
+    if request.param == DType.AtomicFloat:
+        if request.config.getoption("--no-atomic-float"):
+            pytest.skip("AtomicFloat tests disabled.")
+    return request.param
 
 
 def check_and_get_parts(s: str, no_tty: bool = False) -> list[str]:
@@ -60,9 +77,7 @@ def test_animation(i: int, sty: AnimationStyle):
     check_anim(check_and_get_parts(out.getvalue()), "Working", animation_stills[i])
 
 
-@pytest.mark.parametrize(
-    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
-)
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
@@ -88,9 +103,7 @@ def test_constant_counter(dtype, amount, discount, unit, no_tty):
 
     parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
 
-    amountstr = (
-        f"{amount:.2f}" if dtype in [DType.Float, DType.AtomicFloat] else f"{amount:d}"
-    )
+    amountstr = f"{amount:d}" if dtype in [DType.Int, DType.AtomicInt] else f"{amount:.2f}"
 
     expected = f"Doing things {amountstr} "
     if discount == 1:
@@ -114,7 +127,7 @@ def extract_counts(prefix: str, parts: list[str], py_dtype):
 
 
 @pytest.mark.parametrize(
-    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+    "dtype", dtypes, indirect=True
 )
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
@@ -135,8 +148,8 @@ def test_counter(dtype, amount, discount, unit, no_tty):
     )
     ctr.show()
 
-    increment = 1.2 if dtype in [DType.Float, DType.AtomicFloat] else 1
-    py_dtype = float if dtype in [DType.Float, DType.AtomicFloat] else int
+    increment = 1 if dtype in [DType.Int, DType.AtomicInt] else 1.2
+    py_dtype = int if dtype in [DType.Int, DType.AtomicInt] else float
 
     for i in range(101):
         time.sleep(0.0013)
@@ -150,15 +163,15 @@ def test_counter(dtype, amount, discount, unit, no_tty):
         assert counts[i] >= counts[i - 1]
 
     expected = amount
-    if dtype in [DType.Float, DType.AtomicFloat]:
-        expected += 121.2
-    else:
+    if dtype in [DType.Int, DType.AtomicInt]:
         expected += 101
+    else:
+        expected += 121.2
     assert counts[-1] == expected
 
 
 @pytest.mark.parametrize(
-    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+    "dtype", dtypes, indirect=True
 )
 @pytest.mark.parametrize("no_tty", [True, False])
 def test_decreasing_counter(dtype, no_tty):
@@ -180,7 +193,7 @@ def test_decreasing_counter(dtype, no_tty):
     ctr.done()
 
     parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
-    py_dtype = float if dtype in [DType.Float, DType.AtomicFloat] else int
+    py_dtype = int if dtype in [DType.Int, DType.AtomicInt] else float
     counts = extract_counts("Doing things ", parts, py_dtype)
 
     for i in range(1, len(counts)):
@@ -231,7 +244,7 @@ def test_invalid_speed_discount(Display, discount):
 
 
 @pytest.mark.parametrize(
-    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+    "dtype", dtypes, indirect=True
 )
 @pytest.mark.parametrize(
     "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow]
@@ -267,7 +280,7 @@ def test_progress_bar(dtype, sty, no_tty):
 
 
 @pytest.mark.parametrize(
-    "dtype", [DType.Int, DType.Float, DType.AtomicInt, DType.AtomicFloat]
+    "dtype", dtypes, indirect=True
 )
 @pytest.mark.parametrize("above", [True, False])
 @pytest.mark.parametrize("no_tty", [True, False])

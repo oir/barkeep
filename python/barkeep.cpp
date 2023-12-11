@@ -3,6 +3,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#ifndef BARKEEP_ENABLE_ATOMIC_FLOAT
+#define BARKEEP_ENABLE_ATOMIC_FLOAT 1
+#endif
+
 namespace py = pybind11;
 using namespace barkeep;
 using namespace py::literals;
@@ -10,10 +14,16 @@ using namespace py::literals;
 using Int = std::int64_t;
 using AtomicInt = std::atomic<Int>;
 using Float = double;
-using AtomicFloat = std::atomic<Float>; // Requires C++20 AND gcc (tested with
-                                        // gcc11) (clang 15.0.0 did not work)
 
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
+using AtomicFloat = std::atomic<Float>; // Requires C++20 AND gcc (tested with gcc11) (clang 15.0.0 did not work)
+#endif
+
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
 enum class DType { Int, Float, AtomicInt, AtomicFloat };
+#else
+enum class DType { Int, Float, AtomicInt };
+#endif
 
 #include <iostream>
 
@@ -194,7 +204,9 @@ PYBIND11_MODULE(barkeep, m) {
       .value("Int", DType::Int)
       .value("Float", DType::Float)
       .value("AtomicInt", DType::AtomicInt)
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
       .value("AtomicFloat", DType::AtomicFloat)
+#endif
       .export_values();
 
   auto async_display = py::class_<AsyncDisplay>(m, "AsyncDisplay")
@@ -247,7 +259,9 @@ PYBIND11_MODULE(barkeep, m) {
   bind_counter(m, Int(), "IntCounter");
   bind_counter(m, Float(), "FloatCounter");
   bind_counter(m, AtomicInt(), "AtomicIntCounter");
+  #if BARKEEP_ENABLE_ATOMIC_FLOAT
   bind_counter(m, AtomicFloat(), "AtomicFloatCounter");
+  #endif
 
   // Factory function for all instantiations of Counter_
   m.def(
@@ -278,7 +292,9 @@ PYBIND11_MODULE(barkeep, m) {
         case DType::Int: return make_counter(Int());
         case DType::Float: return make_counter(Float());
         case DType::AtomicInt: return make_counter(AtomicInt());
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
         case DType::AtomicFloat: return make_counter(AtomicFloat());
+#endif
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
@@ -299,7 +315,9 @@ PYBIND11_MODULE(barkeep, m) {
   bind_progress_bar(m, Int(), "IntProgressBar");
   bind_progress_bar(m, Float(), "FloatProgressBar");
   bind_progress_bar(m, AtomicInt(), "AtomicIntProgressBar");
+  #if BARKEEP_ENABLE_ATOMIC_FLOAT
   bind_progress_bar(m, AtomicFloat(), "AtomicFloatProgressBar");
+  #endif
 
   // Factory function for all instantiations of ProgressBar_
 
@@ -333,7 +351,9 @@ PYBIND11_MODULE(barkeep, m) {
         case DType::Int: return make_progress_bar(Int());
         case DType::Float: return make_progress_bar(Float());
         case DType::AtomicInt: return make_progress_bar(AtomicInt());
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
         case DType::AtomicFloat: return make_progress_bar(AtomicFloat());
+#endif
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
