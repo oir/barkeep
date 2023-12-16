@@ -1,11 +1,11 @@
 pymod = import('python')
 py39 = pymod.find_installation('python3.9', required: false)
 py310 = pymod.find_installation('python3.10', required: false)
-py311 = pymod.find_installation('python3.11', required: false)
+#py311 = pymod.find_installation('python3.11', required: false)
 
 py_targets = []
 
-foreach py : [ py39, py310, py311 ]
+foreach py : [ py39, py310 ]
   if py.found()
     pybind11 = subproject('pybind11').get_variable('pybind11_dep')
 
