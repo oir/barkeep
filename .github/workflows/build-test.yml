@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-test-for-cpp:
     name: "Build and test for C++"
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +30,7 @@ jobs:
       # - run: ./demo.out
   build-and-test-for-python:
     name: "Build and test for Python"
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +47,7 @@ jobs:
           PYTHONPATH=build/python pytest python/tests/test.py
   build-wheels:
     name: Build py${{ matrix.version }} wheels on ${{ matrix.os }}
+    timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
