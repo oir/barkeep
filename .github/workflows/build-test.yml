@@ -52,7 +52,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11]
-        version: [39, 310, 311]
+        version: [39, 310, 311, 312]
     steps:
       - uses: actions/checkout@v4
         with:
