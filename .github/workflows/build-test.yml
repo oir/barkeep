@@ -44,11 +44,12 @@ jobs:
           meson compile -C build python
           PYTHONPATH=build/python pytest python/tests/test.py
   build-wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build py${{ matrix.version }} wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-11]
+        version: [39, 310, 311]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,6 +62,6 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.16.2
         env:
-          CIBW_BUILD: "cp39-* cp310-* cp311-*"
+          CIBW_BUILD: "cp${{ matrix.version }}-*"
           CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
           CIBW_ARCHS_MACOS: x86_64 arm64
