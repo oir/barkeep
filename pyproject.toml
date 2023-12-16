@@ -3,7 +3,7 @@ build-backend = 'mesonpy'
 requires = ['meson-python']
 
 [tool.meson-python.args]
-compile = ['python']
+compile = ['python', '-j2']
 install = ['--tags=runtime,python-runtime']
 
 [project]
