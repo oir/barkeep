@@ -6,5 +6,7 @@
 *.gcda
 
 subprojects/pybind11*/
-subprojects/Catch2/
+subprojects/Catch2*/
 subprojects/packagecache/
+
+__pycache__/

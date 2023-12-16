@@ -16,6 +16,8 @@
 #include <type_traits>
 #include <vector>
 
+#define BARKEEP_VERSION "0.0.1"
+
 namespace barkeep {
 
 using Strings = std::vector<std::string>;
