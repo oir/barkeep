@@ -7,6 +7,7 @@ py_targets = []
 
 foreach py : [ py39, py310 ]
   if py.found()
+  message('Found Python: ' + py.language_version())
     pybind11 = subproject('pybind11').get_variable('pybind11_dep')
 
     sources = [
