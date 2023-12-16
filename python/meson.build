@@ -1,25 +1,37 @@
 pymod = import('python')
-py = pymod.find_installation('python3.9', required: false)
+installations = {
+  '3.9': pymod.find_installation('python3.9', required: false),
+  '3.10': pymod.find_installation('python3.10', required: false),
+  '3.11': pymod.find_installation('python3.11', required: false),
+  '3.12': pymod.find_installation('python3.12', required: false),
+}
 
-if py.found()
-  pybind11 = subproject('pybind11').get_variable('pybind11_dep')
+py_targets = []
 
-  sources = [
-    'barkeep.cpp',
-  ]
+foreach ver, py : installations
+  if py.found() and py.language_version() == ver # not sure why python3.10 is found as 3.9, etc
+    message('Found Python: ' + py.language_version())
+    pybind11 = subproject('pybind11').get_variable('pybind11_dep')
 
-  py.install_sources(
-    subdir: '../barkeep',
-    pure: false,
-  )
+    sources = [ 'barkeep.cpp' ]
 
-  tgt = py.extension_module('barkeep',
-                            sources : sources,
-                            include_directories : incdir,
-                            dependencies : deps + [pybind11],
-                            install : true)
+    py.install_sources(
+      subdir: '../barkeep',
+      pure: false,
+    )
 
-  message('Python target name: ' + tgt.name())
-  alias_target('python', tgt)
-endif
+    tgt = py.extension_module('barkeep',
+                              sources : sources,
+                              include_directories : incdir,
+                              dependencies : deps + [pybind11],
+                              install : true)
+    py_targets += tgt
+  endif
+endforeach
 
+message('Python targets:')
+foreach tgt : py_targets
+  message('  ' + tgt.name())
+endforeach
+
+alias_target('python', py_targets)

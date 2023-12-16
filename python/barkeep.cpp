@@ -184,6 +184,7 @@ class Composite_ : public Composite {
 
 PYBIND11_MODULE(barkeep, m) {
   m.doc() = "Python bindings for barkeep";
+  m.attr("__version__") = BARKEEP_VERSION;
 
   py::enum_<AnimationStyle>(m, "AnimationStyle")
       .value("Ellipsis", AnimationStyle::Ellipsis)
