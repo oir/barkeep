@@ -45,26 +45,3 @@ jobs:
           meson setup build --buildtype=release --warnlevel=3
           meson compile -C build python
           PYTHONPATH=build/python pytest python/tests/test.py
-  build-wheels:
-    name: Build py${{ matrix.version }} wheels on ${{ matrix.os }}
-    timeout-minutes: 60
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, macos-11]
-        version: [39, 310, 311, 312]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: false
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
-        env:
-          CIBW_BUILD: "cp${{ matrix.version }}-*"
-          CIBW_ARCHS_LINUX: auto aarch64 ppc64le s390x
-          CIBW_ARCHS_MACOS: x86_64 arm64

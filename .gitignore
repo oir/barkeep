@@ -10,3 +10,6 @@ subprojects/Catch2*/
 subprojects/packagecache/
 
 __pycache__/
+dist/
+built_wheel/
+build/
