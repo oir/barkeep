@@ -5,8 +5,7 @@ Use it by including `barkeep.h` in your project.
 __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 
-<img src="img/C++.svg" height="22">
-<a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg">
+<img src="img/C++.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg">
   <img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status">
 </a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main">
@@ -14,8 +13,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 </a>
 <img src="https://img.shields.io/badge/std-c++17-blue.svg" alt="c++17">
 <br/>
-<img src="img/python.svg" height="22">
-<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg">
+<img src="img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg">
   <img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status">
 </a>
 <a href="https://pypi.python.org/pypi/barkeep">
