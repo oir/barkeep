@@ -7,12 +7,15 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Mono&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div id="app"></div>
   <script>
     window.$docsify = {
-      name: 'barkeep',
+      name: 'barkeep documentation',
       repo: 'https://github.com/oir/barkeep/',
       loadSidebar: true,
       executeScript: true,
@@ -45,15 +48,36 @@
 
   <style>
     :root {
-      --base-font-family     : "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-      --base-font-size       : 16px;
-      --code-font-size       : 13px;
-      --sidebar-name-font-weight : 900;
+      --base-font-family : "Helvetica Neue", "Segoe UI", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      --base-font-size   : 16px;
+      --code-font-size   : 13px;
+      --code-font-family : "Fira Mono";
+      --code-font-weight : 500;
+      --code-font-size   : 13px;
+
+      --sidebar-name-font-weight : 400;
+      --sidebar-name-text-align  : left;
+      
+      --sidebar-nav-pagelink-padding              : 0 0 0 0;
+      --sidebar-nav-pagelink-background           : transparent;
+      --sidebar-nav-pagelink-background--active   : transparent;
+      --sidebar-nav-pagelink-background--collapse : transparent;
+      --sidebar-nav-pagelink-background--loaded   : transparent;
+      
       --heading-h1-font-weight : 900;
       --heading-h2-font-weight : 900;
     }
     .sidebar-nav {
       font-size: 14px;
+    }
+    .sidebar-nav p {
+      margin: 0.5em 0 0 0;
+    }
+    .sidebar-nav strong {
+      color: var(--mono-base)
+    }
+    h1.app-name {
+      line-height: 1.1em;
     }
     .search {
       font-size: 14px;

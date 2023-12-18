@@ -1,6 +1,7 @@
 
 * [Home](README.md)
 
-API
+
+__API__
 * [Namespaces](api/Namespaces/)
 * [Classes](api/Classes/)
