@@ -1,10 +1,16 @@
 ## barkeep
 
-Small C++ header to display async counters and progress bars. Use it by
-including `barkeep.h` in your project.
+Small, single C++ header to display async animations, counters, and progress bars.
+Use it by including `barkeep.h` in your project.
+__barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
-[![build](https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg)](https://github.com/oir/barkeep/actions/workflows/build-test.yml)
+
+<img src="img/C++.svg" height="22"> [![build](https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg)](https://github.com/oir/barkeep/actions/workflows/build-test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main)](https://coveralls.io/github/oir/barkeep?branch=main)
+![c++17](https://img.shields.io/badge/std-c++17-blue.svg)  <br/>
+<img src="img/python.svg" height="22"> [![build](https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg)](https://github.com/oir/barkeep/actions/workflows/build-wheels.yml)
+[![PyPi](https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg)](https://pypi.python.org/pypi/barkeep)
+
 
 ---
 
@@ -127,8 +133,8 @@ including `barkeep.h` in your project.
 
   `no_tty` achieves two things:
   
-  - Change the delimiter from `\r` to `\n` to avoid wonky looking output in your log files
-  - Change the default interval to a minute to avoid overwhelming logs (in the example above, we set the interval ourselves explicitly)
+  - Change the delimiter from `\r` to `\n` to avoid wonky looking output in your log files.
+  - Change the default interval to a minute to avoid overwhelming logs (in the example above, we set the interval ourselves explicitly).
 
 See `demo.cpp` for more examples. 
 
