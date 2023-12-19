@@ -132,7 +132,7 @@ class AsyncDisplay {
         message_(other.message_),
         out_(other.out_),
         no_tty_(other.no_tty_) {
-    if (other.displayer_) {
+    if (other.running()) {
       throw std::runtime_error("A running display cannot be copied");
     }
   }
@@ -142,7 +142,7 @@ class AsyncDisplay {
         complete_(bool(other.complete_)),
         out_(other.out_),
         no_tty_(other.no_tty_) {
-    if (other.displayer_) {
+    if (other.running()) {
       throw std::runtime_error("A running display cannot be moved");
     }
     message_ = std::move(other.message_);
@@ -153,7 +153,7 @@ class AsyncDisplay {
   /// Start the display. This starts writing the display in the output stream,
   /// and computing speed if applicable.
   virtual void show() {
-    if (displayer_) {
+    if (running()) {
       return; // noop if already show()n before
     }
     start();
@@ -181,7 +181,7 @@ class AsyncDisplay {
 
   /// End the display.
   virtual void done() {
-    if (not displayer_) { return; } // noop if already done() before
+    if (not running()) { return; } // noop if already done() before
     complete_ = true;
     completion_.notify_all();
     join();
@@ -398,7 +398,10 @@ class Speedometer {
     progress_increment_sum_ =
         (1 - discount_) * progress_increment_sum_ + progress_increment;
     duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + dur;
-    double speed = progress_increment_sum_ / duration_increment_sum_.count();
+    double speed =
+        duration_increment_sum_.count() == 0
+            ? 0
+            : progress_increment_sum_ / duration_increment_sum_.count();
 
     ss << std::fixed << std::setprecision(2) << "(" << speed;
     if (speed_unit.empty()) {
