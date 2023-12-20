@@ -57,8 +57,15 @@ TEST_CASE("Animation", "[anim]") {
 
   auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Square);
   auto no_tty = GENERATE(true, false);
+  auto interval_is_double = GENERATE(true, false);
 
-  auto anim = Animation(&out).message("Working").style(sty).interval(0.1);
+  auto anim = Animation(&out).message("Working").style(sty);
+  if (interval_is_double) {
+    anim.interval(0.1);
+  } else {
+    anim.interval(100ms);
+  }
+
   if (no_tty) { anim.no_tty(); }
 
   anim.show();
@@ -141,7 +148,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
 
   auto ctr = Counter(&amount, &out)
                  .message("Doing things")
-                 .interval(0.01)
+                 .interval(0.01s)
                  .speed(sp)
                  .speed_unit(unit);
   if (no_tty) { ctr.no_tty(); }
