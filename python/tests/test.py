@@ -22,6 +22,7 @@ dtypes = [
     DType.AtomicFloat,
 ]
 
+
 @pytest.fixture()
 def dtype(request):
     if request.param == DType.AtomicFloat:
@@ -103,7 +104,9 @@ def test_constant_counter(dtype, amount, discount, unit, no_tty):
 
     parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
 
-    amountstr = f"{amount:d}" if dtype in [DType.Int, DType.AtomicInt] else f"{amount:.2f}"
+    amountstr = (
+        f"{amount:d}" if dtype in [DType.Int, DType.AtomicInt] else f"{amount:.2f}"
+    )
 
     expected = f"Doing things {amountstr} "
     if discount == 1:
@@ -126,9 +129,7 @@ def extract_counts(prefix: str, parts: list[str], py_dtype):
     return rval
 
 
-@pytest.mark.parametrize(
-    "dtype", dtypes, indirect=True
-)
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize("amount", [0, 3])
 @pytest.mark.parametrize("discount", [None, 1])
 @pytest.mark.parametrize("unit", ["", "thing/10ms"])
@@ -170,9 +171,7 @@ def test_counter(dtype, amount, discount, unit, no_tty):
     assert counts[-1] == expected
 
 
-@pytest.mark.parametrize(
-    "dtype", dtypes, indirect=True
-)
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize("no_tty", [True, False])
 def test_decreasing_counter(dtype, no_tty):
     out = io.StringIO()
@@ -243,9 +242,7 @@ def test_invalid_speed_discount(Display, discount):
         Display(speed=discount)
 
 
-@pytest.mark.parametrize(
-    "dtype", dtypes, indirect=True
-)
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize(
     "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow]
 )
@@ -279,9 +276,7 @@ def test_progress_bar(dtype, sty, no_tty):
         last_spaces = spaces
 
 
-@pytest.mark.parametrize(
-    "dtype", dtypes, indirect=True
-)
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize("above", [True, False])
 @pytest.mark.parametrize("no_tty", [True, False])
 def test_progress_bar_overflow(dtype, above, no_tty):

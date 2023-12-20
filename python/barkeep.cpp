@@ -16,10 +16,9 @@ using AtomicInt = std::atomic<Int>;
 using Float = double;
 
 #if BARKEEP_ENABLE_ATOMIC_FLOAT
-using AtomicFloat = std::atomic<Float>; // Requires C++20 AND gcc (tested with gcc11) (clang 15.0.0 did not work)
-#endif
+using AtomicFloat = std::atomic<Float>; // Requires C++20 AND gcc (tested with
+                                        // gcc11) (clang 15.0.0 did not work)
 
-#if BARKEEP_ENABLE_ATOMIC_FLOAT
 enum class DType { Int, Float, AtomicInt, AtomicFloat };
 #else
 enum class DType { Int, Float, AtomicInt };
@@ -260,9 +259,9 @@ PYBIND11_MODULE(barkeep, m) {
   bind_counter(m, Int(), "IntCounter");
   bind_counter(m, Float(), "FloatCounter");
   bind_counter(m, AtomicInt(), "AtomicIntCounter");
-  #if BARKEEP_ENABLE_ATOMIC_FLOAT
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
   bind_counter(m, AtomicFloat(), "AtomicFloatCounter");
-  #endif
+#endif
 
   // Factory function for all instantiations of Counter_
   m.def(
@@ -316,9 +315,9 @@ PYBIND11_MODULE(barkeep, m) {
   bind_progress_bar(m, Int(), "IntProgressBar");
   bind_progress_bar(m, Float(), "FloatProgressBar");
   bind_progress_bar(m, AtomicInt(), "AtomicIntProgressBar");
-  #if BARKEEP_ENABLE_ATOMIC_FLOAT
+#if BARKEEP_ENABLE_ATOMIC_FLOAT
   bind_progress_bar(m, AtomicFloat(), "AtomicFloatProgressBar");
-  #endif
+#endif
 
   // Factory function for all instantiations of ProgressBar_
 
