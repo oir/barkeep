@@ -365,7 +365,8 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
                  .total(50)
                  .message("Computing")
                  .interval(0.001)
-                 .style(Bars);
+                 .style(Bars)
+                 .speed_unit("");
 
   SECTION("Above") {
     progress = 50;
