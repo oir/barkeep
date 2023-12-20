@@ -330,7 +330,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   auto bar = ProgressBar(&progress, &out)
                  .total(50)
                  .message("Computing")
-                 .interval(0.001);
+                 .interval(0.001s);
   bar.style(GENERATE(Bars, Blocks, Arrow));
   if (no_tty) { bar.no_tty(); }
   bar.show();
