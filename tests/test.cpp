@@ -247,6 +247,42 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   CHECK_NOTHROW(orig.done());
 }
 
+TEST_CASE("Running mod error", "[edges]") {
+  std::stringstream hide;
+  SECTION("Animation") {
+    auto anim = Animation(&hide);
+    anim.show();
+    CHECK_THROWS(anim.message("foo"));
+    CHECK_THROWS(anim.style(Ellipsis));
+    CHECK_THROWS(anim.interval(0.1));
+    CHECK_THROWS(anim.interval(0.1s));
+    CHECK_THROWS(anim.no_tty());
+  }
+  SECTION("Counter") {
+    size_t progress{0};
+    auto ctr = Counter(&progress, &hide);
+    ctr.show();
+    CHECK_THROWS(ctr.message("foo"));
+    CHECK_THROWS(ctr.speed(1));
+    CHECK_THROWS(ctr.speed_unit("foo"));
+    CHECK_THROWS(ctr.interval(0.1));
+    CHECK_THROWS(ctr.interval(0.1s));
+    CHECK_THROWS(ctr.no_tty());
+  }
+  SECTION("Progress bar") {
+    float progress{0};
+    auto bar = ProgressBar(&progress, &hide);
+    bar.show();
+    CHECK_THROWS(bar.message("foo"));
+    CHECK_THROWS(bar.speed(1));
+    CHECK_THROWS(bar.speed_unit("foo"));
+    CHECK_THROWS(bar.interval(0.1));
+    CHECK_THROWS(bar.interval(0.1s));
+    CHECK_THROWS(bar.no_tty());
+    CHECK_THROWS(bar.total(1));
+  }
+}
+
 using SpeedyTypes = std::tuple<Counter<>, ProgressBar<float>>;
 
 TEMPLATE_LIST_TEST_CASE("Invalid speed discount", "[edges]", SpeedyTypes) {

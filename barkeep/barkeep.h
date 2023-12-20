@@ -192,21 +192,39 @@ class AsyncDisplay {
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
 
  protected:
+  void ensure_not_running() const {
+    if (running()) {
+      throw std::runtime_error("Cannot modify a running display");
+    }
+  }
+
   /// Set message to be displayed
   /// @param msg message to be displayed
-  void message(const std::string& msg) { message_ = msg; }
+  void message(const std::string& msg) {
+    ensure_not_running();
+    message_ = msg;
+  }
 
   /// Set the interval in which the display is refreshed. This is also the
   /// interval in which speed is measured if applicable.
   /// @param pd interval as a Duration
-  void interval(Duration pd) { interval_ = pd; }
+  void interval(Duration pd) {
+    ensure_not_running();
+    interval_ = pd;
+  }
 
   /// Overload of interval(Duration) to accept a double argument
   /// @param pd interval as a double
-  void interval(double pd) { interval_ = Duration(pd); }
+  void interval(double pd) {
+    ensure_not_running();
+    interval_ = Duration(pd);
+  }
 
   /// Enable no-tty mode.
-  void no_tty() { no_tty_ = true; }
+  void no_tty() {
+    ensure_not_running();
+    no_tty_ = true;
+  }
 
   friend class Composite;
 };
@@ -252,6 +270,7 @@ class Animation : public AsyncDisplay {
   /// @param sty
   /// @return reference to self
   auto& style(Style sty) {
+    ensure_not_running();
     stills_ = animation_stills_[static_cast<unsigned short>(sty)];
     return *this;
   }
@@ -529,6 +548,7 @@ class Counter : public AsyncDisplay {
   ///                 computed.
   /// @return reference to self
   auto& speed(std::optional<double> discount) {
+    ensure_not_running();
     if (discount) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
     } else {
@@ -540,6 +560,7 @@ class Counter : public AsyncDisplay {
   /// Set unit of speed text next to speed.
   /// @param msg unit of speed  @return reference to self
   auto& speed_unit(const std::string& msg) {
+    ensure_not_running();
     speed_unit_ = msg;
     return *this;
   }
@@ -717,6 +738,7 @@ class ProgressBar : public AsyncDisplay {
   ///                 computed.
   /// @return reference to self
   auto& speed(std::optional<double> discount) {
+    ensure_not_running();
     if (discount) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
     } else {
@@ -728,6 +750,7 @@ class ProgressBar : public AsyncDisplay {
   /// Set unit of speed text next to speed.
   /// @param msg unit of speed  @return reference to self
   auto& speed_unit(const std::string& msg) {
+    ensure_not_running();
     speed_unit_ = msg;
     return *this;
   }
@@ -735,6 +758,7 @@ class ProgressBar : public AsyncDisplay {
   /// Set total amount of work to be done, for the progress bar to be full.
   /// @param tot total amount of work  @return reference to self
   auto& total(ValueType tot) {
+    ensure_not_running();
     if (tot == 0) {
       throw std::runtime_error("Progress total cannot be zero!");
     }
@@ -744,6 +768,7 @@ class ProgressBar : public AsyncDisplay {
 
   /// Set progress bar style.  @param sty Style  @return reference to self
   auto& style(Style sty) {
+    ensure_not_running();
     partials_ = progress_partials_[static_cast<unsigned short>(sty)];
     return *this;
   }

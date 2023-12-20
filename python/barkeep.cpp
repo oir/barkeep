@@ -17,9 +17,7 @@ using Float = double;
 
 #if BARKEEP_ENABLE_ATOMIC_FLOAT
 using AtomicFloat = std::atomic<Float>; // Requires C++20 AND gcc (tested with gcc11) (clang 15.0.0 did not work)
-#endif
 
-#if BARKEEP_ENABLE_ATOMIC_FLOAT
 enum class DType { Int, Float, AtomicInt, AtomicFloat };
 #else
 enum class DType { Int, Float, AtomicInt };

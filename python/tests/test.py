@@ -243,6 +243,7 @@ def test_invalid_speed_discount(Display, discount):
         Display(speed=discount)
 
 
+
 @pytest.mark.parametrize(
     "dtype", dtypes, indirect=True
 )
