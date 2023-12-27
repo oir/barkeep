@@ -161,14 +161,21 @@ class AsyncDisplay {
     displayer_ = std::make_unique<std::thread>([&]() {
       display_();
       while (true) {
+        bool complete = false;
         auto interval =
             interval_ != Duration{0.} ? interval_ : default_interval_();
         {
           std::unique_lock<std::mutex> lock(completion_m_);
-          if (not complete_) { completion_.wait_for(lock, interval); }
+          complete = complete_;
+          if (not complete) { completion_.wait_for(lock, interval); }
+          else {
+          // Final newline to avoid overwriting the display
+          *out_ << std::endl;
+          break;
+          }
         }
         display_();
-        if (complete_) {
+        if (complete) {
           // Final newline to avoid overwriting the display
           *out_ << std::endl;
           break;
