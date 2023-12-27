@@ -4,12 +4,11 @@
 
 </div>
 
-<div style="text-align: center;">
+<p align="center">
   <picture>
-    <source media="(prefers-color-scheme: light)" srcset="img/barkeep-logo-black.png" width="300">
     <img src="img/barkeep-logo-black.png" width="300">
   </picture>
-</div>
+</p>
 
 Small, single C++ header to display async animations, counters, and progress bars.
 Use it by including `barkeep.h` in your project.

@@ -1,5 +1,6 @@
 <p align="center">
   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/img/barkeep-logo-white.png" width="300">
     <source media="(prefers-color-scheme: light)" srcset="docs/img/barkeep-logo-black.png" width="300">
     <img src="docs/img/barkeep-logo-black.png" width="300">
   </picture>

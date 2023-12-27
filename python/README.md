@@ -1,4 +1,8 @@
-## barkeep
+<p align="center">
+  <picture>
+    <img src="https://raw.githubusercontent.com/oir/barkeep/main/docs/img/barkeep-logo-black.png" width="300">
+  </picture>
+</p>
 
 Small, C++-based python library to display async animations, counters, and progress bars.
 
