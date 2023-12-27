@@ -182,7 +182,8 @@ class Composite_ : public Composite {
 };
 
 PYBIND11_MODULE(barkeep, m) {
-  m.doc() = "Small, C++-based python library to display async animations, counters, and progress bars.";
+  m.doc() =
+      "Small, C++-based python library to display async animations, counters, and progress bars.";
   m.attr("__version__") = BARKEEP_VERSION;
 
   py::enum_<AnimationStyle>(m, "AnimationStyle")
