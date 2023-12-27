@@ -1,15 +1,9 @@
 ## barkeep
 
-Small, single C++ header to display async animations, counters, and progress bars.
-Use it by including `barkeep.h` in your project.
-__barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
+Small, C++-based python library to display async animations, counters, and progress bars.
 
 
-<img src="img/C++.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
-<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
-<img src="https://img.shields.io/badge/std-c++17-blue.svg" alt="c++17">
-<br/>
-<img src="img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
+<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
 <a href="https://pypi.python.org/pypi/barkeep"><img src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
 
 
