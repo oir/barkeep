@@ -182,7 +182,8 @@ class Composite_ : public Composite {
 };
 
 PYBIND11_MODULE(barkeep, m) {
-  m.doc() = "Python bindings for barkeep";
+  m.doc() =
+      "Small, C++-based python library to display async animations, counters, and progress bars.";
   m.attr("__version__") = BARKEEP_VERSION;
 
   py::enum_<AnimationStyle>(m, "AnimationStyle")
@@ -226,6 +227,23 @@ PYBIND11_MODULE(barkeep, m) {
              if (no_tty) { a.no_tty(); }
              return a;
            }),
+           R"docstr(
+            Displays a simple animation with a message.
+
+            Parameters
+            ----------
+            file : file-like object, optional
+                File to write to. Defaults to stdout.
+            message : str, optional
+                Message to display. Defaults to "".
+            interval : float, optional
+                Interval between frames in seconds. If None, defaults to 1 if
+                not no_tty, 60 otherwise.
+            style : AnimationStyle, optional
+                Animation style. Defaults to AnimationStyle.Ellipsis.
+            no_tty : bool, optional
+                If True, use no-tty mode (no \r, slower refresh). Defaults to False.
+           )docstr",
            "file"_a = py::none(),
            "message"_a = "",
            "interval"_a = 1.,
@@ -298,6 +316,34 @@ PYBIND11_MODULE(barkeep, m) {
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
+      R"docstr(
+        Monitors and displays a single numeric value with a message.
+
+        Parameters
+        ----------
+        value : int or float, optional
+            Initial value of the counter. Defaults to 0.
+        file : file-like object, optional
+            File to write to. Defaults to stdout.
+        message : str, optional
+            Message to display. Defaults to "".
+        interval : float, optional
+            Interval between frames in seconds. If None, defaults to 1 if
+            not no_tty, 60 otherwise.
+        speed : float, optional
+            Discount factor in [0, 1] to use in computing the speed.
+            Previous increments are weighted by (1-discount).
+            If discount is 0, all increments are weighted equally.
+            If discount is 1, only the most recent increment is
+            considered. If discount is None (default), speed is not
+            computed.
+        speed_unit : str, optional
+            Unit of speed. Defaults to "".
+        no_tty : bool, optional
+            If True, use no-tty mode (no \r, slower refresh). Defaults to False.
+        dtype : DType, optional
+            Data type of the value. Defaults to DType.Int.
+       )docstr",
       "value"_a = 0,
       "file"_a = py::none(),
       "message"_a = "",
@@ -357,6 +403,39 @@ PYBIND11_MODULE(barkeep, m) {
         default: throw std::runtime_error("Unknown dtype"); return {};
         }
       },
+      R"docstr(
+        Displays a progress bar, by comparing the progress value being monitored to
+        a given total value.
+
+        Parameters
+        ----------
+        value : int or float, optional
+            Initial value of the progress bar value. Defaults to 0.
+        total : int or float, optional
+            Total value of the bar. Defaults to 100.
+        file : file-like object, optional
+            File to write to. Defaults to stdout.
+        message : str, optional
+            Message to display. Defaults to "".
+        interval : float, optional
+            Interval between frames in seconds. If None, defaults to 1 if
+            not no_tty, 60 otherwise.
+        style : ProgressBarStyle, optional
+            Progress bar style. Defaults to ProgressBarStyle.Blocks.
+        speed : float, optional
+            Discount factor in [0, 1] to use in computing the speed.
+            Previous increments are weighted by (1-discount).
+            If discount is 0, all increments are weighted equally.
+            If discount is 1, only the most recent increment is
+            considered. If discount is None (default), speed is not
+            computed.
+        speed_unit : str, optional
+            Unit of speed. Defaults to "".
+        no_tty : bool, optional
+            If True, use no-tty mode (no \r, slower refresh). Defaults to False.
+        dtype : DType, optional
+            Data type of the value. Defaults to DType.Int.
+       )docstr",
       "value"_a = 0,
       "total"_a = 100,
       "file"_a = py::none(),

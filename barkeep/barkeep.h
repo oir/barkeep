@@ -16,7 +16,7 @@
 #include <type_traits>
 #include <vector>
 
-#define BARKEEP_VERSION "0.0.5"
+#define BARKEEP_VERSION "0.0.6"
 
 namespace barkeep {
 
@@ -167,7 +167,10 @@ class AsyncDisplay {
         {
           std::unique_lock<std::mutex> lock(completion_m_);
           complete = complete_;
-          if (not complete) { completion_.wait_for(lock, interval); }
+          if (not complete) {
+            completion_.wait_for(lock, interval);
+            complete = complete_;
+          }
         }
         display_();
         if (complete) {

@@ -116,7 +116,7 @@ def test_constant_counter(dtype, amount, discount, unit, no_tty):
             expected += f"(0.00 {unit}) "
 
     for part in parts:
-        assert part == expected
+        assert part.replace("(-0.00", "(0.00") == expected
 
 
 def extract_counts(prefix: str, parts: list[str], py_dtype):

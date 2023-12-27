@@ -6,19 +6,21 @@ Small, C++-based python library to display async animations, counters, and progr
 <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
 <a href="https://pypi.python.org/pypi/barkeep"><img src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
 
+__Installation:__ `pip install barkeep`
+
 
 ---
 
 - Display a waiting animation with a message:
 
-  ```cpp
-  using namespace std::chrono_literals;
-  namespace bk = barkeep;
+  ```python
+  import time
+  import barkeep as bk
   
-  auto anim = bk::Animation().message("Working");
-  anim.show();
-  /* do work */ std::this_thread::sleep_for(10s);
-  anim.done();
+  anim = bk.Animation(message="Working")
+  anim.show()
+  time.sleep(10)  # do work
+  anim.done()
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/anim1-dark.svg" width="700">
@@ -28,8 +30,8 @@ Small, C++-based python library to display async animations, counters, and progr
 
 - Supports several styles:
 
-  ```cpp
-  auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
+  ```python
+  anim = bk.Animation(message="Working", style=bk.Earth)
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/anim2-dark.svg" width="700">
@@ -39,18 +41,13 @@ Small, C++-based python library to display async animations, counters, and progr
 
 - Display a counter to monitor a numeric variable while waiting:
 
-  ```cpp
-  int work{0};
-  auto c = bk::Counter(&work)
-    .message("Reading lines")
-    .speed(1.)
-    .speed_unit("line/s");
-  c.show();
-  for (int i = 0; i < 505; i++) {
-    std::this_thread::sleep_for(13ms); // read & process line
-    work++;
-  }
-  c.done();
+  ```python
+  c = bk.Counter(message="Reading lines", speed=1.0, speed_unit="line/s")
+  c.show()
+  for i in range(505):
+      time.sleep(0.013)  # read & process line
+      c += 1
+  c.done()
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/counter-dark.svg" width="700">
@@ -60,19 +57,13 @@ Small, C++-based python library to display async animations, counters, and progr
 
 - Display a progress bar to monitor a numeric variable and measure its completion by comparing against a total:
 
-  ```cpp
-  int work{0};
-  auto bar = bk::ProgressBar(&work)
-    .message("Reading lines")
-    .speed(1.)
-    .speed_unit("line/s")
-    .total(505);
-  bar.show();
-  for (int i = 0; i < 505; i++) {
-    std::this_thread::sleep_for(13ms); // read & process line
-    work++;
-  }
-  bar.done();
+  ```python
+  bar = bk.ProgressBar(message="Reading lines", speed=1.0, speed_unit="line/s", total=505)
+  bar.show()
+  for i in range(505):
+      time.sleep(0.013)  # read & process line
+      bar += 1
+  bar.done()
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/bar-dark.svg" width="700">
@@ -82,19 +73,19 @@ Small, C++-based python library to display async animations, counters, and progr
 
 - Combine diplays using `|` operator to monitor multiple variables:
 
-  ```cpp
-  std::atomic<size_t> sents{0}, toks{0};
-  auto bar =
-    bk::ProgressBar(&sents).total(1010).message("Sents") |
-    bk::Counter(&toks).message("Toks").speed_unit("tok/s").speed(1.);
-  bar.show();
-  for (int i = 0; i < 1010; i++) {
-    // do work
-    std::this_thread::sleep_for(13ms);
-    sents++;
-    toks += (1 + rand() % 5);
-  }
-  bar.done();
+  ```python
+  import random
+  
+  sents = bk.ProgressBar(total=1010, message="Sents")
+  toks = bk.Counter(message="Toks", speed_unit="tok/s", speed=1.0)
+  bar = sents | toks
+  bar.show()
+  for i in range(1010):
+      # do work
+      time.sleep(0.013)
+      sents += 1
+      toks += 1 + random.randrange(5)
+  bar.done()
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/composite-dark.svg" width="700">
@@ -104,21 +95,13 @@ Small, C++-based python library to display async animations, counters, and progr
 
 - Use "no tty" mode to, e.g., output to log files:
 
-  ```cpp
-  std::atomic<size_t> sents{0}, toks{0};
-  auto bar = bk::ProgressBar(&sents)
-                 .total(401)
-                 .message("Sents")
-                 .speed(1.)
-                 .interval(1.)
-                 .no_tty();
-  bar.show();
-  for (int i = 0; i < 401; i++) {
-    std::this_thread::sleep_for(13ms);
-    sents++;
-    toks += (1 + rand() % 5);
-  }
-  bar.done();
+  ```python
+  bar = bk.ProgressBar(total=401, message="Sents", speed=1.0, interval=1.0, no_tty=True)
+  bar.show()
+  for i in range(401):
+      time.sleep(0.013)
+      bar += 1
+  bar.done()
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/oir/barkeep/main/docs/rec/notty-dark.svg" width="700">
