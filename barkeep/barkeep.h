@@ -169,12 +169,12 @@ class AsyncDisplay {
           complete = complete_;
           if (not complete) { completion_.wait_for(lock, interval); }
         }
-        display_();
         if (complete) {
           // Final newline to avoid overwriting the display
           *out_ << std::endl;
           break;
         }
+        display_();
       }
     });
   }
