@@ -167,12 +167,8 @@ class AsyncDisplay {
         {
           std::unique_lock<std::mutex> lock(completion_m_);
           complete = complete_;
-          if (not complete) { completion_.wait_for(lock, interval); }
-          else {
-          // Final newline to avoid overwriting the display
-          *out_ << std::endl;
-          break;
-          }
+          if (not complete) { completion_.wait_for(lock, interval);
+          complete = complete_; }
         }
         display_();
         if (complete) {
