@@ -7,8 +7,7 @@
 
 Small, single C++ header to display async animations, counters, and progress bars.
 Use it by including `barkeep.h` in your project.
-__barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
-
+**barkeep** also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 <img src="docs/img/C++.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
@@ -17,7 +16,6 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 <img src="docs/img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
 <a href="https://pypi.python.org/pypi/barkeep"><img src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
 
-
 ---
 
 - Display a waiting animation with a message:
@@ -25,12 +23,13 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   ```cpp
   using namespace std::chrono_literals;
   namespace bk = barkeep;
-  
+
   auto anim = bk::Animation().message("Working");
   anim.show();
   /* do work */ std::this_thread::sleep_for(10s);
   anim.done();
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/anim1-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/anim1-light.svg" width="700">
@@ -42,6 +41,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   ```cpp
   auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/anim2-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/anim2-light.svg" width="700">
@@ -63,6 +63,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   }
   c.done();
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/counter-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/counter-light.svg" width="700">
@@ -85,6 +86,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   }
   bar.done();
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/bar-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/bar-light.svg" width="700">
@@ -107,6 +109,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   }
   bar.done();
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/composite-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/composite-light.svg" width="700">
@@ -131,6 +134,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   }
   bar.done();
   ```
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/notty-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="docs/rec/notty-light.svg" width="700">
@@ -138,11 +142,11 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   </picture>
 
   `no_tty` achieves two things:
-  
+
   - Change the delimiter from `\r` to `\n` to avoid wonky looking output in your log files.
   - Change the default interval to a minute to avoid overwhelming logs (in the example above, we set the interval ourselves explicitly).
 
-See `demo.cpp` for more examples. 
+See `demo.cpp` for more examples.
 
 ### Notes
 
@@ -150,6 +154,7 @@ See `demo.cpp` for more examples.
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
 
 ## Building
+
 ```
 make demo
 ./demo
