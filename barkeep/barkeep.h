@@ -16,7 +16,7 @@
 #include <type_traits>
 #include <vector>
 
-#define BARKEEP_VERSION "0.0.5"
+#define BARKEEP_VERSION "0.0.6"
 
 namespace barkeep {
 
