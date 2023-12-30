@@ -10,8 +10,9 @@ project('barkeep', 'cpp',
 incdir = include_directories(['./'])
 
 threads = dependency('threads')
+fmt = subproject('fmt').get_variable('fmt_dep')
 
-deps = [threads]
+deps = [threads, fmt]
 
 subdir('tests')
 subdir('python')
