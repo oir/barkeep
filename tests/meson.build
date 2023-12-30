@@ -2,6 +2,7 @@ catch = subproject('catch2').get_variable('catch2_dep')
 
 sources = [
   'demo.cpp',
+  'demo-fmt.cpp',
   'test.cpp',
 ]
 

@@ -18,6 +18,10 @@
 
 #define BARKEEP_VERSION "0.0.6"
 
+#ifdef BARKEEP_ENABLE_FMT
+#include <fmt/format.h>
+#endif
+
 namespace barkeep {
 
 using Strings = std::vector<std::string>;
@@ -69,6 +73,7 @@ class AsyncDisplay {
   std::atomic<bool> complete_ = false;
 
   std::string message_;
+  std::string fmtstr_;
   size_t max_rendered_len_ = 0;
 
  protected:
@@ -130,6 +135,7 @@ class AsyncDisplay {
       : interval_(other.interval_),
         complete_(bool(other.complete_)),
         message_(other.message_),
+        fmtstr_(other.fmtstr_),
         out_(other.out_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
@@ -146,6 +152,7 @@ class AsyncDisplay {
       throw std::runtime_error("A running display cannot be moved");
     }
     message_ = std::move(other.message_);
+    fmtstr_ = std::move(other.fmtstr_);
   }
 
   virtual ~AsyncDisplay() { done(); }
@@ -200,6 +207,15 @@ class AsyncDisplay {
       throw std::runtime_error("Cannot modify a running display");
     }
   }
+
+#ifdef BARKEEP_ENABLE_FMT
+  /// Set formatting string to be used to display the message and speed.
+  /// @param fmtstr
+  void fmt(const std::string& fmtstr) {
+    ensure_not_running();
+    fmtstr_ = fmtstr + " "; // extra space for separating the cursor
+  }
+#endif
 
   /// Set message to be displayed
   /// @param msg message to be displayed
@@ -403,11 +419,7 @@ class Speedometer {
   ValueType last_progress_;
 
  public:
-  /// Write speed to given output stream. Speed is a double (written with
-  /// precision 2), possibly followed by a unit of speed.
-  size_t render_speed(std::ostream* out, const std::string& speed_unit) {
-    std::stringstream ss; // use local stream to avoid disturbing `out` with
-                          // std::fixed and std::setprecision
+  double speed() {
     Time now = Clock::now();
     Duration dur = now - last_start_time_;
     last_start_time_ = now;
@@ -420,11 +432,17 @@ class Speedometer {
     progress_increment_sum_ =
         (1 - discount_) * progress_increment_sum_ + progress_increment;
     duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + dur;
-    double speed =
-        duration_increment_sum_.count() == 0
-            ? 0
-            : progress_increment_sum_ / duration_increment_sum_.count();
+    return duration_increment_sum_.count() == 0
+               ? 0
+               : progress_increment_sum_ / duration_increment_sum_.count();
+  }
 
+  /// Write speed to given output stream. Speed is a double (written with
+  /// precision 2), possibly followed by a unit of speed.
+  size_t render_speed(std::ostream* out, const std::string& speed_unit) {
+    std::stringstream ss; // use local stream to avoid disturbing `out` with
+                          // std::fixed and std::setprecision
+    double speed = this->speed();
     ss << std::fixed << std::setprecision(2) << "(" << speed;
     if (speed_unit.empty()) {
       ss << ") ";
@@ -484,6 +502,19 @@ class Counter : public AsyncDisplay {
   /// Write the value of progress with the message to the output stream
   /// @return length of the rendered string
   size_t render_() override {
+#ifdef BARKEEP_ENABLE_FMT
+    if (not fmtstr_.empty()) {
+      using namespace fmt::literals;
+      value_t<Progress> progress = *progress_;
+      auto s = speedom_
+                   ? fmt::format(fmt::runtime(fmtstr_),
+                                 "value"_a = progress,
+                                 "speed"_a = speedom_->speed())
+                   : fmt::format(fmt::runtime(fmtstr_), "value"_a = progress);
+      *out_ << s;
+      return s.size();
+    }
+#endif
     size_t len = render_message_();
     len += render_counts_();
     if (speedom_) { len += speedom_->render_speed(out_, speed_unit_); }
@@ -593,6 +624,15 @@ class Counter : public AsyncDisplay {
     AsyncDisplay::no_tty();
     return *this;
   }
+
+#ifdef BARKEEP_ENABLE_FMT
+  /// Set formatting string to be used to display the message and speed.
+  /// @param fmtstr
+  auto& fmt(const std::string& fmtstr) {
+    AsyncDisplay::fmt(fmtstr);
+    return *this;
+  }
+#endif
 };
 
 /// Displays a progress bar, by comparing the progress value being monitored to
@@ -614,7 +654,7 @@ class ProgressBar : public AsyncDisplay {
  protected:
   /// Compute the shape of the progress bar based on progress and write to
   /// output stream.
-  size_t render_progress_bar_() {
+  size_t render_progress_bar_(std::ostream* out = nullptr) {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
     int on = int(ValueType(width_) * progress_copy / total_);
@@ -632,11 +672,12 @@ class ProgressBar : public AsyncDisplay {
     auto off = width_ - size_t(on) - size_t(partial > 0);
 
     // draw progress bar
-    *out_ << "|";
-    for (int i = 0; i < on; i++) { *out_ << partials_.back(); }
-    if (partial > 0) { *out_ << partials_.at(partial - 1); }
-    *out_ << std::string(off, ' ') << "| ";
-    return width_ + 3;
+    if (out == nullptr) { out = out_; }
+    *out << "|";
+    for (int i = 0; i < on; i++) { *out << partials_.back(); }
+    if (partial > 0) { *out << partials_.at(partial - 1); }
+    *out << std::string(off, ' ') << "|";
+    return width_ + 2;
   }
 
   /// Write progress value with the total, e.g. 50/100, to output stream.
@@ -669,12 +710,38 @@ class ProgressBar : public AsyncDisplay {
 
   /// Run all of the individual render methods to write everything to stream
   size_t render_() override {
+#ifdef BARKEEP_ENABLE_FMT
+    if (not fmtstr_.empty()) {
+      using namespace fmt::literals;
+      value_t<Progress> progress = *progress_;
+
+      std::stringstream bar_ss;
+      render_progress_bar_(&bar_ss);
+
+      double percent = progress * 100. / total_;
+
+      auto s = speedom_ ? fmt::format(fmt::runtime(fmtstr_),
+                                      "value"_a = progress,
+                                      "bar"_a = bar_ss.str(),
+                                      "percent"_a = percent,
+                                      "total"_a = total_,
+                                      "speed"_a = speedom_->speed())
+                        : fmt::format(fmt::runtime(fmtstr_),
+                                      "value"_a = progress,
+                                      "bar"_a = bar_ss.str(),
+                                      "percent"_a = percent,
+                                      "total"_a = total_);
+      *out_ << s;
+      return s.size();
+    }
+#endif
     size_t len = render_message_();
     len += render_percentage_();
     len += render_progress_bar_();
+    *out_ << " ";
     len += render_counts_();
     if (speedom_) { len += speedom_->render_speed(out_, speed_unit_); }
-    return len;
+    return len + 1;
   }
 
   Duration default_interval_() const override {
@@ -802,6 +869,15 @@ class ProgressBar : public AsyncDisplay {
     AsyncDisplay::no_tty();
     return *this;
   }
+
+#ifdef BARKEEP_ENABLE_FMT
+  /// Set formatting string to be used to display the message and parts.
+  /// @param fmtstr
+  auto& fmt(const std::string& fmtstr) {
+    AsyncDisplay::fmt(fmtstr);
+    return *this;
+  }
+#endif
 };
 
 } // namespace barkeep

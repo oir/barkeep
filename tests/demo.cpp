@@ -1,5 +1,3 @@
-// Author: Ozan Irsoy
-
 #include <atomic>
 #include <iostream>
 #include <barkeep/barkeep.h>
