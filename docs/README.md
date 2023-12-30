@@ -15,12 +15,16 @@ Use it by including `barkeep.h` in your project.
 __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 
-<img src="img/C++.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
-<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
-<img src="https://img.shields.io/badge/std-c++17-blue.svg" alt="c++17">
+<img style="vertical-align:middle" src="img/C++.svg" height="22"> 
+<a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
+<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:middle" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
+<a><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++17-blue.svg" alt="c++17"></a>
+<code>#include &lt;barkeep/barkeep.h&gt;</code>
 <br/>
-<img src="img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
-<a href="https://pypi.python.org/pypi/barkeep"><img src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
+<img style="vertical-align:middle" src="img/python.svg" height="22">
+<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
+<a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:middle" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
+<code>pip install barkeep</code>
 
 
 ---
