@@ -32,10 +32,11 @@ def dtype(request):
 
 
 def check_and_get_parts(s: str, no_tty: bool = False) -> list[str]:
+    crcl = "\r\033[K"
     if not no_tty:
-        assert s[0] == "\r"
-    assert s[-1] == "\n"
-    parts = s[0:-2].split("\n") if no_tty else s[1:-1].split("\r")
+        assert s.startswith(crcl)
+    assert s.endswith("\n")
+    parts = s[0:-2].split("\n") if no_tty else s[len(crcl) : -1].split(crcl)
     assert len(parts) > 0
     return parts
 
