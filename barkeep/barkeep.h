@@ -92,13 +92,13 @@ class AsyncDisplay {
       render_();
       *out_ << std::endl;
     } else {
-      *out_ << "\r";
-      size_t len = render_();
-      if (len < max_rendered_len_) { // hide previous render if smaller
-        *out_ << std::string(max_rendered_len_ - len, ' ');
-      } else {
-        max_rendered_len_ = len;
-      }
+      *out_ << "\r\033[K"; // carriage return, clear line
+      render_();
+      //if (len < max_rendered_len_) { // hide previous render if smaller
+      //  *out_ << std::string(max_rendered_len_ - len, ' ');
+      //} else {
+      //  max_rendered_len_ = len;
+      //}
       *out_ << std::flush;
     }
   }
