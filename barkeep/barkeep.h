@@ -97,9 +97,7 @@ class AsyncDisplay {
 
   /// Display the message to output stream.
   void render_message_() const {
-    if (not message_.empty()) {
-      *out_ << message_ << " ";
-    }
+    if (not message_.empty()) { *out_ << message_ << " "; }
   }
 
   /// Start the display but do not show.
