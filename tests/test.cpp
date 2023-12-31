@@ -52,8 +52,9 @@ auto check_and_get_parts(const std::string& s, bool no_tty = false) {
   if (not no_tty) { REQUIRE(startswith(s, crcl)); }
   REQUIRE(s.back() == '\n');
 
-  auto parts = no_tty ? split(s.substr(0, s.size() - 1), '\n')
-                      : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
+  auto parts =
+      no_tty ? split(s.substr(0, s.size() - 1), '\n')
+             : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
   CHECK(not parts.empty());
   return parts;
 }
