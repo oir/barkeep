@@ -25,6 +25,17 @@ std::vector<std::string> split(const std::string& s, char delim) {
   return elems;
 }
 
+std::vector<std::string> split(const std::string& s, const std::string& delim) {
+  std::vector<std::string> elems;
+  size_t begin = 0, end = 0;
+  while ((end = s.find(delim, begin)) != std::string::npos) {
+    elems.push_back(s.substr(begin, end - begin));
+    begin = end + delim.size();
+  }
+  elems.push_back(s.substr(begin));
+  return elems;
+}
+
 std::string rstrip(const std::string& s) {
   if (s.empty()) { return s; }
   size_t i = s.size();
@@ -32,12 +43,18 @@ std::string rstrip(const std::string& s) {
   return s.substr(0, i);
 }
 
+bool startswith(const std::string& s, const std::string& prefix) {
+  return s.substr(0, prefix.size()) == prefix;
+}
+
 auto check_and_get_parts(const std::string& s, bool no_tty = false) {
-  if (not no_tty) { REQUIRE(s.front() == '\r'); }
+  static const std::string crcl = "\r\033[K";
+  if (not no_tty) { REQUIRE(startswith(s, crcl)); }
   REQUIRE(s.back() == '\n');
 
-  auto parts = no_tty ? split(s.substr(0, s.size() - 1), '\n')
-                      : split(s.substr(1, s.size() - 2), '\r');
+  auto parts =
+      no_tty ? split(s.substr(0, s.size() - 1), '\n')
+             : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
   CHECK(not parts.empty());
   return parts;
 }
