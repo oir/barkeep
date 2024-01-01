@@ -20,6 +20,7 @@
 
 #ifdef BARKEEP_ENABLE_FMT
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #endif
 
 namespace barkeep {
@@ -480,12 +481,14 @@ class Counter : public AsyncDisplay {
     if (not fmtstr_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
-      auto s = speedom_
-                   ? fmt::format(fmt::runtime(fmtstr_),
-                                 "value"_a = progress,
-                                 "speed"_a = speedom_->speed())
-                   : fmt::format(fmt::runtime(fmtstr_), "value"_a = progress);
-      *out_ << s;
+      if (speedom_) {
+        fmt::print(*out_,
+                   fmt::runtime(fmtstr_),
+                   "value"_a = progress,
+                   "speed"_a = speedom_->speed());
+      } else {
+        fmt::print(*out_, fmt::runtime(fmtstr_), "value"_a = progress);
+      }
       return;
     }
 #endif
@@ -688,18 +691,22 @@ class ProgressBar : public AsyncDisplay {
 
       double percent = progress * 100. / total_;
 
-      auto s = speedom_ ? fmt::format(fmt::runtime(fmtstr_),
-                                      "value"_a = progress,
-                                      "bar"_a = bar_ss.str(),
-                                      "percent"_a = percent,
-                                      "total"_a = total_,
-                                      "speed"_a = speedom_->speed())
-                        : fmt::format(fmt::runtime(fmtstr_),
-                                      "value"_a = progress,
-                                      "bar"_a = bar_ss.str(),
-                                      "percent"_a = percent,
-                                      "total"_a = total_);
-      *out_ << s;
+      if (speedom_) {
+        fmt::print(*out_,
+                   fmt::runtime(fmtstr_),
+                   "value"_a = progress,
+                   "bar"_a = bar_ss.str(),
+                   "percent"_a = percent,
+                   "total"_a = total_,
+                   "speed"_a = speedom_->speed());
+      } else {
+        fmt::print(*out_,
+                   fmt::runtime(fmtstr_),
+                   "value"_a = progress,
+                   "bar"_a = bar_ss.str(),
+                   "percent"_a = percent,
+                   "total"_a = total_);
+      }
       return;
     }
 #endif
