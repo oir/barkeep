@@ -64,6 +64,16 @@ const static StringsList progress_partials_{
     {">", "="},
 };
 
+#ifdef BARKEEP_ENABLE_FMT
+const static std::string red = "\033[31m";
+const static std::string green = "\033[32m";
+const static std::string yellow = "\033[33m";
+const static std::string blue = "\033[34m";
+const static std::string magenta = "\033[35m";
+const static std::string cyan = "\033[36m";
+const static std::string reset = "\033[0m";
+#endif
+
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
  protected:
@@ -698,14 +708,28 @@ class ProgressBar : public AsyncDisplay {
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
                    "total"_a = total_,
-                   "speed"_a = speedom_->speed());
+                   "speed"_a = speedom_->speed(),
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       } else {
         fmt::print(*out_,
                    fmt::runtime(fmtstr_),
                    "value"_a = progress,
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
-                   "total"_a = total_);
+                   "total"_a = total_,
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       }
       return;
     }
