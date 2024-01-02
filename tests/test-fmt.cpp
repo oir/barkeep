@@ -1,4 +1,6 @@
 #define CATCH_CONFIG_MAIN
+#define FMT_HEADER_ONLY
+#define BARKEEP_ENABLE_FMT
 
 #include <algorithm>
 #include <atomic>
@@ -57,40 +59,6 @@ auto check_and_get_parts(const std::string& s, bool no_tty = false) {
   return parts;
 }
 
-void check_anim(const std::vector<std::string>& parts,
-                const std::string& msg,
-                const std::vector<std::string>& stills) {
-  for (size_t i = 0; i < parts.size() - 1; i++) {
-    size_t j = i % stills.size();
-    auto& part = parts[i];
-    CHECK(part == (msg + " " + stills[j] + " "));
-  }
-}
-
-TEST_CASE("Animation", "[anim]") {
-  std::stringstream out;
-
-  auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Square);
-  auto no_tty = GENERATE(true, false);
-  auto interval_is_double = GENERATE(true, false);
-
-  auto anim = Animation(&out).message("Working").style(sty);
-  if (interval_is_double) {
-    anim.interval(0.1);
-  } else {
-    anim.interval(100ms);
-  }
-
-  if (no_tty) { anim.no_tty(); }
-
-  anim.show();
-  std::this_thread::sleep_for(1s);
-  anim.done();
-
-  auto parts = check_and_get_parts(out.str(), no_tty);
-  check_anim(parts, "Working", animation_stills_[size_t(sty)]);
-}
-
 using ProgressTypeList =
     std::tuple<size_t, std::atomic<size_t>, int, unsigned, float, double>;
 
@@ -103,11 +71,21 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, &out)
-                 .message("Doing things")
-                 .interval(0.001)
-                 .speed(sp)
-                 .speed_unit(unit);
+  std::string value_fmt =
+      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value}";
+
+  std::string fmtstr;
+  if (not sp) {
+    fmtstr = "Doing things " + value_fmt;
+  } else {
+    if (unit.empty()) {
+      fmtstr = "Doing things " + value_fmt + " ({speed:.2f})";
+    } else {
+      fmtstr = "Doing things " + value_fmt + " ({speed:.2f} " + unit + ")";
+    }
+  }
+
+  auto ctr = Counter(&amount, &out).interval(0.001).speed(sp).fmt(fmtstr);
   ctr.show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
@@ -161,11 +139,20 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   bool no_tty = GENERATE(true, false);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, &out)
-                 .message("Doing things")
-                 .interval(0.01s)
-                 .speed(sp)
-                 .speed_unit(unit);
+  std::string value_fmt =
+      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value}";
+  std::string fmtstr;
+  if (not sp) {
+    fmtstr = "Doing things " + value_fmt;
+  } else {
+    if (unit.empty()) {
+      fmtstr = "Doing things " + value_fmt + " ({speed:.2f})";
+    } else {
+      fmtstr = "Doing things " + value_fmt + " ({speed:.2f} " + unit + ")";
+    }
+  }
+
+  auto ctr = Counter(&amount, &out).interval(0.01s).speed(sp).fmt(fmtstr);
   if (no_tty) { ctr.no_tty(); }
   ctr.show();
 
@@ -191,30 +178,6 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
     expected += ValueType(101);
   }
   CHECK(counts.back() == expected);
-}
-
-TEST_CASE("Decreasing counter", "[counter]") {
-  std::stringstream out;
-  int amount = 101;
-
-  auto ctr = Counter(&amount, &out).message("Doing things").interval(0.01);
-  ctr.show();
-
-  for (size_t i = 0; i < 101; i++) {
-    std::this_thread::sleep_for(1.3ms);
-    amount--;
-  }
-  ctr.done();
-
-  auto parts = check_and_get_parts(out.str());
-  auto counts = extract_counts<int>("Doing things ", parts);
-
-  for (size_t i = 1; i < counts.size(); i++) {
-    CHECK(counts[i] <= counts[i - 1]);
-  }
-
-  // Final result should always be displayed
-  CHECK(counts.back() == 0);
 }
 
 template <typename Display>
@@ -251,108 +214,21 @@ Composite factory_helper<Composite>() {
 using DisplayTypes =
     std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
-TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
-  auto orig = factory_helper<TestType>();
-  orig.show();
-  SECTION("Running copy & move") {
-    CHECK_THROWS([&]() { auto copy{orig}; }());
-    CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
-  }
-  SECTION("Running compose") {
-    // This fails because copy / move is needed and they will both throw
-    CHECK_THROWS([&]() { orig | orig; }());
-    CHECK_THROWS([&]() { orig | orig | orig; }());
-  }
-  // This is now a no-op, instead of error.
-  CHECK_NOTHROW(orig.show());
-  orig.done();
-  CHECK_NOTHROW(orig.done());
-}
-
-TEST_CASE("Running mod error", "[edges]") {
-  std::stringstream hide;
-  SECTION("Animation") {
-    auto anim = Animation(&hide);
-    anim.show();
-    CHECK_THROWS(anim.message("foo"));
-    CHECK_THROWS(anim.style(Ellipsis));
-    CHECK_THROWS(anim.interval(0.1));
-    CHECK_THROWS(anim.interval(0.1s));
-    CHECK_THROWS(anim.no_tty());
-  }
-  SECTION("Counter") {
-    size_t progress{0};
-    auto ctr = Counter(&progress, &hide);
-    ctr.show();
-    CHECK_THROWS(ctr.message("foo"));
-    CHECK_THROWS(ctr.speed(1));
-    CHECK_THROWS(ctr.speed_unit("foo"));
-    CHECK_THROWS(ctr.interval(0.1));
-    CHECK_THROWS(ctr.interval(0.1s));
-    CHECK_THROWS(ctr.no_tty());
-  }
-  SECTION("Progress bar") {
-    float progress{0};
-    auto bar = ProgressBar(&progress, &hide);
-    bar.show();
-    CHECK_THROWS(bar.message("foo"));
-    CHECK_THROWS(bar.speed(1));
-    CHECK_THROWS(bar.speed_unit("foo"));
-    CHECK_THROWS(bar.interval(0.1));
-    CHECK_THROWS(bar.interval(0.1s));
-    CHECK_THROWS(bar.no_tty());
-    CHECK_THROWS(bar.total(1));
-  }
-}
-
-using SpeedyTypes = std::tuple<Counter<>, ProgressBar<float>>;
-
-TEMPLATE_LIST_TEST_CASE("Invalid speed discount", "[edges]", SpeedyTypes) {
-  auto orig = factory_helper<TestType>();
-  double invalid = GENERATE(as<double>(), -1, 1.1);
-  CHECK_THROWS(orig.speed(invalid));
-}
-
-TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
-  CHECK_NOTHROW([]() {
-    { // lifetime
-      auto display = factory_helper<TestType>();
-      display.show();
-    }
-  }());
-}
-
-TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
-  CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
-    auto copy = orig;
-    auto moved = std::move(orig);
-    copy.show();
-    copy.done();
-    moved.show();
-    moved.done();
-  }());
-}
-
-TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
-  CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
-    auto clone = orig.clone();
-    clone->show();
-    clone->done();
-  }());
-}
-
 TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
 
   bool no_tty = GENERATE(true, false);
 
-  auto bar = ProgressBar(&progress, &out)
-                 .total(50)
-                 .message("Computing")
-                 .interval(0.001s);
+  using ValueType = value_t<TestType>;
+  std::string value_fmt =
+      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value:2d}";
+
+  auto bar =
+      ProgressBar(&progress, &out)
+          .total(50)
+          .fmt("Computing {percent:6.2f}%) {bar} " + value_fmt + "/{total}")
+          .interval(0.001s);
   bar.style(GENERATE(Bars, Blocks, Arrow));
   if (no_tty) { bar.no_tty(); }
   bar.show();
@@ -378,10 +254,9 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   int progress;
   auto bar = ProgressBar(&progress, &out)
                  .total(50)
-                 .message("Computing")
+                 .fmt("Computing {percent:6.2f}% {bar} {value:2d}/{total}  ")
                  .interval(0.001)
-                 .style(Bars)
-                 .speed_unit("");
+                 .style(Bars);
 
   SECTION("Above") {
     progress = 50;
@@ -414,25 +289,19 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   }
 }
 
-TEMPLATE_LIST_TEST_CASE("Zero total progress",
-                        "[bar][edges]",
-                        ProgressTypeList) {
-  TestType progress;
-  auto bar = ProgressBar(&progress);
-  CHECK_THROWS(bar.total(0));
-  // TODO: make this not an error
-}
-
 TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(&sents, &out)
-                 .total(505)
-                 .message("Sents")
-                 .style(Bars)
-                 .interval(0.01) |
-             Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
+  auto bar =
+      ProgressBar(&sents, &out)
+          .total(505)
+          .fmt("Sents {percent:6.2f}% {bar} {value:3d}/{total:3d}")
+          .style(Bars)
+          .interval(0.01) |
+      // Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
+      Counter(&toks, &out).fmt("Toks {value}  ({speed:.2f} tok/s)").speed(1);
+
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);

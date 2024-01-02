@@ -4,6 +4,7 @@ sources = [
   'demo.cpp',
   'demo-fmt.cpp',
   'test.cpp',
+  'test-fmt.cpp'
 ]
 
 tests = []
