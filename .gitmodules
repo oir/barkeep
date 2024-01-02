@@ -2,3 +2,6 @@
 	path = subprojects/Catch2_
 	url = https://github.com/catchorg/Catch2.git
 	branch = v2.x
+[submodule "subprojects/fmt_"]
+	path = subprojects/fmt_
+	url = https://github.com/fmtlib/fmt.git
