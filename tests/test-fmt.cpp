@@ -228,6 +228,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
       ProgressBar(&progress, &out)
           .total(50)
           .fmt("Computing {percent:6.2f}%) {bar} " + value_fmt + "/{total}")
+          .speed(0.9)
           .interval(0.001s);
   bar.style(GENERATE(Bars, Blocks, Arrow));
   if (no_tty) { bar.no_tty(); }
