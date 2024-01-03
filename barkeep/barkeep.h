@@ -56,12 +56,19 @@ const static StringsList animation_stills_{
 /// Kind of bar being displayed for ProgressBar.
 enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow };
 
+struct BarParts {
+  std::string left;
+  std::string right;
+  Strings fill;
+  std::string empty;
+};
+
 /// Definitions of various partial bars for ProgressBar.
 /// ProgressBarStyle indexes into this.
-const static StringsList progress_partials_{
-    {"|"},
-    {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"},
-    {">", "="},
+const static std::vector<BarParts> progress_bar_parts_{
+    BarParts{"|", "|", {"|"}, " "},
+    BarParts{"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, " "},
+    BarParts{"|", "|", {">", "="}, " "},
 };
 
 #ifdef BARKEEP_ENABLE_FMT
@@ -635,7 +642,7 @@ class ProgressBar : public AsyncDisplay {
                                        // (TODO: make customizable?)
   ValueType total_{100};               // total work
 
-  Strings partials_; // progress bar display strings
+  BarParts bar_parts_; // progress bar display strings
 
  protected:
   /// Compute the shape of the progress bar based on progress and write to
@@ -644,9 +651,9 @@ class ProgressBar : public AsyncDisplay {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
     int on = int(ValueType(width_) * progress_copy / total_);
-    size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) *
+    size_t partial = size_t(ValueType(bar_parts_.fill.size()) * ValueType(width_) *
                                 progress_copy / total_ -
-                            ValueType(partials_.size()) * ValueType(on));
+                            ValueType(bar_parts_.fill.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
       partial = 0;
@@ -654,15 +661,16 @@ class ProgressBar : public AsyncDisplay {
       on = 0;
       partial = 0;
     }
-    assert(partial < partials_.size());
+    assert(partial < bar_parts_.fill.size());
     auto off = width_ - size_t(on) - size_t(partial > 0);
 
     // draw progress bar
     if (out == nullptr) { out = out_; }
-    *out << "|";
-    for (int i = 0; i < on; i++) { *out << partials_.back(); }
-    if (partial > 0) { *out << partials_.at(partial - 1); }
-    *out << std::string(off, ' ') << "|";
+    *out << bar_parts_.left;
+    for (int i = 0; i < on; i++) { *out << bar_parts_.fill.back(); }
+    if (partial > 0) { *out << bar_parts_.fill.at(partial - 1); }
+    for (size_t i = 0; i < off; i++) { *out << bar_parts_.empty; }
+    *out << bar_parts_.right;
   }
 
   /// Write progress value with the total, e.g. 50/100, to output stream.
@@ -766,7 +774,7 @@ class ProgressBar : public AsyncDisplay {
   /// @param out      Output stream to write to
   ProgressBar(Progress* progress, std::ostream* out = &std::cout)
       : AsyncDisplay(),
-        partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {
+        bar_parts_(progress_bar_parts_[static_cast<unsigned short>(Blocks)]) {
     init(progress, out);
   }
 
@@ -776,14 +784,14 @@ class ProgressBar : public AsyncDisplay {
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
         total_(other.total_),
-        partials_(std::move(other.partials_)) {}
+        bar_parts_(std::move(other.bar_parts_)) {}
 
   /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
         total_(other.total_),
-        partials_(other.partials_) {
+        bar_parts_(other.bar_parts_) {
     if (other.speedom_) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*other.speedom_);
     } else {
@@ -837,7 +845,7 @@ class ProgressBar : public AsyncDisplay {
   /// Set progress bar style.  @param sty Style  @return reference to self
   auto& style(Style sty) {
     ensure_not_running();
-    partials_ = progress_partials_[static_cast<unsigned short>(sty)];
+    bar_parts_ = progress_bar_parts_[static_cast<unsigned short>(sty)];
     return *this;
   }
 
