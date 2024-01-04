@@ -54,21 +54,22 @@ const static StringsList animation_stills_{
 };
 
 /// Kind of bar being displayed for ProgressBar.
-enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow };
+enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow, Pip };
 
 struct BarParts {
   std::string left;
   std::string right;
   Strings fill;
-  std::string empty;
+  Strings empty;
 };
 
 /// Definitions of various partial bars for ProgressBar.
 /// ProgressBarStyle indexes into this.
 const static std::vector<BarParts> progress_bar_parts_{
-    BarParts{"|", "|", {"|"}, " "},
-    BarParts{"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, " "},
-    BarParts{"|", "|", {">", "="}, " "},
+    BarParts{"|", "|", {"|"}, {" "}},
+    BarParts{"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, {" "}},
+    BarParts{"|", "|", {">", "="}, {" "}},
+    BarParts{"", "", {"╸", "━"}, {"╺", "━"}},
 };
 
 #ifdef BARKEEP_ENABLE_FMT
@@ -666,10 +667,30 @@ class ProgressBar : public AsyncDisplay {
 
     // draw progress bar
     if (out == nullptr) { out = out_; }
+
+    // left end
     *out << bar_parts_.left;
+
+    // filled portion
     for (int i = 0; i < on; i++) { *out << bar_parts_.fill.back(); }
+
+    // partially filled character
     if (partial > 0) { *out << bar_parts_.fill.at(partial - 1); }
-    for (size_t i = 0; i < off; i++) { *out << bar_parts_.empty; }
+
+    // partially empty character if available
+    if (off > 0) {
+      if (bar_parts_.empty.size() > 1) {
+        assert(bar_parts_.empty.size() == bar_parts_.fill.size());
+        *out << bar_parts_.empty.at(partial);
+      } else {
+        *out << bar_parts_.empty.back();
+      }
+    }
+
+    // empty portion
+    for (size_t i = 1; i < off; i++) { *out << bar_parts_.empty.back(); }
+
+    // right end
     *out << bar_parts_.right;
   }
 
