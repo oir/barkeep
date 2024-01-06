@@ -55,7 +55,7 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   for (auto speed : speeds) {
-    for (auto sty : {bk::Blocks, bk::Bars, bk::Arrow}) {
+    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Arrow}) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work)
                      .total(1010)
