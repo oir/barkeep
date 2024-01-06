@@ -353,7 +353,8 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
                  .total(50)
                  .message("Computing")
                  .interval(0.001s);
-  bar.style(GENERATE(Bars, Blocks, Arrow));
+  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  bar.style(sty);
   if (no_tty) { bar.no_tty(); }
   bar.show();
   for (size_t i = 0; i < 50; i++) {
@@ -366,11 +367,26 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 
   // Check that space is shrinking
   size_t last_spaces = std::numeric_limits<size_t>::max();
+  size_t first_spaces = std::numeric_limits<size_t>::max();
   for (auto& part : parts) {
-    auto spaces = size_t(std::count(part.begin(), part.end(), ' '));
+    size_t spaces;
+    if (sty != Pip) {
+      spaces = size_t(std::count(part.begin(), part.end(), ' '));
+    } else {
+      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
+      size_t right =
+          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
+      spaces = right - left - 1;
+    }
     CHECK(spaces <= last_spaces);
     last_spaces = spaces;
+    if (first_spaces == std::numeric_limits<size_t>::max()) {
+      first_spaces = spaces;
+    }
   }
+
+  // Final spaces should be strictly smaller (not <=)
+  CHECK(last_spaces < first_spaces);
 }
 
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {

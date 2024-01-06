@@ -54,14 +54,58 @@ const static StringsList animation_stills_{
 };
 
 /// Kind of bar being displayed for ProgressBar.
-enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow };
+enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow, Pip };
+
+struct BarParts {
+  std::string left;
+  std::string right;
+  Strings fill;
+  Strings empty;
+
+  // below are optionally used for coloring
+  std::string incomplete_left_modifier = "";
+  std::string complete_left_modifier = "";
+  std::string middle_modifier = "";
+  std::string right_modifier = "";
+
+  std::string percent_left_modifier = "";
+  std::string percent_right_modifier = "";
+
+  std::string value_left_modifier = "";
+  std::string value_right_modifier = "";
+
+  std::string speed_left_modifier = "";
+  std::string speed_right_modifier = "";
+};
+
+const static std::string red = "\033[31m";
+const static std::string green = "\033[32m";
+const static std::string yellow = "\033[33m";
+const static std::string blue = "\033[34m";
+const static std::string magenta = "\033[35m";
+const static std::string cyan = "\033[36m";
+const static std::string reset = "\033[0m";
 
 /// Definitions of various partial bars for ProgressBar.
 /// ProgressBarStyle indexes into this.
-const static StringsList progress_partials_{
-    {"|"},
-    {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"},
-    {">", "="},
+const static std::vector<BarParts> progress_bar_parts_{
+    {"|", "|", {"|"}, {" "}},
+    {"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, {" "}},
+    {"|", "|", {">", "="}, {" "}},
+    {"",
+     "",
+     {"╸", "━"},
+     {"╺", "━"},
+     "\033[38;2;249;38;114m",
+     "\033[38;2;114;156;31m",
+     "\033[38;5;237m",
+     reset,
+     cyan,
+     reset,
+     green,
+     reset,
+     red,
+     reset},
 };
 
 /// Base class to handle all asynchronous displays.
@@ -625,7 +669,7 @@ class ProgressBar : public AsyncDisplay {
                                        // (TODO: make customizable?)
   ValueType total_{100};               // total work
 
-  Strings partials_; // progress bar display strings
+  BarParts bar_parts_; // progress bar display strings
 
  protected:
   /// Compute the shape of the progress bar based on progress and write to
@@ -633,10 +677,11 @@ class ProgressBar : public AsyncDisplay {
   void render_progress_bar_(std::ostream* out = nullptr) {
     ValueType progress_copy = *progress_; // to avoid progress_ changing
                                           // during computations below
+    bool complete = progress_copy >= total_;
     int on = int(ValueType(width_) * progress_copy / total_);
-    size_t partial = size_t(ValueType(partials_.size()) * ValueType(width_) *
-                                progress_copy / total_ -
-                            ValueType(partials_.size()) * ValueType(on));
+    size_t partial = size_t(ValueType(bar_parts_.fill.size()) *
+                                ValueType(width_) * progress_copy / total_ -
+                            ValueType(bar_parts_.fill.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
       partial = 0;
@@ -644,15 +689,41 @@ class ProgressBar : public AsyncDisplay {
       on = 0;
       partial = 0;
     }
-    assert(partial < partials_.size());
+    assert(partial < bar_parts_.fill.size());
     auto off = width_ - size_t(on) - size_t(partial > 0);
 
     // draw progress bar
     if (out == nullptr) { out = out_; }
-    *out << "|";
-    for (int i = 0; i < on; i++) { *out << partials_.back(); }
-    if (partial > 0) { *out << partials_.at(partial - 1); }
-    *out << std::string(off, ' ') << "|";
+
+    // left end
+    *out << bar_parts_.left;
+    *out << (complete ? bar_parts_.complete_left_modifier
+                      : bar_parts_.incomplete_left_modifier);
+
+    // filled portion
+    for (int i = 0; i < on; i++) { *out << bar_parts_.fill.back(); }
+
+    // partially filled character
+    if (partial > 0) { *out << bar_parts_.fill.at(partial - 1); }
+
+    *out << bar_parts_.middle_modifier;
+
+    // partially empty character if available
+    if (off > 0) {
+      if (bar_parts_.empty.size() > 1) {
+        assert(bar_parts_.empty.size() == bar_parts_.fill.size());
+        *out << bar_parts_.empty.at(partial);
+      } else {
+        *out << bar_parts_.empty.back();
+      }
+    }
+
+    // empty portion
+    for (size_t i = 1; i < off; i++) { *out << bar_parts_.empty.back(); }
+
+    // right end
+    *out << bar_parts_.right_modifier;
+    *out << bar_parts_.right;
   }
 
   /// Write progress value with the total, e.g. 50/100, to output stream.
@@ -698,24 +769,50 @@ class ProgressBar : public AsyncDisplay {
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
                    "total"_a = total_,
-                   "speed"_a = speedom_->speed());
+                   "speed"_a = speedom_->speed(),
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       } else {
         fmt::print(*out_,
                    fmt::runtime(fmtstr_),
                    "value"_a = progress,
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
-                   "total"_a = total_);
+                   "total"_a = total_,
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       }
       return;
     }
 #endif
     render_message_();
+
+    *out_ << bar_parts_.percent_left_modifier;
     render_percentage_();
+    *out_ << bar_parts_.percent_right_modifier;
+
     render_progress_bar_();
     *out_ << " ";
+
+    *out_ << bar_parts_.value_left_modifier;
     render_counts_();
-    if (speedom_) { speedom_->render_speed(out_, speed_unit_); }
+    *out_ << bar_parts_.value_right_modifier;
+
+    if (speedom_) {
+      *out_ << bar_parts_.speed_left_modifier;
+      speedom_->render_speed(out_, speed_unit_);
+      *out_ << bar_parts_.speed_right_modifier;
+    }
   }
 
   Duration default_interval_() const override {
@@ -742,7 +839,7 @@ class ProgressBar : public AsyncDisplay {
   /// @param out      Output stream to write to
   ProgressBar(Progress* progress, std::ostream* out = &std::cout)
       : AsyncDisplay(),
-        partials_(progress_partials_[static_cast<unsigned short>(Blocks)]) {
+        bar_parts_(progress_bar_parts_[static_cast<unsigned short>(Blocks)]) {
     init(progress, out);
   }
 
@@ -752,14 +849,14 @@ class ProgressBar : public AsyncDisplay {
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
         total_(other.total_),
-        partials_(std::move(other.partials_)) {}
+        bar_parts_(std::move(other.bar_parts_)) {}
 
   /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
         total_(other.total_),
-        partials_(other.partials_) {
+        bar_parts_(other.bar_parts_) {
     if (other.speedom_) {
       speedom_ = std::make_unique<Speedometer<Progress>>(*other.speedom_);
     } else {
@@ -813,7 +910,7 @@ class ProgressBar : public AsyncDisplay {
   /// Set progress bar style.  @param sty Style  @return reference to self
   auto& style(Style sty) {
     ensure_not_running();
-    partials_ = progress_partials_[static_cast<unsigned short>(sty)];
+    bar_parts_ = progress_bar_parts_[static_cast<unsigned short>(sty)];
     return *this;
   }
 
