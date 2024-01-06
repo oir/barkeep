@@ -374,7 +374,8 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
       spaces = size_t(std::count(part.begin(), part.end(), ' '));
     } else {
       size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
-      size_t right = part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
+      size_t right =
+          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
       spaces = right - left - 1;
     }
     CHECK(spaces <= last_spaces);

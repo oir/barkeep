@@ -64,9 +64,9 @@ struct BarParts {
 
   // below are optionally used for coloring
   std::string incomplete_left_modifier = "";
-  std::string complete_left_modifier = "";  
-  std::string middle_modifier = "";         
-  std::string right_modifier = "";          
+  std::string complete_left_modifier = "";
+  std::string middle_modifier = "";
+  std::string right_modifier = "";
 
   std::string percent_left_modifier = "";
   std::string percent_right_modifier = "";
@@ -679,8 +679,8 @@ class ProgressBar : public AsyncDisplay {
                                           // during computations below
     bool complete = progress_copy >= total_;
     int on = int(ValueType(width_) * progress_copy / total_);
-    size_t partial = size_t(ValueType(bar_parts_.fill.size()) * ValueType(width_) *
-                                progress_copy / total_ -
+    size_t partial = size_t(ValueType(bar_parts_.fill.size()) *
+                                ValueType(width_) * progress_copy / total_ -
                             ValueType(bar_parts_.fill.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
@@ -698,7 +698,7 @@ class ProgressBar : public AsyncDisplay {
     // left end
     *out << bar_parts_.left;
     *out << (complete ? bar_parts_.complete_left_modifier
-                     : bar_parts_.incomplete_left_modifier);
+                      : bar_parts_.incomplete_left_modifier);
 
     // filled portion
     for (int i = 0; i < on; i++) { *out << bar_parts_.fill.back(); }
