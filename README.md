@@ -91,6 +91,30 @@ Use it by including `barkeep.h` in your project.
     <img src="docs/rec/bar-light.svg" width="700">
   </picture>
 
+- Bars can also be styled. Some styles have color:
+
+  ```cpp
+  int work{0};
+  auto bar = bk::ProgressBar(&work)
+    .message("Reading lines")
+    .speed(1.)
+    .speed_unit("line/s")
+    .total(505)
+    .style(bk::ProgressBarStyle::Pip);
+  bar.show();
+  for (int i = 0; i < 505; i++) {
+    std::this_thread::sleep_for(13ms); // read & process line
+    work++;
+  }
+  bar.done();
+  ```
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/bar-pip-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/bar-pip-light.svg" width="700">
+    <img src="docs/rec/bar-pip-light.svg" width="700">
+  </picture>
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
