@@ -848,6 +848,7 @@ class ProgressBar : public AsyncDisplay {
       : AsyncDisplay(std::move(other)),
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
+        speed_unit_(other.speed_unit_),
         total_(other.total_),
         bar_parts_(std::move(other.bar_parts_)) {}
 
@@ -855,6 +856,7 @@ class ProgressBar : public AsyncDisplay {
   ProgressBar(const ProgressBar<Progress>& other)
       : AsyncDisplay(other),
         progress_(other.progress_),
+        speed_unit_(other.speed_unit_),
         total_(other.total_),
         bar_parts_(other.bar_parts_) {
     if (other.speedom_) {

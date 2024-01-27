@@ -365,6 +365,79 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 
   auto parts = check_and_get_parts(out.str(), no_tty);
 
+  // Check that message is correct
+  for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
+
+  // Check that default speed unit does not appear
+  for (auto& part : parts) { CHECK(part.find("it/s") == std::string::npos); }
+
+  // Check that space is shrinking
+  size_t last_spaces = std::numeric_limits<size_t>::max();
+  size_t first_spaces = std::numeric_limits<size_t>::max();
+  for (auto& part : parts) {
+    size_t spaces;
+    if (sty != Pip) {
+      spaces = size_t(std::count(part.begin(), part.end(), ' '));
+    } else {
+      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
+      size_t right =
+          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
+      spaces = right - left - 1;
+    }
+    CHECK(spaces <= last_spaces);
+    last_spaces = spaces;
+    if (first_spaces == std::numeric_limits<size_t>::max()) {
+      first_spaces = spaces;
+    }
+  }
+
+  // Final spaces should be strictly smaller (not <=)
+  CHECK(last_spaces < first_spaces);
+}
+
+TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
+  std::stringstream out;
+  TestType progress{0};
+
+  bool no_tty = GENERATE(true, false);
+
+  auto bar = ProgressBar(&progress, &out)
+                 .total(50)
+                 .message("Computing")
+                 .speed(1)
+                 .interval(0.001s);
+  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  bar.style(sty);
+
+  auto default_speed_unit = GENERATE(true, false);
+  if (not default_speed_unit) { bar.speed_unit("thing/time"); }
+
+  if (no_tty) { bar.no_tty(); }
+  bar.show();
+  for (size_t i = 0; i < 50; i++) {
+    std::this_thread::sleep_for(1.3ms);
+    progress++;
+  }
+  bar.done();
+
+  auto parts = check_and_get_parts(out.str(), no_tty);
+
+  // Check that message is correct
+  for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
+
+  // Check speed unit
+  if (default_speed_unit) {
+    for (auto& part : parts) {
+      CHECK(part.find("it/s") != std::string::npos);
+      CHECK(part.find("thing/time") == std::string::npos);
+    }
+  } else {
+    for (auto& part : parts) {
+      CHECK(part.find("it/s") == std::string::npos);
+      CHECK(part.find("thing/time") != std::string::npos);
+    }
+  }
+
   // Check that space is shrinking
   size_t last_spaces = std::numeric_limits<size_t>::max();
   size_t first_spaces = std::numeric_limits<size_t>::max();
