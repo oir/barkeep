@@ -183,10 +183,7 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
                 .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
                 .speed(0.1);
   c.show();
-  for (int i = 0; i < 1010; i++) {
-    std::this_thread::sleep_for(13ms);
-    work++;
-  }
+  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
   c.done();
   ```
   <picture>
