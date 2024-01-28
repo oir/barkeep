@@ -170,7 +170,79 @@ Use it by including `barkeep.h` in your project.
 
 See `demo.cpp` for more examples.
 
-### Notes
+## Advanced formatting
+
+You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode).
+
+In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` which can be used to format the display using a `fmt`-like format string:
+
+- A counter:
+
+  ```cpp
+  size_t work{0};
+  auto c = bk::Counter(&work)
+                .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
+                .speed(0.1);
+  c.show();
+  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
+  c.done();
+  ```
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/fmt-counter-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/fmt-counter-light.svg" width="700">
+    <img src="docs/rec/fmt-counter-light.svg" width="700">
+  </picture>
+
+- A bar:
+
+  ```cpp
+  size_t work{0};
+  auto bar =
+      bk::ProgressBar(&work)
+          .total(1010)
+          .fmt("Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)")
+          .speed(0.1);
+  bar.show();
+  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+  bar.done();
+  ```
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/fmt-bar-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/fmt-bar-light.svg" width="700">
+    <img src="docs/rec/fmt-bar-light.svg" width="700">
+  </picture>
+
+When `fmt()` is used, other textual parameters, such as the ones passed by `message()` or `speed_unit()` are ignored.
+
+- For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
+- With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
+
+Additionally, some basic ansi color sequences are predefined as identifiers which could be used to add color:
+```cpp
+std::atomic<size_t> work{0};
+auto bar = bk::ProgressBar(&work)
+               .total(1010)
+               .fmt("Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
+                    "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)")
+               .speed(0.1);
+bar.show();
+for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+bar.done();
+```
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/rec/fmt-color-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/rec/fmt-color-light.svg" width="700">
+  <img src="docs/rec/fmt-color-light.svg" width="700">
+</picture>
+
+- You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}`.
+
+See `demo-fmt.cpp` for more examples.
+
+## Notes
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
