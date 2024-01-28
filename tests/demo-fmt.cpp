@@ -10,18 +10,20 @@ int main(int /*argc*/, char** /*argv*/) {
   namespace bk = barkeep;
 
   for (double speed : {0., 0.1, 1.}) {
-    std::atomic<size_t> work{0};
-    auto c =
-        bk::Counter(&work)
-            .fmt(
-                "Picked up {value} flowers, at a speed of {speed:.1f} flowers per second")
-            .speed(speed);
-    c.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(13ms);
-      work++;
+    for (
+        std::string fmtstr : {
+            "Picked up {value} flowers, at a speed of {speed:.1f} flowers per second",
+            "Picked up {blue}{value}{reset} flowers, at a speed of {green}{speed:.1f}{reset} flowers per second",
+        }) {
+      int work{0};
+      auto c = bk::Counter(&work).fmt(fmtstr).speed(speed);
+      c.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        work++;
+      }
+      c.done();
     }
-    c.done();
   }
 
   for (double speed : {0., 0.1, 1.}) {

@@ -529,9 +529,25 @@ class Counter : public AsyncDisplay {
         fmt::print(*out_,
                    fmt::runtime(fmtstr_),
                    "value"_a = progress,
-                   "speed"_a = speedom_->speed());
+                   "speed"_a = speedom_->speed(),
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       } else {
-        fmt::print(*out_, fmt::runtime(fmtstr_), "value"_a = progress);
+        fmt::print(*out_,
+                   fmt::runtime(fmtstr_),
+                   "value"_a = progress,
+                   "red"_a = red,
+                   "green"_a = green,
+                   "yellow"_a = yellow,
+                   "blue"_a = blue,
+                   "magenta"_a = magenta,
+                   "cyan"_a = cyan,
+                   "reset"_a = reset);
       }
       return;
     }
