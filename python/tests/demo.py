@@ -113,12 +113,41 @@ def composite():
     counters.done()
 
 
+def fmt():
+    for fmtstr in [
+        "Doing stuff {value} ({speed:.1f} thing/s)",
+        "Doing stuff {cyan}{value}{reset} {red}({speed:.1f} thing/s){reset}",
+    ]:
+        work = Counter(fmt=fmtstr, speed=0.1)
+        work.show()
+        for i in range(1010):
+            time.sleep(0.013)
+            work += 1
+        work.done()
+
+    for fmtstr in [
+        "Picking flowers {value:4d}/1010  {bar} {percent:3.0f}%  ({speed:.1f} flo/s)",
+        "Picking flowers {blue}{value:4d}/1010  {green}{bar} {yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
+    ]:
+        work = ProgressBar(
+            fmt=fmtstr,
+            total=1010,
+            speed=0.1,
+        )
+        work.show()
+        for i in range(1010):
+            time.sleep(0.013)
+            work += 1
+        work.done()
+
+
 demos = OrderedDict(
     [
         ("animation", animation),
         ("counter", counter),
         ("progress_bar", progress_bar),
         ("composite", composite),
+        ("fmt", fmt),
     ]
 )
 
@@ -127,7 +156,7 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
         "demo",
-        choices=["animation", "counter", "progress_bar", "composite", []],
+        choices=["animation", "counter", "progress_bar", "composite", "fmt", []],
         nargs="*",
     )
 
