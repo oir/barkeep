@@ -170,6 +170,16 @@ Use it by including `barkeep.h` in your project.
 
 See `demo.cpp` for more examples.
 
+### Advanced formatting
+
+You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode).
+
+In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` which can be used to format the display using a `fmt`-like format string:
+
+```cpp
+
+```
+
 ### Notes
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
