@@ -170,7 +170,7 @@ Use it by including `barkeep.h` in your project.
 
 See `demo.cpp` for more examples.
 
-### Advanced formatting
+## Advanced formatting
 
 You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode).
 
@@ -179,7 +179,7 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
 - A counter:
 
   ```cpp
-  std::atomic<size_t> work{0};
+  size_t work{0};
   auto c = bk::Counter(&work)
                 .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
                 .speed(0.1);
@@ -194,10 +194,10 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
     <img src="docs/rec/fmt-counter-light.svg" width="700">
   </picture>
 
-- A bar
+- A bar:
 
   ```cpp
-  std::atomic<size_t> work{0};
+  size_t work{0};
   auto bar =
       bk::ProgressBar(&work)
           .total(1010)
@@ -214,7 +214,15 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
     <img src="docs/rec/fmt-bar-light.svg" width="700">
   </picture>
 
-### Notes
+When `fmt()` is used, other textual parameters, such as the ones passed by `message()` or `speed_unit()` are ignored.
+
+For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
+
+With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
+
+
+
+## Notes
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
