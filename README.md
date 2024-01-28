@@ -179,9 +179,7 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
 - A counter:
   ```cpp
   std::atomic<size_t> work{0};
-  auto c = bk::Counter(&work)
-                .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
-                .speed(0.1);
+  auto c = bk::Counter(&work).fmt("Picked up {value} flowers, at {speed:.1f} flo/s").speed(0.1);
   c.show();
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
   c.done();
