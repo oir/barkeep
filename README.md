@@ -176,9 +176,24 @@ You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-
 
 In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` which can be used to format the display using a `fmt`-like format string:
 
-```cpp
-
-```
+- A counter:
+  ```cpp
+  std::atomic<size_t> work{0};
+  auto c = bk::Counter(&work)
+                .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
+                .speed(0.1);
+  c.show();
+  for (int i = 0; i < 1010; i++) {
+    std::this_thread::sleep_for(13ms);
+    work++;
+  }
+  c.done();
+  ```
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/fmt-counter-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/fmt-counter-light.svg" width="700">
+    <img src="docs/rec/fmt-counter-light.svg" width="700">
+  </picture>
 
 ### Notes
 
