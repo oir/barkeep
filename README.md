@@ -216,9 +216,8 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
 
 When `fmt()` is used, other textual parameters, such as the ones passed by `message()` or `speed_unit()` are ignored.
 
-For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
-
-With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
+- For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
+- With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
 
 Additionally, some basic ansi color sequences are predefined as identifiers which could be used to add color:
 ```cpp
@@ -239,7 +238,7 @@ bar.done();
   <img src="docs/rec/fmt-color-light.svg" width="700">
 </picture>
 
-You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}`.
+- You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}`.
 
 See `demo-fmt.cpp` for more examples.
 
