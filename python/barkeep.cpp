@@ -1,7 +1,9 @@
-#include <barkeep/barkeep.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#define BARKEEP_ENABLE_FMT
+#include <barkeep/barkeep.h>
 
 #ifndef BARKEEP_ENABLE_ATOMIC_FLOAT
 #define BARKEEP_ENABLE_ATOMIC_FLOAT 1
@@ -290,6 +292,7 @@ PYBIND11_MODULE(barkeep, m) {
          std::optional<double> interval,
          std::optional<double> speed,
          std::string speed_unit,
+         std::optional<std::string> fmt,
          bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         std::unique_ptr<AsyncDisplay> rval;
@@ -302,6 +305,7 @@ PYBIND11_MODULE(barkeep, m) {
           if (interval) { counter->interval(*interval); }
           counter->speed(speed);
           counter->speed_unit(speed_unit);
+          if (fmt) { counter->fmt(*fmt); }
           if (no_tty) { counter->no_tty(); }
           return counter;
         };
@@ -339,6 +343,9 @@ PYBIND11_MODULE(barkeep, m) {
             computed.
         speed_unit : str, optional
             Unit of speed. Defaults to "".
+        fmt : str, optional
+            Set formatting string to be used to display the message and speed.
+            If provided, message and speed_unit are ignored.
         no_tty : bool, optional
             If True, use no-tty mode (no \r, slower refresh). Defaults to False.
         dtype : DType, optional
@@ -350,6 +357,7 @@ PYBIND11_MODULE(barkeep, m) {
       "interval"_a = py::none(),
       "speed"_a = py::none(),
       "speed_unit"_a = "",
+      "fmt"_a = py::none(),
       "no_tty"_a = false,
       "dtype"_a = DType::Int,
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
@@ -377,6 +385,7 @@ PYBIND11_MODULE(barkeep, m) {
          ProgressBarStyle style,
          std::optional<double> speed,
          std::string speed_unit,
+         std::optional<std::string> fmt,
          bool no_tty,
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         auto make_progress_bar = [&](auto pv) {
@@ -389,6 +398,7 @@ PYBIND11_MODULE(barkeep, m) {
           bar->style(style);
           bar->speed(speed);
           bar->speed_unit(speed_unit);
+          if (fmt) { bar->fmt(*fmt); }
           if (no_tty) { bar->no_tty(); }
           return bar;
         };
@@ -431,6 +441,9 @@ PYBIND11_MODULE(barkeep, m) {
             computed.
         speed_unit : str, optional
             Unit of speed. Defaults to "".
+        fmt : str, optional
+            Set formatting string to be used to display the message and speed.
+            If provided, message and speed_unit are ignored.
         no_tty : bool, optional
             If True, use no-tty mode (no \r, slower refresh). Defaults to False.
         dtype : DType, optional
@@ -444,6 +457,7 @@ PYBIND11_MODULE(barkeep, m) {
       "style"_a = ProgressBarStyle::Blocks,
       "speed"_a = py::none(),
       "speed_unit"_a = "",
+      "fmt"_a = py::none(),
       "no_tty"_a = false,
       "dtype"_a = DType::Int,
       py::keep_alive<0, 3>()); // keep file alive while the bar is alive
