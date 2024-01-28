@@ -220,7 +220,28 @@ For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
 
 With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
 
+Additionally, some basic ansi color sequences are predefined as identifiers which could be used to add color:
+```cpp
+std::atomic<size_t> work{0};
+auto bar = bk::ProgressBar(&work)
+               .total(1010)
+               .fmt("Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
+                    "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)")
+               .speed(0.1);
+bar.show();
+for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+bar.done();
+```
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/rec/fmt-color-dark.svg" width="700">
+  <source media="(prefers-color-scheme: light)" srcset="docs/rec/fmt-color-light.svg" width="700">
+  <img src="docs/rec/fmt-color-light.svg" width="700">
+</picture>
+
+You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}`.
+
+See `demo-fmt.cpp` for more examples.
 
 ## Notes
 
