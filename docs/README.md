@@ -1,11 +1,7 @@
-<div style="visibility: hidden; height: 0">
-
-## barkeep
-
-</div>
-
 <p align="center">
   <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="img/barkeep-logo-white.png" width="300">
+    <source media="(prefers-color-scheme: light)" srcset="img/barkeep-logo-black.png" width="300">
     <img src="img/barkeep-logo-black.png" width="300">
   </picture>
 </p>
@@ -28,6 +24,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 
 ---
+
+<div style="visibility: hidden; height: 0">
+
+## Showcase
+
+</div>
 
 - Display a waiting animation with a message:
 
