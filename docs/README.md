@@ -8,6 +8,7 @@
 
 Small, single C++ header to display async animations, counters, and progress bars.
 Use it by including `barkeep.h` in your project.
+__barkeep__ strives to be [non-intrusive](#Non-intrusive-design).
 __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 
