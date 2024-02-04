@@ -8,6 +8,7 @@
 
 Small, single C++ header to display async animations, counters, and progress bars.
 Use it by including `barkeep.h` in your project.
+__barkeep__ strives to be [non-intrusive](#Non-intrusive-design).
 __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 
@@ -179,6 +180,46 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 See `demo.cpp` for more examples. 
 
+## Non-intrusive design
+
+Usually when you get to a point where you think you might want a waiting animation, you probably already have some variables you are monitoring and maybe even occasionally printing to screen. Displaying an animation comes as an afterthought. 
+
+__barkeep__ strives to be minimally intrusive by monitoring existing variables using pointers, so that in such situations you can start using it with very little code change.
+
+<div class="dual-code" style="position: relative; left: 50%; width: 109%; transform: translateX(-50%);">
+<table>
+<tr>
+</tr>
+<tr>
+<td>
+
+Before
+
+[before](before.cpp ':include :type=code')
+
+</td>
+<td>
+
+After
+
+[after](after.cpp ':include :type=code')
+
+</td>
+</tr>
+</table>
+</div>
+
+In the example above, we add a display to monitor the loop variable `i`, `total_chars`, `total_tokens`. For-loop changes slightly (because `i` needs to be declared earlier), but the way in which these variables are used in code stays the same. For instance, we do not use a custom data structure to call `operator++()`. As a result, signature of `process_document()` does not change.
+
+We create the display and use `.show()`, and `.done()` and __barkeep__ is out of our way.
+
+### Caveat
+
+Since displaying thread typically works concurrently, reads of progress variables (`i`, `total_chars`, `total_tokens`) is always racing with your own modifications. This seems to be almost always okay in practice when using variables that are word size (always okay in my anecdotal experience). However theoretically it is possible that a read can interleave a write in the middle such that you read e.g. a 4 byte float where 2 byte of is fresh and 2 byte is stale (see, e.g. [this thread](https://stackoverflow.com/questions/54188/are-c-reads-and-writes-of-an-int-atomic)). This would result in momentarily displaying a garbage value.
+
+Given the practical rarity of encountering this, its minimal impact outcome, and the desire to be as non-intrusive as possible, __barkeep__ does not introduce any lock guards (which would require a custom type as the progress variables instead of, e.g. an `int` or `float`). 
+
+If you still want to be extra safe, you can use `std::atomic` for your progress variables, as can be seen in some of the examples above.
 
 ## Advanced formatting
 
