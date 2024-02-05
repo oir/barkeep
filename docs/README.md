@@ -209,17 +209,23 @@ After
 </table>
 </div>
 
-In the example above, we add a display to monitor the loop variable `i`, `total_chars`, `total_tokens`. For-loop changes slightly (because `i` needs to be declared earlier), but the way in which these variables are used in code stays the same. For instance, we do not use a custom data structure to call `operator++()`. As a result, signature of `process_document()` does not change.
+In the example above, we add a display to monitor the loop variable `i`, `total_chars`, and `total_tokens`.
+For-loop changes slightly (because `i` needs to be declared earlier), but the way in which these variables are used in code stays the same.
+For instance, we do not use a custom data structure to call `operator++()`.
+As a result, signature of `process_document()` does not change.
 
 We create the display and use `.show()`, and `.done()` and __barkeep__ is out of our way.
 
 ### Caveat
 
-Since displaying thread typically works concurrently, reads of progress variables (`i`, `total_chars`, `total_tokens`) is always racing with your own modifications. This seems to be almost always okay in practice when using variables that are word size (always okay in my anecdotal experience). However theoretically it is possible that a read can interleave a write in the middle such that you read e.g. a 4 byte float where 2 byte of is fresh and 2 byte is stale (see, e.g. [this thread](https://stackoverflow.com/questions/54188/are-c-reads-and-writes-of-an-int-atomic)). This would result in momentarily displaying a garbage value.
+Since displaying thread typically works concurrently, reads of progress variables (`i`, `total_chars`, `total_tokens`) is always racing with your own modifications.
+Even though theoretically it is possible that a read can interleave a write in the middle such that you read e.g. a 4 byte float where 2 byte of is fresh and 2 byte is stale, this kind of concurrent access seems to be almost always okay in practice (see, e.g. [this](https://stackoverflow.com/questions/54188/are-c-reads-and-writes-of-an-int-atomic), and [this](https://stackoverflow.com/questions/36624881/why-is-integer-assignment-on-a-naturally-aligned-variable-atomic-on-x86) thread).
+It has always been okay in my own anecdotal experience.
+If not, a race condition would result in momentarily displaying a garbage value.
 
 Given the practical rarity of encountering this, its minimal impact outcome, and the desire to be as non-intrusive as possible, __barkeep__ does not introduce any lock guards (which would require a custom type as the progress variables instead of, e.g. an `int` or `float`). 
 
-If you still want to be extra safe, you can use `std::atomic` for your progress variables, as can be seen in some of the examples above.
+If you still want to be extra safe and __guarantee__ non-racing read and writes, you can use `std::atomic<T>` for your progress variables, as can be seen in some of the examples above.
 
 ## Advanced formatting
 
