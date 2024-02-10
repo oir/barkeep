@@ -343,6 +343,31 @@ TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
   }());
 }
 
+void check_shrinking_space(const Strings& parts, ProgressBarStyle sty) {
+  // Check that space is shrinking
+  size_t last_spaces = std::numeric_limits<size_t>::max();
+  size_t first_spaces = std::numeric_limits<size_t>::max();
+  for (auto& part : parts) {
+    size_t spaces;
+    if (sty != Pip) {
+      spaces = size_t(std::count(part.begin(), part.end(), ' '));
+    } else {
+      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
+      size_t right =
+          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
+      spaces = right - left - 1;
+    }
+    CHECK(spaces <= last_spaces);
+    last_spaces = spaces;
+    if (first_spaces == std::numeric_limits<size_t>::max()) {
+      first_spaces = spaces;
+    }
+  }
+
+  // Final spaces should be strictly smaller (not <=)
+  CHECK(last_spaces < first_spaces);
+}
+
 TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
@@ -372,27 +397,38 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   for (auto& part : parts) { CHECK(part.find("it/s") == std::string::npos); }
 
   // Check that space is shrinking
-  size_t last_spaces = std::numeric_limits<size_t>::max();
-  size_t first_spaces = std::numeric_limits<size_t>::max();
-  for (auto& part : parts) {
-    size_t spaces;
-    if (sty != Pip) {
-      spaces = size_t(std::count(part.begin(), part.end(), ' '));
-    } else {
-      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
-      size_t right =
-          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
-      spaces = right - left - 1;
-    }
-    CHECK(spaces <= last_spaces);
-    last_spaces = spaces;
-    if (first_spaces == std::numeric_limits<size_t>::max()) {
-      first_spaces = spaces;
-    }
+  check_shrinking_space(parts, sty);
+}
+
+TEST_CASE("Iterable bar", "[bar]") {
+  std::stringstream out;
+
+  std::vector<int> things(50, 3);
+  int dummy_sum = 0;
+
+  // bool no_tty = GENERATE(true, false);
+  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+
+  for (auto& thing : IterableBar(things, &out)
+                         .style(sty)
+                         .message("Computing")
+                         .interval(0.001s)) {
+    dummy_sum += thing;
+    std::this_thread::sleep_for(1.3ms);
   }
 
-  // Final spaces should be strictly smaller (not <=)
-  CHECK(last_spaces < first_spaces);
+  CHECK(dummy_sum == 150);
+
+  auto parts = check_and_get_parts(out.str(), false);
+
+  // Check that message is correct
+  for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
+
+  // Check that default speed unit does not appear
+  for (auto& part : parts) { CHECK(part.find("it/s") == std::string::npos); }
+
+  // Check that space is shrinking
+  check_shrinking_space(parts, sty);
 }
 
 TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
@@ -439,27 +475,45 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   }
 
   // Check that space is shrinking
-  size_t last_spaces = std::numeric_limits<size_t>::max();
-  size_t first_spaces = std::numeric_limits<size_t>::max();
-  for (auto& part : parts) {
-    size_t spaces;
-    if (sty != Pip) {
-      spaces = size_t(std::count(part.begin(), part.end(), ' '));
-    } else {
-      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
-      size_t right =
-          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
-      spaces = right - left - 1;
-    }
-    CHECK(spaces <= last_spaces);
-    last_spaces = spaces;
-    if (first_spaces == std::numeric_limits<size_t>::max()) {
-      first_spaces = spaces;
-    }
+  check_shrinking_space(parts, sty);
+}
+
+TEST_CASE("Speedy iterable bar", "[bar]") {
+  std::stringstream out;
+
+  std::vector<int> things(50, 3);
+  int dummy_sum = 0;
+
+  // bool no_tty = GENERATE(true, false);
+  // auto default_speed_unit = GENERATE(true, false);
+
+  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+
+  for (auto thing : IterableBar(things, &out)
+                        .style(sty)
+                        .message("Computing")
+                        .interval(0.001s)
+                        .speed(1)
+                        .speed_unit("thing/time")) {
+    std::this_thread::sleep_for(1.3ms);
+    dummy_sum += thing;
   }
 
-  // Final spaces should be strictly smaller (not <=)
-  CHECK(last_spaces < first_spaces);
+  CHECK(dummy_sum == 150);
+
+  auto parts = check_and_get_parts(out.str());
+
+  // Check that message is correct
+  for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
+
+  // Check speed unit
+  for (auto& part : parts) {
+    CHECK(part.find("it/s") == std::string::npos);
+    CHECK(part.find("thing/time") != std::string::npos);
+  }
+
+  // Check that space is shrinking
+  check_shrinking_space(parts, sty);
 }
 
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {

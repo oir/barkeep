@@ -113,6 +113,17 @@ int main(int /*argc*/, char** /*argv*/) {
     counters.done();
   }
 
+
+  { // Iterable automatic progress bar
+    std::vector<int> v{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int sum = 0;
+    for (auto x : bk::IterableBar(v).message("Summing")) {
+      std::this_thread::sleep_for(1s);
+      sum += x;
+    }
+    std::cout << "Sum: " << sum << std::endl;
+  }
+
   std::cout << "\nWarning: To illustrate infrequent writes, no-tty"
                " demos take long (several minutes)... 😅"
             << std::endl;
