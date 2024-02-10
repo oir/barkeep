@@ -1000,10 +1000,10 @@ class IterableBar {
       }
   };
 
-  IterableBar(Container& container)
+  IterableBar(Container& container, std::ostream* out = &std::cout)
       : container_(container),
         idx_(std::make_shared<std::atomic<size_t>>(0)),
-        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_)) {
+        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out)) {
     bar_->total(container_.size());
   }
 
