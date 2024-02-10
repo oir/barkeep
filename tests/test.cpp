@@ -406,10 +406,13 @@ TEST_CASE("Iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  //bool no_tty = GENERATE(true, false);
+  // bool no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto& thing : IterableBar(things, &out).style(sty).message("Computing").interval(0.001s)) {
+  for (auto& thing : IterableBar(things, &out)
+                         .style(sty)
+                         .message("Computing")
+                         .interval(0.001s)) {
     dummy_sum += thing;
     std::this_thread::sleep_for(1.3ms);
   }
@@ -481,12 +484,17 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  //bool no_tty = GENERATE(true, false);
-  //auto default_speed_unit = GENERATE(true, false);
+  // bool no_tty = GENERATE(true, false);
+  // auto default_speed_unit = GENERATE(true, false);
 
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto thing : IterableBar(things, &out).style(sty).message("Computing").interval(0.001s).speed(1).speed_unit("thing/time")) {
+  for (auto thing : IterableBar(things, &out)
+                        .style(sty)
+                        .message("Computing")
+                        .interval(0.001s)
+                        .speed(1)
+                        .speed_unit("thing/time")) {
     std::this_thread::sleep_for(1.3ms);
     dummy_sum += thing;
   }
