@@ -969,6 +969,87 @@ class ProgressBar : public AsyncDisplay {
 #endif
 };
 
+template <typename Container>
+class IterableBar {
+ private:
+  Container& container_;
+  std::shared_ptr<std::atomic<size_t>> idx_;
+  std::shared_ptr<ProgressBar<std::atomic<size_t>>> bar_;
+
+ public:
+  class Iterator {
+    private:
+      typename Container::iterator it_;
+      std::atomic<size_t>& idx_;
+    public:
+      Iterator(typename Container::iterator it, std::atomic<size_t>& idx)
+          : it_(it), idx_(idx) {}
+
+      Iterator& operator++() {
+        it_++;
+        idx_++;
+        return *this;
+      }
+
+      bool operator!=(const Iterator& other) const {
+        return it_ != other.it_;
+      }
+
+      auto& operator*() {
+        return *it_;
+      }
+  };
+
+  IterableBar(Container& container)
+      : container_(container),
+        idx_(std::make_shared<std::atomic<size_t>>(0)),
+        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_)) {
+    bar_->total(container_.size());
+  }
+
+  auto begin() {
+    bar_->show();
+    return Iterator(container_.begin(), *idx_);
+  }
+
+  auto end() { return Iterator(container_.end(), *idx_); }
+
+  auto speed(std::optional<double> discount) {
+    bar_->speed(discount);
+    return *this;
+  }
+
+  auto speed_unit(const std::string& msg) {
+    bar_->speed_unit(msg);
+    return *this;
+  }
+
+  auto style(ProgressBarStyle sty) {
+    bar_->style(sty);
+    return *this;
+  }
+
+  auto message(const std::string& msg) {
+    bar_->message(msg);
+    return *this;
+  }
+
+  auto interval(Duration pd) {
+    bar_->interval(pd);
+    return *this;
+  }
+
+  auto interval(double pd) {
+    bar_->interval(pd);
+    return *this;
+  }
+
+  auto no_tty() {
+    bar_->no_tty();
+    return *this;
+  }
+};
+
 } // namespace barkeep
 
 #endif

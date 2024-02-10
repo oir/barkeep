@@ -6,6 +6,14 @@ int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
   namespace bk = barkeep;
 
+  std::vector<int> v{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  int sum = 0;
+  for (auto x : bk::IterableBar(v).message("Summing")) {
+    std::this_thread::sleep_for(1s);
+    sum += x;
+  }
+  std::cout << "Sum: " << sum << std::endl;
+
   for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
     auto anim = bk::Animation().message("Working").style(sty).interval(0.5s);
     anim.show();
