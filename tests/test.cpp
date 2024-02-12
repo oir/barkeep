@@ -325,13 +325,14 @@ TEST_CASE("Running mod error", "[edges]") {
     CHECK_THROWS(bar.total(1));
   }
 }
+# endif
 
-using SpeedyTypes = std::tuple<Counter<>, ProgressBar<float>>;
-
-TEMPLATE_LIST_TEST_CASE("Invalid speed discount", "[edges]", SpeedyTypes) {
-  auto orig = factory_helper<TestType>();
+TEST_CASE("Invalid speed discount", "[edges]") {
   double invalid = GENERATE(as<double>(), -1, 1.1);
-  CHECK_THROWS(orig.speed(invalid));
+
+  int progress = 0;
+  CHECK_THROWS(Counter(&progress, {.speed = invalid}));
+  CHECK_THROWS(ProgressBar(&progress, {.speed = invalid}));
 }
 
 TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
@@ -394,14 +395,16 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   TestType progress{0};
 
   bool no_tty = GENERATE(true, false);
-
-  auto bar = ProgressBar(&progress, &out)
-                 .total(50)
-                 .message("Computing")
-                 .interval(0.001s);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
-  bar.style(sty);
-  if (no_tty) { bar.no_tty(); }
+
+  auto bar = ProgressBar(&progress, {
+    .out = &out,
+    .total = 50,
+    .message = "Computing",
+    .style = sty,
+    .interval = 0.001s,
+    .no_tty = no_tty,
+  });
   bar.show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
@@ -421,6 +424,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   check_shrinking_space(parts, sty);
 }
 
+# if 0
 TEST_CASE("Iterable bar", "[bar]") {
   std::stringstream out;
 
@@ -451,25 +455,39 @@ TEST_CASE("Iterable bar", "[bar]") {
   // Check that space is shrinking
   check_shrinking_space(parts, sty);
 }
+# endif
 
 TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
+  using ValueType = value_t<TestType>;
 
   bool no_tty = GENERATE(true, false);
-
-  auto bar = ProgressBar(&progress, &out)
-                 .total(50)
-                 .message("Computing")
-                 .speed(1)
-                 .interval(0.001s);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
-  bar.style(sty);
-
   auto default_speed_unit = GENERATE(true, false);
-  if (not default_speed_unit) { bar.speed_unit("thing/time"); }
 
-  if (no_tty) { bar.no_tty(); }
+  auto cfg = default_speed_unit ? ProgressBarConfig<ValueType>{
+                                      .out = &out,
+                                      .total = 50,
+                                      .message = "Computing",
+                                      .speed = 1,
+                                      .style = sty,
+                                      .interval = 0.001s,
+                                      .no_tty = no_tty,
+                                  }
+                                  : ProgressBarConfig<ValueType>{
+                                        .out = &out,
+                                        .total = 50,
+                                        .message = "Computing",
+                                        .speed = 1,
+                                        .speed_unit = "thing/time",
+                                        .style = sty,
+                                        .interval = 0.001s,
+                                        .no_tty = no_tty,
+                                    };
+
+  auto bar = ProgressBar(&progress, cfg);
+
   bar.show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
@@ -499,6 +517,7 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   check_shrinking_space(parts, sty);
 }
 
+# if 0
 TEST_CASE("Speedy iterable bar", "[bar]") {
   std::stringstream out;
 
@@ -536,16 +555,20 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   // Check that space is shrinking
   check_shrinking_space(parts, sty);
 }
+# endif
 
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(&progress, &out)
-                 .total(50)
-                 .message("Computing")
-                 .interval(0.001)
-                 .style(Bars)
-                 .speed_unit("");
+
+  auto bar = ProgressBar(&progress, {
+    .out = &out,
+    .total = 50,
+    .message = "Computing",
+    .speed_unit = "",
+    .style = Bars,
+    .interval = 0.001s,
+  });
 
   SECTION("Above") {
     progress = 50;
@@ -578,25 +601,37 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   }
 }
 
-TEMPLATE_LIST_TEST_CASE("Zero total progress",
-                        "[bar][edges]",
-                        ProgressTypeList) {
-  TestType progress;
-  auto bar = ProgressBar(&progress);
-  CHECK_THROWS(bar.total(0));
-  // TODO: make this not an error
-}
+//TEMPLATE_LIST_TEST_CASE("Zero total progress",
+//                        "[bar][edges]",
+//                        ProgressTypeList) {
+//  TestType progress;
+//  CHECK_THROWS(ProgressBar(&progress, {.total = 0}));
+//  // TODO: make this not an error
+//}
 
 TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar = ProgressBar(&sents, &out)
-                 .total(505)
-                 .message("Sents")
-                 .style(Bars)
-                 .interval(0.01) |
-             Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
+  //auto bar = ProgressBar(&sents, &out)
+  //               .total(505)
+  //               .message("Sents")
+  //               .style(Bars)
+  //               .interval(0.01) |
+  //           Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
+  auto bar = ProgressBar(&sents, {
+    .out = &out,
+    .total = 505,
+    .message = "Sents",
+    .style = Bars,
+    .interval = 0.01,
+  }) |
+             Counter(&toks, {
+               .out = &out,
+               .message = "Toks",
+               .speed = 1,
+               .speed_unit = "tok/s",
+             });
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
@@ -633,4 +668,3 @@ TEST_CASE("Composite bar-counter", "[composite]") {
     }
   }
 }
-#endif
