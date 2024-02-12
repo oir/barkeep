@@ -14,6 +14,7 @@
 #include <string>
 #include <thread>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 #define BARKEEP_VERSION "0.0.6"
@@ -111,17 +112,19 @@ const static std::vector<BarParts> progress_bar_parts_{
 /// Base class to handle all asynchronous displays.
 class AsyncDisplay {
  protected:
-  Duration interval_{0.0};
+  std::ostream* out_;
+
+  // state
   std::unique_ptr<std::thread> displayer_;
   std::condition_variable completion_;
   std::mutex completion_m_;
   std::atomic<bool> complete_ = false;
-
+  
+  // configuration
+  Duration interval_{0.0};
   std::string message_;
   std::string fmtstr_;
-
- protected:
-  std::ostream* out_;
+  bool no_tty_ = false;
 
  protected:
   /// Render a display: animation, progress bar, etc.
@@ -138,8 +141,6 @@ class AsyncDisplay {
   }
 
  protected:
-  bool no_tty_ = false;
-
   /// Display the message to output stream.
   void render_message_() const {
     if (not message_.empty()) { *out_ << message_ << " "; }
@@ -158,14 +159,25 @@ class AsyncDisplay {
   }
 
  public:
-  AsyncDisplay(std::ostream* out = &std::cout) : out_(out) {}
+  AsyncDisplay(std::ostream* out = &std::cout,
+                Duration interval = Duration{0.},
+                bool complete = false,
+                std::string message = "",
+                std::string fmtstr = "",
+                bool no_tty = false) :
+      out_(out),
+      complete_(complete),
+      interval_(interval),
+      message_(message),
+      fmtstr_(fmtstr),
+      no_tty_(no_tty) {}
 
   AsyncDisplay(const AsyncDisplay& other)
-      : interval_(other.interval_),
+      : out_(other.out_),
         complete_(bool(other.complete_)),
+        interval_(other.interval_),
         message_(other.message_),
         fmtstr_(other.fmtstr_),
-        out_(other.out_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
       throw std::runtime_error("A running display cannot be copied");
@@ -173,9 +185,9 @@ class AsyncDisplay {
   }
 
   AsyncDisplay(AsyncDisplay&& other)
-      : interval_(other.interval_),
+      : out_(other.out_),
         complete_(bool(other.complete_)),
-        out_(other.out_),
+        interval_(other.interval_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
       throw std::runtime_error("A running display cannot be moved");
@@ -237,45 +249,25 @@ class AsyncDisplay {
     }
   }
 
-#ifdef BARKEEP_ENABLE_FMT
-  /// Set formatting string to be used to display the message and speed.
-  /// @param fmtstr
-  void fmt(const std::string& fmtstr) {
-    ensure_not_running();
-    fmtstr_ = fmtstr + " "; // extra space for separating the cursor
-  }
-#endif
-
-  /// Set message to be displayed
-  /// @param msg message to be displayed
-  void message(const std::string& msg) {
-    ensure_not_running();
-    message_ = msg;
-  }
-
-  /// Set the interval in which the display is refreshed. This is also the
-  /// interval in which speed is measured if applicable.
-  /// @param pd interval as a Duration
-  void interval(Duration pd) {
-    ensure_not_running();
-    interval_ = pd;
-  }
-
-  /// Overload of interval(Duration) to accept a double argument
-  /// @param pd interval as a double
-  void interval(double pd) {
-    ensure_not_running();
-    interval_ = Duration(pd);
-  }
-
-  /// Enable no-tty mode.
-  void no_tty() {
-    ensure_not_running();
-    no_tty_ = true;
-  }
-
   friend class Composite;
 };
+
+/// Animation parameters
+struct AnimationConfig {
+  std::ostream* out = &std::cout;
+  std::string message = "";
+  AnimationStyle style = Ellipsis;
+  std::variant<Duration, double> interval = Duration{0.};
+  bool no_tty = false;
+};
+
+Duration as_duration(std::variant<Duration, double> interval) {
+  if (std::holds_alternative<Duration>(interval)) {
+    return std::get<Duration>(interval);
+  } else {
+    return Duration{std::get<double>(interval)};
+  }
+}
 
 /// Displays a simple animation with a message.
 class Animation : public AsyncDisplay {
@@ -298,10 +290,10 @@ class Animation : public AsyncDisplay {
   using Style = AnimationStyle;
 
   /// Constructor.
-  /// @param out output stream to write to
-  Animation(std::ostream* out = &std::cout)
-      : AsyncDisplay(out),
-        stills_(animation_stills_[static_cast<unsigned short>(Ellipsis)]) {}
+  /// @param cfg Animation parameters
+  Animation(const AnimationConfig& cfg = {}) :
+      AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, "", cfg.no_tty),
+      stills_(animation_stills_[static_cast<unsigned short>(cfg.style)]) {}
 
   Animation(const Animation& other) = default;
   Animation(Animation&&) = default;
@@ -309,41 +301,6 @@ class Animation : public AsyncDisplay {
 
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Animation>(*this);
-  }
-
-  /// Set animation style using one of AnimationStyle.
-  /// @param sty
-  /// @return reference to self
-  auto& style(Style sty) {
-    ensure_not_running();
-    stills_ = animation_stills_[static_cast<unsigned short>(sty)];
-    return *this;
-  }
-
-  /// Set message to be displayed.  @param msg  @return reference to self
-  auto& message(const std::string& msg) {
-    AsyncDisplay::message(msg);
-    return *this;
-  }
-
-  /// Set interval in which the animation is refreshed.
-  /// @param pd  @return reference to self
-  auto& interval(Duration pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Overload of interval(Duration) to accept a double argument
-  /// @param pd  @return reference to self
-  auto& interval(double pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Enable no-tty mode.  @return reference to self
-  auto& no_tty() {
-    AsyncDisplay::no_tty();
-    return *this;
   }
 };
 
@@ -372,13 +329,13 @@ class Composite : public AsyncDisplay {
  public:
   Composite(std::unique_ptr<AsyncDisplay> left,
             std::unique_ptr<AsyncDisplay> right)
-      : AsyncDisplay(left->out_),
+      : AsyncDisplay(left->out_, left->interval_, false, left->message_, "",
+                     left->no_tty_ or right->no_tty_),
         left_(std::move(left)),
         right_(std::move(right)) {
-    AsyncDisplay::interval(min(left_->interval_, right_->interval_));
     right_->out_ = left_->out_;
-    if (left_->no_tty_ or right_->no_tty_) { AsyncDisplay::no_tty(); }
   }
+
   /// Copy constructor clones child displays.
   Composite(const Composite& other)
       : AsyncDisplay(other),
@@ -392,13 +349,6 @@ class Composite : public AsyncDisplay {
     return std::make_unique<Composite>(*this);
   }
 
-  /// Enable no-tty mode.  @return reference to self
-  auto& no_tty() {
-    AsyncDisplay::no_tty();
-    left_->no_tty();
-    right_->no_tty();
-    return *this;
-  }
 };
 
 /// Pipe operator can be used to combine two displays into a Composite.
@@ -501,6 +451,17 @@ class Speedometer {
   }
 };
 
+/// Counter parameters
+struct CounterConfig {
+  std::ostream* out = &std::cout;
+  std::string fmtstr = "";
+  std::string message = "";
+  std::optional<double> speed = std::nullopt;
+  std::string speed_unit = "it/s";
+  std::variant<Duration, double> interval = Duration{0.};
+  bool no_tty = false;
+};
+
 /// Monitors and displays a single numeric variable
 template <typename Progress = size_t>
 class Counter : public AsyncDisplay {
@@ -581,9 +542,14 @@ class Counter : public AsyncDisplay {
  public:
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
-  /// @param out Output stream to write to
-  Counter(Progress* progress, std::ostream* out = &std::cout) : AsyncDisplay() {
-    init(progress, out);
+  /// @param cfg      Counter parameters
+  Counter(Progress* progress, const CounterConfig& cfg = {})
+   : AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, cfg.fmtstr, cfg.no_tty),
+     progress_(progress),
+     speed_unit_(cfg.speed_unit) {
+    if (cfg.speed) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
+    }
   }
 
   Counter(const Counter<Progress>& other)
@@ -609,66 +575,27 @@ class Counter : public AsyncDisplay {
     return std::make_unique<Counter>(*this);
   }
 
-  /// Set how to compute speed.
-  /// @param discount Discount factor in [0, 1] to use in computing the speed.
-  ///                 Previous increments are weighted by (1-discount).
-  ///                 If discount is 0, all increments are weighted equally.
-  ///                 If discount is 1, only the most recent increment is
-  ///                 considered. If discount is `std::nullopt`, speed is not
-  ///                 computed.
-  /// @return reference to self
-  auto& speed(std::optional<double> discount) {
-    ensure_not_running();
-    if (discount) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
-    } else {
-      speedom_.reset();
-    }
-    return *this;
-  }
+  // Set how to compute speed.
+  // @param discount Discount factor in [0, 1] to use in computing the speed.
+  //                 Previous increments are weighted by (1-discount).
+  //                 If discount is 0, all increments are weighted equally.
+  //                 If discount is 1, only the most recent increment is
+  //                 considered. If discount is `std::nullopt`, speed is not
+  //                 computed.
 
-  /// Set unit of speed text next to speed.
-  /// @param msg unit of speed  @return reference to self
-  auto& speed_unit(const std::string& msg) {
-    ensure_not_running();
-    speed_unit_ = msg;
-    return *this;
-  }
+};
 
-  /// Set message to be displayed. @param msg Message  @return reference to self
-  auto& message(const std::string& msg) {
-    AsyncDisplay::message(msg);
-    return *this;
-  }
-
-  /// Set interval in which the display is refreshed.
-  /// @param pd interval as a Duration  @return reference to self
-  auto& interval(Duration pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Overload of interval(Duration) to accept a double argument
-  /// @param pd interval as a double  @return reference to self
-  auto& interval(double pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Enable no-tty mode.  @return reference to self
-  auto& no_tty() {
-    AsyncDisplay::no_tty();
-    return *this;
-  }
-
-#ifdef BARKEEP_ENABLE_FMT
-  /// Set formatting string to be used to display the message and speed.
-  /// @param fmtstr
-  auto& fmt(const std::string& fmtstr) {
-    AsyncDisplay::fmt(fmtstr);
-    return *this;
-  }
-#endif
+template <typename ValueType>
+struct ProgressBarConfig {
+  std::ostream* out = &std::cout;
+  ValueType total = 100;
+  std::string fmtstr = "";
+  std::string message = "";
+  std::optional<double> speed = std::nullopt;
+  std::string speed_unit = "it/s";
+  ProgressBarStyle style = Blocks;
+  std::variant<Duration, double> interval = Duration{0.};
+  bool no_tty = false;
 };
 
 /// Displays a progress bar, by comparing the progress value being monitored to
@@ -852,11 +779,16 @@ class ProgressBar : public AsyncDisplay {
 
   /// Constructor.
   /// @param progress Variable to be monitored to measure completion
-  /// @param out      Output stream to write to
-  ProgressBar(Progress* progress, std::ostream* out = &std::cout)
-      : AsyncDisplay(),
-        bar_parts_(progress_bar_parts_[static_cast<unsigned short>(Blocks)]) {
-    init(progress, out);
+  /// @param cfg      ProgressBar parameters
+  ProgressBar(Progress* progress, const ProgressBarConfig<ValueType>& cfg = {})
+      : AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, cfg.fmtstr, cfg.no_tty),
+        progress_(progress),
+        speed_unit_(cfg.speed_unit),
+        total_(cfg.total),
+        bar_parts_(progress_bar_parts_[static_cast<unsigned short>(cfg.style)]) {
+    if (cfg.speed) {
+      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
+    }
   }
 
   /// move constructor
@@ -888,167 +820,91 @@ class ProgressBar : public AsyncDisplay {
     return std::make_unique<ProgressBar>(*this);
   }
 
-  /// Set how to compute speed.
-  /// @param discount Discount factor in [0, 1] to use in computing the speed.
-  ///                 Previous increments are weighted by (1-discount).
-  ///                 If discount is 0, all increments are weighted equally.
-  ///                 If discount is 1, only the most recent increment is
-  ///                 considered. If discount is `std::nullopt`, speed is not
-  ///                 computed.
-  /// @return reference to self
-  auto& speed(std::optional<double> discount) {
-    ensure_not_running();
-    if (discount) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *discount);
-    } else {
-      speedom_.reset();
-    }
-    return *this;
-  }
-
-  /// Set unit of speed text next to speed.
-  /// @param msg unit of speed  @return reference to self
-  auto& speed_unit(const std::string& msg) {
-    ensure_not_running();
-    speed_unit_ = msg;
-    return *this;
-  }
-
   /// Set total amount of work to be done, for the progress bar to be full.
   /// @param tot total amount of work  @return reference to self
-  auto& total(ValueType tot) {
-    ensure_not_running();
-    if (tot == 0) {
-      throw std::runtime_error("Progress total cannot be zero!");
-    }
-    total_ = tot;
-    return *this;
-  }
-
-  /// Set progress bar style.  @param sty Style  @return reference to self
-  auto& style(Style sty) {
-    ensure_not_running();
-    bar_parts_ = progress_bar_parts_[static_cast<unsigned short>(sty)];
-    return *this;
-  }
-
-  /// Set message to be displayed.
-  /// @param msg Message  @return reference to self
-  auto& message(const std::string& msg) {
-    AsyncDisplay::message(msg);
-    return *this;
-  }
-
-  /// Set interval in which the display is refreshed.
-  /// @param pd interval as a Duration  @return reference to self
-  auto& interval(Duration pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Overload of interval(Duration) to accept a double argument
-  /// @param pd interval as a double  @return reference to self
-  auto& interval(double pd) {
-    AsyncDisplay::interval(pd);
-    return *this;
-  }
-
-  /// Enable no-tty mode.  @return reference to self
-  auto& no_tty() {
-    AsyncDisplay::no_tty();
-    return *this;
-  }
-
-#ifdef BARKEEP_ENABLE_FMT
-  /// Set formatting string to be used to display the message and parts.
-  /// @param fmtstr
-  auto& fmt(const std::string& fmtstr) {
-    AsyncDisplay::fmt(fmtstr);
-    return *this;
-  }
-#endif
 };
+// 
+// template <typename Container>
+// class IterableBar {
+//  private:
+//   Container& container_;
+//   std::shared_ptr<std::atomic<size_t>> idx_;
+//   std::shared_ptr<ProgressBar<std::atomic<size_t>>> bar_;
+// 
+//  public:
+//   class Iterator {
+//     private:
+//       typename Container::iterator it_;
+//       std::atomic<size_t>& idx_;
+//     public:
+//       Iterator(typename Container::iterator it, std::atomic<size_t>& idx)
+//           : it_(it), idx_(idx) {}
+// 
+//       Iterator& operator++() {
+//         it_++;
+//         idx_++;
+//         return *this;
+//       }
+// 
+//       bool operator!=(const Iterator& other) const {
+//         return it_ != other.it_;
+//       }
+// 
+//       auto& operator*() {
+//         return *it_;
+//       }
+//   };
+// 
+//   IterableBar(Container& container, std::ostream* out = &std::cout)
+//       : container_(container),
+//         idx_(std::make_shared<std::atomic<size_t>>(0)),
+//         bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out)) {
+//     bar_->total(container_.size());
+//   }
+// 
+//   auto begin() {
+//     bar_->show();
+//     return Iterator(container_.begin(), *idx_);
+//   }
+// 
+//   auto end() { return Iterator(container_.end(), *idx_); }
+// 
+//   auto speed(std::optional<double> discount) {
+//     bar_->speed(discount);
+//     return *this;
+//   }
+// 
+//   auto speed_unit(const std::string& msg) {
+//     bar_->speed_unit(msg);
+//     return *this;
+//   }
+// 
+//   auto style(ProgressBarStyle sty) {
+//     bar_->style(sty);
+//     return *this;
+//   }
+// 
+//   auto message(const std::string& msg) {
+//     bar_->message(msg);
+//     return *this;
+//   }
+// 
+//   auto interval(Duration pd) {
+//     bar_->interval(pd);
+//     return *this;
+//   }
+// 
+//   auto interval(double pd) {
+//     bar_->interval(pd);
+//     return *this;
+//   }
+// 
+//   auto no_tty() {
+//     bar_->no_tty();
+//     return *this;
+//   }
+// };
 
-template <typename Container>
-class IterableBar {
- private:
-  Container& container_;
-  std::shared_ptr<std::atomic<size_t>> idx_;
-  std::shared_ptr<ProgressBar<std::atomic<size_t>>> bar_;
-
- public:
-  class Iterator {
-    private:
-      typename Container::iterator it_;
-      std::atomic<size_t>& idx_;
-    public:
-      Iterator(typename Container::iterator it, std::atomic<size_t>& idx)
-          : it_(it), idx_(idx) {}
-
-      Iterator& operator++() {
-        it_++;
-        idx_++;
-        return *this;
-      }
-
-      bool operator!=(const Iterator& other) const {
-        return it_ != other.it_;
-      }
-
-      auto& operator*() {
-        return *it_;
-      }
-  };
-
-  IterableBar(Container& container, std::ostream* out = &std::cout)
-      : container_(container),
-        idx_(std::make_shared<std::atomic<size_t>>(0)),
-        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out)) {
-    bar_->total(container_.size());
-  }
-
-  auto begin() {
-    bar_->show();
-    return Iterator(container_.begin(), *idx_);
-  }
-
-  auto end() { return Iterator(container_.end(), *idx_); }
-
-  auto speed(std::optional<double> discount) {
-    bar_->speed(discount);
-    return *this;
-  }
-
-  auto speed_unit(const std::string& msg) {
-    bar_->speed_unit(msg);
-    return *this;
-  }
-
-  auto style(ProgressBarStyle sty) {
-    bar_->style(sty);
-    return *this;
-  }
-
-  auto message(const std::string& msg) {
-    bar_->message(msg);
-    return *this;
-  }
-
-  auto interval(Duration pd) {
-    bar_->interval(pd);
-    return *this;
-  }
-
-  auto interval(double pd) {
-    bar_->interval(pd);
-    return *this;
-  }
-
-  auto no_tty() {
-    bar_->no_tty();
-    return *this;
-  }
-};
 
 } // namespace barkeep
 

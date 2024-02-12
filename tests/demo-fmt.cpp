@@ -2,7 +2,9 @@
 #include <iostream>
 
 #define FMT_HEADER_ONLY
+#ifndef BARKEEP_ENABLE_FMT
 #define BARKEEP_ENABLE_FMT
+#endif
 #include <barkeep/barkeep.h>
 
 int main(int /*argc*/, char** /*argv*/) {

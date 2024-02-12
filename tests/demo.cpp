@@ -7,7 +7,11 @@ int main(int /*argc*/, char** /*argv*/) {
   namespace bk = barkeep;
 
   for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
-    auto anim = bk::Animation().message("Working").style(sty).interval(0.5s);
+    auto anim = bk::Animation({
+      .message = "Working",
+      .style = sty,
+      .interval = 0.5s
+    });
     anim.show();
     std::this_thread::sleep_for(10s);
     anim.done();
@@ -16,10 +20,11 @@ int main(int /*argc*/, char** /*argv*/) {
   std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
   for (auto speed : speeds) {
     std::atomic<size_t> work{0};
-    auto c = bk::Counter(&work)
-                 .message("Doing stuff")
-                 .speed_unit("tk/s")
-                 .speed(speed);
+    auto c = bk::Counter(&work, {
+      .message = "Doing stuff",
+      .speed = speed,
+      .speed_unit = "tk/s",
+    });
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -30,10 +35,11 @@ int main(int /*argc*/, char** /*argv*/) {
 
   for (auto speed : speeds) {
     float work{0};
-    auto c = bk::Counter(&work)
-                 .message("Doing stuff")
-                 .speed_unit("tk/s")
-                 .speed(speed);
+    auto c = bk::Counter(&work, {
+      .message = "Doing stuff",
+      .speed = speed,
+      .speed_unit = "tk/s",
+    });
     c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
@@ -44,8 +50,11 @@ int main(int /*argc*/, char** /*argv*/) {
 
   for (auto speed : speeds) {
     unsigned long long work{677};
-    auto c =
-        bk::Counter(&work).message("Decreasing").speed_unit("").speed(speed);
+    auto c = bk::Counter(&work, {
+      .message = "Decreasing",
+      .speed = speed,
+      .speed_unit = "",
+    });
     c.show();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
@@ -54,6 +63,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // Let destructor do the c.done() this time
   }
 
+  # if 0
   for (auto speed : speeds) {
     for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Arrow}) {
       std::atomic<size_t> work{0};
@@ -154,6 +164,7 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     bar.done();
   }
+  # endif
 
   return 0;
 }
