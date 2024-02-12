@@ -119,7 +119,7 @@ class AsyncDisplay {
   std::condition_variable completion_;
   std::mutex completion_m_;
   std::atomic<bool> complete_ = false;
-  
+
   // configuration
   Duration interval_{0.0};
   std::string message_;
@@ -160,17 +160,17 @@ class AsyncDisplay {
 
  public:
   AsyncDisplay(std::ostream* out = &std::cout,
-                Duration interval = Duration{0.},
-                bool complete = false,
-                std::string message = "",
-                std::string fmtstr = "",
-                bool no_tty = false) :
-      out_(out),
-      complete_(complete),
-      interval_(interval),
-      message_(message),
-      fmtstr_(fmtstr),
-      no_tty_(no_tty) {}
+               Duration interval = Duration{0.},
+               bool complete = false,
+               std::string message = "",
+               std::string fmtstr = "",
+               bool no_tty = false)
+      : out_(out),
+        complete_(complete),
+        interval_(interval),
+        message_(message),
+        fmtstr_(fmtstr),
+        no_tty_(no_tty) {}
 
   AsyncDisplay(const AsyncDisplay& other)
       : out_(other.out_),
@@ -291,9 +291,14 @@ class Animation : public AsyncDisplay {
 
   /// Constructor.
   /// @param cfg Animation parameters
-  Animation(const AnimationConfig& cfg = {}) :
-      AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, "", cfg.no_tty),
-      stills_(animation_stills_[static_cast<unsigned short>(cfg.style)]) {}
+  Animation(const AnimationConfig& cfg = {})
+      : AsyncDisplay(cfg.out,
+                     as_duration(cfg.interval),
+                     false,
+                     cfg.message,
+                     "",
+                     cfg.no_tty),
+        stills_(animation_stills_[static_cast<unsigned short>(cfg.style)]) {}
 
   Animation(const Animation& other) = default;
   Animation(Animation&&) = default;
@@ -329,7 +334,11 @@ class Composite : public AsyncDisplay {
  public:
   Composite(std::unique_ptr<AsyncDisplay> left,
             std::unique_ptr<AsyncDisplay> right)
-      : AsyncDisplay(left->out_, left->interval_, false, left->message_, "",
+      : AsyncDisplay(left->out_,
+                     left->interval_,
+                     false,
+                     left->message_,
+                     "",
                      left->no_tty_ or right->no_tty_),
         left_(std::move(left)),
         right_(std::move(right)) {
@@ -348,7 +357,6 @@ class Composite : public AsyncDisplay {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Composite>(*this);
   }
-
 };
 
 /// Pipe operator can be used to combine two displays into a Composite.
@@ -544,11 +552,17 @@ class Counter : public AsyncDisplay {
   /// @param progress Variable to be monitored and displayed
   /// @param cfg      Counter parameters
   Counter(Progress* progress, const CounterConfig& cfg = {})
-   : AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, cfg.fmtstr, cfg.no_tty),
-     progress_(progress),
-     speed_unit_(cfg.speed_unit) {
+      : AsyncDisplay(cfg.out,
+                     as_duration(cfg.interval),
+                     false,
+                     cfg.message,
+                     cfg.fmtstr,
+                     cfg.no_tty),
+        progress_(progress),
+        speed_unit_(cfg.speed_unit) {
     if (cfg.speed) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
+      speedom_ =
+          std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
   }
 
@@ -582,7 +596,6 @@ class Counter : public AsyncDisplay {
   //                 If discount is 1, only the most recent increment is
   //                 considered. If discount is `std::nullopt`, speed is not
   //                 computed.
-
 };
 
 template <typename ValueType>
@@ -781,13 +794,20 @@ class ProgressBar : public AsyncDisplay {
   /// @param progress Variable to be monitored to measure completion
   /// @param cfg      ProgressBar parameters
   ProgressBar(Progress* progress, const ProgressBarConfig<ValueType>& cfg = {})
-      : AsyncDisplay(cfg.out, as_duration(cfg.interval), false, cfg.message, cfg.fmtstr, cfg.no_tty),
+      : AsyncDisplay(cfg.out,
+                     as_duration(cfg.interval),
+                     false,
+                     cfg.message,
+                     cfg.fmtstr,
+                     cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit),
         total_(cfg.total),
-        bar_parts_(progress_bar_parts_[static_cast<unsigned short>(cfg.style)]) {
+        bar_parts_(
+            progress_bar_parts_[static_cast<unsigned short>(cfg.style)]) {
     if (cfg.speed) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
+      speedom_ =
+          std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
   }
 
@@ -823,88 +843,85 @@ class ProgressBar : public AsyncDisplay {
   /// Set total amount of work to be done, for the progress bar to be full.
   /// @param tot total amount of work  @return reference to self
 };
-// 
-// template <typename Container>
-// class IterableBar {
-//  private:
-//   Container& container_;
-//   std::shared_ptr<std::atomic<size_t>> idx_;
-//   std::shared_ptr<ProgressBar<std::atomic<size_t>>> bar_;
-// 
-//  public:
-//   class Iterator {
-//     private:
-//       typename Container::iterator it_;
-//       std::atomic<size_t>& idx_;
-//     public:
-//       Iterator(typename Container::iterator it, std::atomic<size_t>& idx)
-//           : it_(it), idx_(idx) {}
-// 
-//       Iterator& operator++() {
-//         it_++;
-//         idx_++;
-//         return *this;
-//       }
-// 
-//       bool operator!=(const Iterator& other) const {
-//         return it_ != other.it_;
-//       }
-// 
-//       auto& operator*() {
-//         return *it_;
-//       }
-//   };
-// 
-//   IterableBar(Container& container, std::ostream* out = &std::cout)
-//       : container_(container),
-//         idx_(std::make_shared<std::atomic<size_t>>(0)),
-//         bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out)) {
-//     bar_->total(container_.size());
-//   }
-// 
-//   auto begin() {
-//     bar_->show();
-//     return Iterator(container_.begin(), *idx_);
-//   }
-// 
-//   auto end() { return Iterator(container_.end(), *idx_); }
-// 
-//   auto speed(std::optional<double> discount) {
-//     bar_->speed(discount);
-//     return *this;
-//   }
-// 
-//   auto speed_unit(const std::string& msg) {
-//     bar_->speed_unit(msg);
-//     return *this;
-//   }
-// 
-//   auto style(ProgressBarStyle sty) {
-//     bar_->style(sty);
-//     return *this;
-//   }
-// 
-//   auto message(const std::string& msg) {
-//     bar_->message(msg);
-//     return *this;
-//   }
-// 
-//   auto interval(Duration pd) {
-//     bar_->interval(pd);
-//     return *this;
-//   }
-// 
-//   auto interval(double pd) {
-//     bar_->interval(pd);
-//     return *this;
-//   }
-// 
-//   auto no_tty() {
-//     bar_->no_tty();
-//     return *this;
-//   }
-// };
 
+template <typename ValueType>
+struct IterableBarConfig {
+  std::ostream* out = &std::cout;
+  std::string fmtstr = "";
+  std::string message = "";
+  std::optional<double> speed = std::nullopt;
+  std::string speed_unit = "it/s";
+  ProgressBarStyle style = Blocks;
+  std::variant<Duration, double> interval = Duration{0.};
+  bool no_tty = false;
+};
+
+ template <typename Container>
+ class IterableBar {
+  public:
+   using ProgressType = std::atomic<size_t>;
+   using ValueType = value_t<ProgressType>;
+
+  private:
+   Container& container_;
+   std::shared_ptr<ProgressType> idx_;
+   std::shared_ptr<ProgressBar<ProgressType>> bar_;
+
+  public:
+   class Iterator {
+     private:
+       typename Container::iterator it_;
+       ProgressType& idx_;
+     public:
+       Iterator(typename Container::iterator it, ProgressType& idx)
+           : it_(it), idx_(idx) {}
+
+       Iterator& operator++() {
+         it_++;
+         idx_++;
+         return *this;
+       }
+
+       bool operator!=(const Iterator& other) const {
+         return it_ != other.it_;
+       }
+
+       auto& operator*() {
+         return *it_;
+       }
+   };
+
+   //IterableBar(Container& container, std::ostream* out = &std::cout)
+   //    : container_(container),
+   //      idx_(std::make_shared<std::atomic<size_t>>(0)),
+   //      bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out))
+   //      {
+   //  bar_->total(container_.size());
+   //}
+
+   IterableBar(Container& container, const IterableBarConfig<ValueType>& cfg = {})
+       : container_(container),
+         idx_(std::make_shared<std::atomic<size_t>>(0)),
+         bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_,
+         ProgressBarConfig{cfg.out, 
+                           container.size(), 
+                           cfg.fmtstr, 
+                           cfg.message, 
+                           cfg.speed, 
+                           cfg.speed_unit, 
+                           cfg.style, 
+                           cfg.interval, 
+                           cfg.no_tty} 
+         )) {
+   }
+
+   auto begin() {
+     bar_->show();
+     return Iterator(container_.begin(), *idx_);
+   }
+
+   auto end() { return Iterator(container_.end(), *idx_); }
+ };
 
 } // namespace barkeep
 

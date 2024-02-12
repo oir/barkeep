@@ -80,11 +80,11 @@ TEST_CASE("Animation", "[anim]") {
   auto interval = GENERATE(as<std::variant<Duration, double>>(), 100ms, 0.1);
 
   auto anim = Animation({
-    .out = &out,
-    .message = "Working",
-    .style = sty,
-    .interval = interval,
-    .no_tty = no_tty,
+      .out = &out,
+      .message = "Working",
+      .style = sty,
+      .interval = interval,
+      .no_tty = no_tty,
   });
 
   anim.show();
@@ -115,13 +115,14 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, {
-    .out = &out,
-    .message = "Doing things",
-    .speed = sp,
-    .speed_unit = unit,
-    .interval = 0.001s,
-  });
+  auto ctr = Counter(&amount,
+                     {
+                         .out = &out,
+                         .message = "Doing things",
+                         .speed = sp,
+                         .speed_unit = unit,
+                         .interval = 0.001s,
+                     });
   ctr.show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
@@ -175,14 +176,15 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   bool no_tty = GENERATE(true, false);
   std::string unit = GENERATE("", "thing/10ms");
 
-  auto ctr = Counter(&amount, {
-    .out = &out,
-    .message = "Doing things",
-    .speed = sp,
-    .speed_unit = unit,
-    .interval = 0.01s,
-    .no_tty = no_tty,
-  });
+  auto ctr = Counter(&amount,
+                     {
+                         .out = &out,
+                         .message = "Doing things",
+                         .speed = sp,
+                         .speed_unit = unit,
+                         .interval = 0.01s,
+                         .no_tty = no_tty,
+                     });
   ctr.show();
 
   ValueType increment = ValueType(1.2); // becomes 1 for integral types
@@ -213,11 +215,12 @@ TEST_CASE("Decreasing counter", "[counter]") {
   std::stringstream out;
   int amount = 101;
 
-  auto ctr = Counter(&amount, {
-    .out = &out,
-    .message = "Doing things",
-    .interval = 0.01,
-  });
+  auto ctr = Counter(&amount,
+                     {
+                         .out = &out,
+                         .message = "Doing things",
+                         .interval = 0.01,
+                     });
   ctr.show();
 
   for (size_t i = 0; i < 101; i++) {
@@ -289,7 +292,7 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   CHECK_NOTHROW(orig.done());
 }
 
-# if 0
+#if 0
 TEST_CASE("Running mod error", "[edges]") {
   std::stringstream hide;
   SECTION("Animation") {
@@ -325,7 +328,7 @@ TEST_CASE("Running mod error", "[edges]") {
     CHECK_THROWS(bar.total(1));
   }
 }
-# endif
+#endif
 
 TEST_CASE("Invalid speed discount", "[edges]") {
   double invalid = GENERATE(as<double>(), -1, 1.1);
@@ -397,14 +400,15 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   bool no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  auto bar = ProgressBar(&progress, {
-    .out = &out,
-    .total = 50,
-    .message = "Computing",
-    .style = sty,
-    .interval = 0.001s,
-    .no_tty = no_tty,
-  });
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .message = "Computing",
+                             .style = sty,
+                             .interval = 0.001s,
+                             .no_tty = no_tty,
+                         });
   bar.show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
@@ -424,7 +428,6 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   check_shrinking_space(parts, sty);
 }
 
-# if 0
 TEST_CASE("Iterable bar", "[bar]") {
   std::stringstream out;
 
@@ -434,10 +437,13 @@ TEST_CASE("Iterable bar", "[bar]") {
   // bool no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto& thing : IterableBar(things, &out)
-                         .style(sty)
-                         .message("Computing")
-                         .interval(0.001s)) {
+  for (auto& thing : IterableBar(things,
+                                 {
+                                     .out = &out,
+                                    .message = "Computing",
+                                    .style = sty,
+                                    .interval = 0.001s,
+                                 })) {
     dummy_sum += thing;
     std::this_thread::sleep_for(1.3ms);
   }
@@ -455,7 +461,6 @@ TEST_CASE("Iterable bar", "[bar]") {
   // Check that space is shrinking
   check_shrinking_space(parts, sty);
 }
-# endif
 
 TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
@@ -517,7 +522,6 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   check_shrinking_space(parts, sty);
 }
 
-# if 0
 TEST_CASE("Speedy iterable bar", "[bar]") {
   std::stringstream out;
 
@@ -529,12 +533,15 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
 
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto thing : IterableBar(things, &out)
-                        .style(sty)
-                        .message("Computing")
-                        .interval(0.001s)
-                        .speed(1)
-                        .speed_unit("thing/time")) {
+  for (auto& thing : IterableBar(things,
+                                 {
+                                     .out = &out,
+                                    .message = "Computing",
+                                    .speed = 1,
+                                    .speed_unit = "thing/time",
+                                    .style = sty,
+                                    .interval = 0.001s,
+                                 })) {
     std::this_thread::sleep_for(1.3ms);
     dummy_sum += thing;
   }
@@ -555,20 +562,20 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   // Check that space is shrinking
   check_shrinking_space(parts, sty);
 }
-# endif
 
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
 
-  auto bar = ProgressBar(&progress, {
-    .out = &out,
-    .total = 50,
-    .message = "Computing",
-    .speed_unit = "",
-    .style = Bars,
-    .interval = 0.001s,
-  });
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .message = "Computing",
+                             .speed_unit = "",
+                             .style = Bars,
+                             .interval = 0.001s,
+                         });
 
   SECTION("Above") {
     progress = 50;
@@ -601,37 +608,33 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   }
 }
 
-//TEMPLATE_LIST_TEST_CASE("Zero total progress",
-//                        "[bar][edges]",
-//                        ProgressTypeList) {
-//  TestType progress;
-//  CHECK_THROWS(ProgressBar(&progress, {.total = 0}));
-//  // TODO: make this not an error
-//}
+// TEMPLATE_LIST_TEST_CASE("Zero total progress",
+//                         "[bar][edges]",
+//                         ProgressTypeList) {
+//   TestType progress;
+//   CHECK_THROWS(ProgressBar(&progress, {.total = 0}));
+//   // TODO: make this not an error
+// }
 
 TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  //auto bar = ProgressBar(&sents, &out)
-  //               .total(505)
-  //               .message("Sents")
-  //               .style(Bars)
-  //               .interval(0.01) |
-  //           Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
-  auto bar = ProgressBar(&sents, {
-    .out = &out,
-    .total = 505,
-    .message = "Sents",
-    .style = Bars,
-    .interval = 0.01,
-  }) |
-             Counter(&toks, {
-               .out = &out,
-               .message = "Toks",
-               .speed = 1,
-               .speed_unit = "tok/s",
-             });
+  auto bar = ProgressBar(&sents,
+                         {
+                             .out = &out,
+                             .total = 505,
+                             .message = "Sents",
+                             .style = Bars,
+                             .interval = 0.01,
+                         }) |
+             Counter(&toks,
+                     {
+                         .out = &out,
+                         .message = "Toks",
+                         .speed = 1,
+                         .speed_unit = "tok/s",
+                     });
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
