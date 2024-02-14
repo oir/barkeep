@@ -123,7 +123,7 @@ class AsyncDisplay {
   // configuration
   Duration interval_{0.0};
   std::string message_;
-  std::string fmtstr_;
+  std::string format_;
   bool no_tty_ = false;
 
  protected:
@@ -163,13 +163,13 @@ class AsyncDisplay {
                Duration interval = Duration{0.},
                bool complete = false,
                std::string message = "",
-               std::string fmtstr = "",
+               std::string format = "",
                bool no_tty = false)
       : out_(out),
         complete_(complete),
         interval_(interval),
         message_(message),
-        fmtstr_(fmtstr),
+        format_(format),
         no_tty_(no_tty) {}
 
   AsyncDisplay(const AsyncDisplay& other)
@@ -177,7 +177,7 @@ class AsyncDisplay {
         complete_(bool(other.complete_)),
         interval_(other.interval_),
         message_(other.message_),
-        fmtstr_(other.fmtstr_),
+        format_(other.format_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
       throw std::runtime_error("A running display cannot be copied");
@@ -193,7 +193,7 @@ class AsyncDisplay {
       throw std::runtime_error("A running display cannot be moved");
     }
     message_ = std::move(other.message_);
-    fmtstr_ = std::move(other.fmtstr_);
+    format_ = std::move(other.format_);
   }
 
   virtual ~AsyncDisplay() { done(); }
@@ -462,7 +462,7 @@ class Speedometer {
 /// Counter parameters
 struct CounterConfig {
   std::ostream* out = &std::cout;
-  std::string fmtstr = "";
+  std::string format = "";
   std::string message = "";
   std::optional<double> speed = std::nullopt;
   std::string speed_unit = "it/s";
@@ -491,12 +491,12 @@ class Counter : public AsyncDisplay {
   /// Write the value of progress with the message to the output stream
   void render_() override {
 #ifdef BARKEEP_ENABLE_FMT
-    if (not fmtstr_.empty()) {
+    if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
       if (speedom_) {
         fmt::print(*out_,
-                   fmt::runtime(fmtstr_),
+                   fmt::runtime(format_),
                    "value"_a = progress,
                    "speed"_a = speedom_->speed(),
                    "red"_a = red,
@@ -508,7 +508,7 @@ class Counter : public AsyncDisplay {
                    "reset"_a = reset);
       } else {
         fmt::print(*out_,
-                   fmt::runtime(fmtstr_),
+                   fmt::runtime(format_),
                    "value"_a = progress,
                    "red"_a = red,
                    "green"_a = green,
@@ -556,7 +556,7 @@ class Counter : public AsyncDisplay {
                      as_duration(cfg.interval),
                      false,
                      cfg.message,
-                     cfg.fmtstr,
+                     cfg.format + " ",
                      cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit) {
@@ -602,7 +602,7 @@ template <typename ValueType>
 struct ProgressBarConfig {
   std::ostream* out = &std::cout;
   ValueType total = 100;
-  std::string fmtstr = "";
+  std::string format = "";
   std::string message = "";
   std::optional<double> speed = std::nullopt;
   std::string speed_unit = "it/s";
@@ -709,7 +709,7 @@ class ProgressBar : public AsyncDisplay {
   /// Run all of the individual render methods to write everything to stream
   void render_() override {
 #ifdef BARKEEP_ENABLE_FMT
-    if (not fmtstr_.empty()) {
+    if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
 
@@ -720,7 +720,7 @@ class ProgressBar : public AsyncDisplay {
 
       if (speedom_) {
         fmt::print(*out_,
-                   fmt::runtime(fmtstr_),
+                   fmt::runtime(format_),
                    "value"_a = progress,
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
@@ -735,7 +735,7 @@ class ProgressBar : public AsyncDisplay {
                    "reset"_a = reset);
       } else {
         fmt::print(*out_,
-                   fmt::runtime(fmtstr_),
+                   fmt::runtime(format_),
                    "value"_a = progress,
                    "bar"_a = bar_ss.str(),
                    "percent"_a = percent,
@@ -798,7 +798,7 @@ class ProgressBar : public AsyncDisplay {
                      as_duration(cfg.interval),
                      false,
                      cfg.message,
-                     cfg.fmtstr,
+                     cfg.format + " ",
                      cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit),
@@ -847,7 +847,7 @@ class ProgressBar : public AsyncDisplay {
 template <typename ValueType>
 struct IterableBarConfig {
   std::ostream* out = &std::cout;
-  std::string fmtstr = "";
+  std::string format = "";
   std::string message = "";
   std::optional<double> speed = std::nullopt;
   std::string speed_unit = "it/s";
@@ -891,21 +891,13 @@ struct IterableBarConfig {
        }
    };
 
-   //IterableBar(Container& container, std::ostream* out = &std::cout)
-   //    : container_(container),
-   //      idx_(std::make_shared<std::atomic<size_t>>(0)),
-   //      bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_, out))
-   //      {
-   //  bar_->total(container_.size());
-   //}
-
    IterableBar(Container& container, const IterableBarConfig<ValueType>& cfg = {})
        : container_(container),
          idx_(std::make_shared<std::atomic<size_t>>(0)),
          bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_,
          ProgressBarConfig{cfg.out, 
                            container.size(), 
-                           cfg.fmtstr, 
+                           cfg.format, 
                            cfg.message, 
                            cfg.speed, 
                            cfg.speed_unit, 
