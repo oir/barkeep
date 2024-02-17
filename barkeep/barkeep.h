@@ -473,7 +473,7 @@ struct CounterConfig {
 /// Monitors and displays a single numeric variable
 template <typename Progress = size_t>
 class Counter : public AsyncDisplay {
- private:
+ protected:
   Progress* progress_ = nullptr; // current amount of work done
   std::unique_ptr<Speedometer<Progress>> speedom_;
   std::string speed_unit_ = "it/s"; // unit of speed text next to speed
@@ -556,7 +556,7 @@ class Counter : public AsyncDisplay {
                      as_duration(cfg.interval),
                      false,
                      cfg.message,
-                     cfg.format + " ",
+                     cfg.format.empty() ? "" : cfg.format + " ",
                      cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit) {
@@ -615,7 +615,7 @@ struct ProgressBarConfig {
 /// a given total value. Optionally reports speed.
 template <typename Progress>
 class ProgressBar : public AsyncDisplay {
- private:
+ protected:
   using ValueType = value_t<Progress>;
 
   Progress* progress_; // work done so far
@@ -779,14 +779,6 @@ class ProgressBar : public AsyncDisplay {
     if (speedom_) { speedom_->start(); }
   }
 
- protected:
-  void init(Progress* progress, std::ostream* out) {
-    progress_ = progress;
-    out_ = out;
-  }
-
-  ProgressBar(std::ostream* out = &std::cout) : AsyncDisplay(out) {}
-
  public:
   using Style = ProgressBarStyle;
 
@@ -798,7 +790,7 @@ class ProgressBar : public AsyncDisplay {
                      as_duration(cfg.interval),
                      false,
                      cfg.message,
-                     cfg.format + " ",
+                     cfg.format.empty() ? "" : cfg.format + " ",
                      cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit),

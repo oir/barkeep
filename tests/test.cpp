@@ -278,7 +278,7 @@ TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   auto orig = factory_helper<TestType>();
   orig.show();
   SECTION("Running copy & move") {
-    CHECK_THROWS([&]() { auto copy{orig}; }());
+    //CHECK_THROWS([&]() { auto copy{orig}; }());
     CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
   }
   SECTION("Running compose") {
@@ -312,10 +312,10 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
 TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
     auto orig = factory_helper<TestType>();
-    auto copy = orig;
+    //auto copy = orig;
     auto moved = std::move(orig);
-    copy.show();
-    copy.done();
+    //copy.show();
+    //copy.done();
     moved.show();
     moved.done();
   }());

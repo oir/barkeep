@@ -2,7 +2,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#ifndef BARKEEP_ENABLE_FMT
 #define BARKEEP_ENABLE_FMT
+#endif
 #include <barkeep/barkeep.h>
 
 #ifndef BARKEEP_ENABLE_ATOMIC_FLOAT
@@ -49,11 +51,20 @@ class Animation_ : public Animation {
  public:
   std::shared_ptr<PyFileStream> file_ = nullptr;
 
-  Animation_(py::object file = py::none()) {
+  Animation_(py::object file = py::none(),
+             std::string message = "",
+             AnimationStyle style = Ellipsis,
+             double interval = 0.,
+             bool no_tty = false)
+      : Animation({.out = nullptr,
+                   .message = message,
+                   .style = style,
+                   .interval = interval,
+                   .no_tty = no_tty}) {
     if (not file.is_none()) {
       file_ = std::make_shared<PyFileStream>(std::move(file));
     }
-    out_ = file_ ? (std::ostream*)&*file_ : &std::cout;
+    out_ = file_ ? (std::ostream*)file_.get() : &std::cout;
   }
 
   void join() override {
@@ -77,19 +88,34 @@ class Counter_ : public Counter<T> {
   using Counter<T>::render_;
   using Counter<T>::default_interval_;
 
-  void init() {
-    Counter<T>::init(&*work, file_ ? (std::ostream*)&*file_ : &std::cout);
-  }
-
  public:
   std::shared_ptr<T> work = std::make_shared<T>(0);
   std::shared_ptr<PyFileStream> file_ = nullptr;
 
-  Counter_(py::object file = py::none()) {
+  Counter_(py::object file = py::none(),
+           std::string format = "",
+           std::string message = "",
+           std::optional<double> speed = std::nullopt,
+           std::string speed_unit = "it/s",
+           double interval = 0.,
+           bool no_tty = false) 
+           : Counter<T>(nullptr, {.out = nullptr,
+                         .format = format,
+                         .message = message,
+                         .speed = std::nullopt,
+                         .speed_unit = speed_unit,
+                         .interval = interval,
+                         .no_tty = no_tty}) {
+    if (speed) {
+      this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
+    }
     if (not file.is_none()) {
       file_ = std::make_shared<PyFileStream>(std::move(file));
     }
-    init();
+    this->progress_ = work.get();
+    assert(this->progress_ != nullptr);
+    this->out_ = file_ ? (std::ostream*)file_.get() : &std::cout;
+    assert(this->out_ != nullptr);
   }
 
   void join() override {
@@ -128,19 +154,38 @@ class ProgressBar_ : public ProgressBar<T> {
   using ProgressBar<T>::render_;
   using ProgressBar<T>::default_interval_;
 
-  void init() {
-    ProgressBar<T>::init(&*work, file_ ? (std::ostream*)&*file_ : &std::cout);
-  }
-
  public:
   std::shared_ptr<T> work = std::make_shared<T>(0);
   std::shared_ptr<PyFileStream> file_ = nullptr;
 
-  ProgressBar_(py::object file = py::none()) {
+  ProgressBar_(py::object file = py::none(),
+               value_t<T> total = 100,
+               std::string format = "",
+               std::string message = "",
+               std::optional<double> speed = std::nullopt,
+               std::string speed_unit = "it/s",
+               ProgressBarStyle style = Blocks,
+               double interval = 0.,
+               bool no_tty = false) 
+        : ProgressBar<T>(nullptr, {.out = nullptr,
+                         .total = total,
+                         .format = format,
+                         .message = message,
+                         .speed = std::nullopt,
+                         .speed_unit = speed_unit,
+                         .style = style,
+                         .interval = interval,
+                         .no_tty = no_tty}) {
+    if (speed) {
+      this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
+    }
     if (not file.is_none()) {
       file_ = std::make_shared<PyFileStream>(std::move(file));
     }
-    init();
+    this->progress_ = work.get();
+    assert(this->progress_ != nullptr);
+    this->out_ = file_ ? (std::ostream*)file_.get() : &std::cout;
+    assert(this->out_ != nullptr);
   }
 
   void join() override {
@@ -222,12 +267,7 @@ PYBIND11_MODULE(barkeep, m) {
                        double interval,
                        AnimationStyle style,
                        bool no_tty) {
-             Animation_ a(file);
-             a.message(msg);
-             a.interval(interval);
-             a.style(style);
-             if (no_tty) { a.no_tty(); }
-             return a;
+             return Animation_(file, msg, style, interval, no_tty);
            }),
            R"docstr(
             Displays a simple animation with a message.
@@ -299,15 +339,15 @@ PYBIND11_MODULE(barkeep, m) {
 
         auto make_counter = [&](auto pv) {
           using T = decltype(pv);
-          auto counter = std::make_unique<Counter_<T>>(file);
-          *counter->work = value;
-          counter->message(msg);
-          if (interval) { counter->interval(*interval); }
-          counter->speed(speed);
-          counter->speed_unit(speed_unit);
-          if (fmt) { counter->fmt(*fmt); }
-          if (no_tty) { counter->no_tty(); }
-          return counter;
+          auto c = std::make_unique<Counter_<T>>(file,
+                                                 fmt.value_or(""),
+                                                 msg,
+                                                 speed,
+                                                 speed_unit,
+                                                 interval.value_or(0.),
+                                                 no_tty);
+          *c->work = value;
+          return c;
         };
 
         switch (dtype) {
@@ -374,7 +414,6 @@ PYBIND11_MODULE(barkeep, m) {
 #endif
 
   // Factory function for all instantiations of ProgressBar_
-
   m.def(
       "ProgressBar",
       [](double value, // TODO: Make value match the specified dtype
@@ -390,16 +429,16 @@ PYBIND11_MODULE(barkeep, m) {
          DType dtype) -> std::unique_ptr<AsyncDisplay> {
         auto make_progress_bar = [&](auto pv) {
           using T = decltype(pv);
-          auto bar = std::make_unique<ProgressBar_<T>>(file);
+          auto bar = std::make_unique<ProgressBar_<T>>(file,
+                                                       total,
+                                                       fmt.value_or(""),
+                                                       msg,
+                                                       speed,
+                                                       speed_unit,
+                                                       style,
+                                                       interval.value_or(0.),
+                                                       no_tty);
           *bar->work = value;
-          bar->total(total);
-          bar->message(msg);
-          if (interval) { bar->interval(*interval); }
-          bar->style(style);
-          bar->speed(speed);
-          bar->speed_unit(speed_unit);
-          if (fmt) { bar->fmt(*fmt); }
-          if (no_tty) { bar->no_tty(); }
           return bar;
         };
 
