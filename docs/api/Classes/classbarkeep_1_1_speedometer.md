@@ -12,7 +12,8 @@ Helper class to measure and display speed of progress.  [More...](#detailed-desc
 
 |                | Name           |
 | -------------- | -------------- |
-| [size_t](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream & out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit)<br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
+| [double](api/Classes/classbarkeep_1_1_counter.md) | **[speed](api/Classes/classbarkeep_1_1_speedometer.md#function-speed)**() |
+| [void](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream * out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit)<br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
 | [void](api/Classes/classbarkeep_1_1_counter.md) | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**()<br>Start computing the speed based on the amount of change in progress.  |
 | | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**([Progress](api/Classes/classbarkeep_1_1_counter.md) & progress, [double](api/Classes/classbarkeep_1_1_counter.md) discount)<br>Constructor.  |
 
@@ -29,11 +30,18 @@ class barkeep::Speedometer;
 Helper class to measure and display speed of progress. 
 ## Public Functions Documentation
 
+### function speed
+
+```cpp
+inline double speed()
+```
+
+
 ### function render_speed
 
 ```cpp
-inline size_t render_speed(
-    std::ostream & out,
+inline void render_speed(
+    std::ostream * out,
     const std::string & speed_unit
 )
 ```
@@ -67,4 +75,4 @@ Constructor.
 
 -------------------------------
 
-Updated on 2023-12-02 at 13:34:20 -0500
+Updated on 2024-02-18 at 11:29:07 -0500

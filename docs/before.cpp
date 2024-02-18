@@ -33,13 +33,8 @@ void process_document(const std::string& doc,
 
 int main(int /*argc*/, char** /*argv*/) {
   std::vector<std::string> docs = {/*...*/};
-
   std::ofstream out("tokens.txt");
-
-  size_t total_chars = 0;
-  size_t total_tokens = 0;
-
-
+  size_t chars = 0, tokens = 0;
 
 
 
@@ -48,14 +43,12 @@ int main(int /*argc*/, char** /*argv*/) {
   for (size_t i = 0; i < docs.size(); ++i) {
     std::cout << "Doc " << i << std::endl;
     process_document(docs[i], out,
-                     total_chars,
-                     total_tokens);
+                     chars, tokens);
   }
 
 
-
-  std::cout << "Total: " << total_chars
-            << total_tokens << std::endl;
+  std::cout << "Total: " << chars
+            << tokens << std::endl;
 
   return 0;
 }

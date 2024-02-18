@@ -262,7 +262,7 @@ def test_progress_bar(dtype, sty, no_tty):
         no_tty=no_tty,
     )
     bar.show()
-    for i in range(50):
+    for _ in range(50):
         time.sleep(0.0013)
         bar += 1
     bar.done()

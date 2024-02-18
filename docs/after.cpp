@@ -33,29 +33,22 @@ void process_document(const std::string& doc,
 
 int main(int /*argc*/, char** /*argv*/) {
   std::vector<std::string> docs = {/*...*/};
-
   std::ofstream out("tokens.txt");
+  size_t chars = 0, tokens = 0, i = 0;
 
-  size_t total_chars = 0;
-  size_t total_tokens = 0;
-  size_t i = 0;
-
-  auto bar = bk::ProgressBar(&i).total(docs.size()) |
-             bk::Counter(&total_tokens).message("Tokens") |
-             bk::Counter(&total_chars).message("Chars");
+  auto bar = bk::ProgressBar(&i, {.total=docs.size()}) |
+             bk::Counter(&tokens, {.message="Tokens"}) |
+             bk::Counter(&chars, {.message="Chars"});
   bar.show();
-
   for (i = 0; i < docs.size(); ++i) {
 
     process_document(docs[i], out,
-                     total_chars,
-                     total_tokens);
+                     chars, tokens);
   }
-
   bar.done();
 
-  std::cout << "Total: " << total_chars
-            << total_tokens << std::endl;
+  std::cout << "Total: " << chars
+            << tokens << std::endl;
 
   return 0;
 }

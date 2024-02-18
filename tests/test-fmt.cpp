@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_MAIN
 #define FMT_HEADER_ONLY
+#ifndef BARKEEP_ENABLE_FMT
 #define BARKEEP_ENABLE_FMT
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -85,7 +87,8 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
     }
   }
 
-  auto ctr = Counter(&amount, &out).interval(0.001).speed(sp).fmt(fmtstr);
+  auto ctr = Counter(
+      &amount, {.out = &out, .format = fmtstr, .speed = sp, .interval = 0.001});
   ctr.show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
@@ -152,8 +155,12 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
     }
   }
 
-  auto ctr = Counter(&amount, &out).interval(0.01s).speed(sp).fmt(fmtstr);
-  if (no_tty) { ctr.no_tty(); }
+  auto ctr = Counter(&amount,
+                     {.out = &out,
+                      .format = fmtstr,
+                      .speed = sp,
+                      .interval = 0.001,
+                      .no_tty = no_tty});
   ctr.show();
 
   ValueType increment = ValueType(1.2); // becomes 1 for integral types
@@ -180,40 +187,6 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   CHECK(counts.back() == expected);
 }
 
-template <typename Display>
-Display factory_helper();
-
-template <>
-Animation factory_helper<Animation>() {
-  static std::stringstream hide;
-  return Animation(&hide);
-}
-
-template <>
-Counter<> factory_helper<Counter<>>() {
-  static size_t progress;
-  static std::stringstream hide;
-  return Counter(&progress, &hide).speed(1);
-}
-
-template <>
-ProgressBar<float> factory_helper<ProgressBar<float>>() {
-  static float progress;
-  static std::stringstream hide;
-  return ProgressBar(&progress, &hide).speed(1);
-}
-
-template <>
-Composite factory_helper<Composite>() {
-  static size_t progress;
-  static std::stringstream hide;
-  return ProgressBar(&progress, &hide).speed(1) |
-         Counter(&progress, &hide).speed(1);
-}
-
-using DisplayTypes =
-    std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
-
 TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
@@ -224,14 +197,18 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::string value_fmt =
       std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value:2d}";
 
-  auto bar =
-      ProgressBar(&progress, &out)
-          .total(50)
-          .fmt("Computing {percent:6.2f}%) {bar} " + value_fmt + "/{total}")
-          .speed(0.9)
-          .interval(0.001s);
-  bar.style(GENERATE(Bars, Blocks, Arrow));
-  if (no_tty) { bar.no_tty(); }
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .format = "Computing {percent:6.2f}%) {bar} " +
+                                       value_fmt + "/{total}",
+                             .speed = 0.9,
+                             .style = GENERATE(Bars, Blocks, Arrow),
+                             .interval = 0.001s,
+                             .no_tty = no_tty,
+                         });
+
   bar.show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
@@ -253,11 +230,15 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(&progress, &out)
-                 .total(50)
-                 .fmt("Computing {percent:6.2f}% {bar} {value:2d}/{total}  ")
-                 .interval(0.001)
-                 .style(Bars);
+  auto bar = ProgressBar(
+      &progress,
+      {
+          .out = &out,
+          .total = 50,
+          .format = "Computing {percent:6.2f}%) {bar} {value:2d}/{total}",
+          .style = Bars,
+          .interval = 0.001,
+      });
 
   SECTION("Above") {
     progress = 50;
@@ -295,13 +276,19 @@ TEST_CASE("Composite bar-counter", "[composite]") {
 
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-      ProgressBar(&sents, &out)
-          .total(505)
-          .fmt("Sents {percent:6.2f}% {bar} {value:3d}/{total:3d}")
-          .style(Bars)
-          .interval(0.01) |
-      // Counter(&toks, &out).message("Toks").speed_unit("tok/s").speed(1);
-      Counter(&toks, &out).fmt("Toks {value}  ({speed:.2f} tok/s)").speed(1);
+      ProgressBar(
+          &sents,
+          {
+              .out = &out,
+              .total = 505,
+              .format = "Sents {percent:6.2f}% {bar} {value:3d}/{total:3d}",
+              .style = Bars,
+              .interval = 0.01,
+          }) |
+      Counter(&toks,
+              {.out = &out,
+               .format = "Toks {value}  ({speed:.2f} tok/s)",
+               .speed = 1});
 
   bar.show();
   for (int i = 0; i < 505; i++) {
