@@ -401,7 +401,7 @@ TEST_CASE("Iterable bar", "[bar]") {
 
   for (auto& thing : IterableBar(things,
                                  {
-                                     .out = &out,
+                                    .out = &out,
                                     .message = "Computing",
                                     .style = sty,
                                     .interval = 0.001s,

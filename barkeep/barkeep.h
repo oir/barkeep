@@ -878,10 +878,10 @@ class IterableBar {
   IterableBar(Container& container,
               const IterableBarConfig<ValueType>& cfg = {})
       : container_(container),
-        idx_(std::make_shared<std::atomic<size_t>>(0)),
-        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(
+        idx_(std::make_shared<ProgressType>(0)),
+        bar_(std::make_shared<ProgressBar<ProgressType>>(
             &*idx_,
-            ProgressBarConfig{cfg.out,
+            ProgressBarConfig<ValueType>{cfg.out,
                               container.size(),
                               cfg.format,
                               cfg.message,
