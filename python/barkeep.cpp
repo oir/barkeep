@@ -98,14 +98,15 @@ class Counter_ : public Counter<T> {
            std::optional<double> speed = std::nullopt,
            std::string speed_unit = "it/s",
            double interval = 0.,
-           bool no_tty = false) 
-           : Counter<T>(nullptr, {.out = nullptr,
-                         .format = format,
-                         .message = message,
-                         .speed = std::nullopt,
-                         .speed_unit = speed_unit,
-                         .interval = interval,
-                         .no_tty = no_tty}) {
+           bool no_tty = false)
+      : Counter<T>(nullptr,
+                   {.out = nullptr,
+                    .format = format,
+                    .message = message,
+                    .speed = std::nullopt,
+                    .speed_unit = speed_unit,
+                    .interval = interval,
+                    .no_tty = no_tty}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
     }
@@ -166,16 +167,17 @@ class ProgressBar_ : public ProgressBar<T> {
                std::string speed_unit = "it/s",
                ProgressBarStyle style = Blocks,
                double interval = 0.,
-               bool no_tty = false) 
-        : ProgressBar<T>(nullptr, {.out = nullptr,
-                         .total = total,
-                         .format = format,
-                         .message = message,
-                         .speed = std::nullopt,
-                         .speed_unit = speed_unit,
-                         .style = style,
-                         .interval = interval,
-                         .no_tty = no_tty}) {
+               bool no_tty = false)
+      : ProgressBar<T>(nullptr,
+                       {.out = nullptr,
+                        .total = total,
+                        .format = format,
+                        .message = message,
+                        .speed = std::nullopt,
+                        .speed_unit = speed_unit,
+                        .style = style,
+                        .interval = interval,
+                        .no_tty = no_tty}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
     }
