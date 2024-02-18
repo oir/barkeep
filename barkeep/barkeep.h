@@ -161,12 +161,10 @@ class AsyncDisplay {
  public:
   AsyncDisplay(std::ostream* out = &std::cout,
                Duration interval = Duration{0.},
-               bool complete = false,
                std::string message = "",
                std::string format = "",
                bool no_tty = false)
       : out_(out),
-        complete_(complete),
         interval_(interval),
         message_(message),
         format_(format),
@@ -295,7 +293,6 @@ class Animation : public AsyncDisplay {
   Animation(const AnimationConfig& cfg = {})
       : AsyncDisplay(cfg.out,
                      as_duration(cfg.interval),
-                     false,
                      cfg.message,
                      "",
                      cfg.no_tty),
@@ -337,7 +334,6 @@ class Composite : public AsyncDisplay {
             std::unique_ptr<AsyncDisplay> right)
       : AsyncDisplay(left->out_,
                      left->interval_,
-                     false,
                      left->message_,
                      "",
                      left->no_tty_ or right->no_tty_),
@@ -549,8 +545,6 @@ class Counter : public AsyncDisplay {
     if (speedom_) { speedom_->start(); }
   }
 
-  Counter(std::ostream* out = &std::cout) : AsyncDisplay(out) {}
-
  public:
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
@@ -558,7 +552,6 @@ class Counter : public AsyncDisplay {
   Counter(Progress* progress, const CounterConfig& cfg = {})
       : AsyncDisplay(cfg.out,
                      as_duration(cfg.interval),
-                     false,
                      cfg.message,
                      cfg.format.empty() ? "" : cfg.format + " ",
                      cfg.no_tty),
@@ -792,7 +785,6 @@ class ProgressBar : public AsyncDisplay {
   ProgressBar(Progress* progress, const ProgressBarConfig<ValueType>& cfg = {})
       : AsyncDisplay(cfg.out,
                      as_duration(cfg.interval),
-                     false,
                      cfg.message,
                      cfg.format.empty() ? "" : cfg.format + " ",
                      cfg.no_tty),
