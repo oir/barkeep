@@ -533,11 +533,6 @@ class Counter : public AsyncDisplay {
     return no_tty_ ? Duration{60.} : Duration{.1};
   }
 
-  void init(Progress* progress, std::ostream* out) {
-    progress_ = progress;
-    out_ = out;
-  }
-
   void start() override {
     if constexpr (std::is_floating_point_v<value_t<Progress>>) {
       ss_ << std::fixed << std::setprecision(2);
