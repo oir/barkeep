@@ -284,7 +284,7 @@ class Animation : public AsyncDisplay {
   }
 
   Duration default_interval_() const override {
-    return no_tty_ ? Duration{60.} : Duration{.1};
+    return no_tty_ ? Duration{60.} : Duration{.5};
   }
 
  public:

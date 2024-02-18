@@ -15,7 +15,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 <img style="vertical-align:middle" src="img/C++.svg" height="22"> 
 <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:middle" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
-<a><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++17-blue.svg" alt="c++17"></a>
+<a><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code>#include &lt;barkeep/barkeep.h&gt;</code>
 <br/>
 <img style="vertical-align:middle" src="img/python.svg" height="22">
@@ -38,7 +38,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   using namespace std::chrono_literals;
   namespace bk = barkeep;
   
-  auto anim = bk::Animation().message("Working");
+  auto anim = bk::Animation({.message = "Working"});
   anim.show();
   /* do work */ std::this_thread::sleep_for(10s);
   anim.done();
@@ -52,7 +52,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 - Supports several styles:
 
   ```cpp
-  auto anim = bk::Animation().message("Downloading...").style(bk::Earth);
+  auto anim = bk::Animation({.message = "Downloading...", .style = bk::Earth});
   ```
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="rec/anim2-dark.svg" width="700">
@@ -64,10 +64,11 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
   ```cpp
   int work{0};
-  auto c = bk::Counter(&work)
-    .message("Reading lines")
-    .speed(1.)
-    .speed_unit("line/s");
+  auto c = bk::Counter(&work, {
+    .message = "Reading lines",
+    .speed = 1.,
+    .speed_unit = "line/s"
+  });
   c.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
@@ -85,11 +86,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
   ```cpp
   int work{0};
-  auto bar = bk::ProgressBar(&work)
-    .message("Reading lines")
-    .speed(1.)
-    .speed_unit("line/s")
-    .total(505);
+  auto bar = bk::ProgressBar(&work, {
+    .total = 505,
+    .message = "Reading lines",
+    .speed = 1.,
+    .speed_unit = "line/s",
+  });
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
@@ -107,12 +109,13 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
   ```cpp
   int work{0};
-  auto bar = bk::ProgressBar(&work)
-    .message("Reading lines")
-    .speed(1.)
-    .speed_unit("line/s")
-    .total(505)
-    .style(bk::ProgressBarStyle::Pip);
+  auto bar = bk::ProgressBar(&work, {
+    .total = 505,
+    .message = "Reading lines",
+    .speed = 1.,
+    .speed_unit = "line/s",
+    .style = bk::ProgressBarStyle::Pip,
+  });
   bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
@@ -132,8 +135,8 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-    bk::ProgressBar(&sents).total(1010).message("Sents") |
-    bk::Counter(&toks).message("Toks").speed_unit("tok/s").speed(1.);
+      bk::ProgressBar(&sents, {.total = 1010, .message = "Sents"}) |
+      bk::Counter(&toks, {.message = "Toks", .speed = 1., .speed_unit = "tok/s"});
   bar.show();
   for (int i = 0; i < 1010; i++) {
     // do work
@@ -152,18 +155,18 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 - Use "no tty" mode to, e.g., output to log files:
 
   ```cpp
-  std::atomic<size_t> sents{0}, toks{0};
-  auto bar = bk::ProgressBar(&sents)
-                 .total(401)
-                 .message("Sents")
-                 .speed(1.)
-                 .interval(1.)
-                 .no_tty();
+  std::atomic<size_t> sents{0};
+  auto bar = bk::ProgressBar(&sents, {
+    .total = 401,
+    .message = "Sents",
+    .speed = 1.,
+    .interval = 1.,
+    .no_tty = true,
+  });
   bar.show();
   for (int i = 0; i < 401; i++) {
     std::this_thread::sleep_for(13ms);
     sents++;
-    toks += (1 + rand() % 5);
   }
   bar.done();
   ```
@@ -231,15 +234,16 @@ If you still want to be extra safe and __guarantee__ non-racing read and writes,
 
 You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode).
 
-In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` which can be used to format the display using a `fmt`-like format string:
+In this case, `Counter`s and `ProgressBar`s have an additional `Config` option `format` which can be used to format the display using a `fmt`-like format string:
 
 - A counter:
 
   ```cpp
   size_t work{0};
-  auto c = bk::Counter(&work)
-                .fmt("Picked up {value} flowers, at {speed:.1f} flo/s")
-                .speed(0.1);
+  auto c = bk::Counter(&work, {
+    .format = "Picked up {value} flowers, at {speed:.1f} flo/s",
+    .speed = 0.1
+  });
   c.show();
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
   c.done();
@@ -255,11 +259,11 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
 
   ```cpp
   size_t work{0};
-  auto bar =
-      bk::ProgressBar(&work)
-          .total(1010)
-          .fmt("Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)")
-          .speed(0.1);
+  auto bar = bk::ProgressBar(
+      &work,
+      {.total = 1010,
+       .format = "Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)",
+       .speed = 0.1});
   bar.show();
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
   bar.done();
@@ -271,7 +275,7 @@ In this case, `Counter`s and `ProgressBar`s have an additional method `fmt()` wh
     <img src="rec/fmt-bar-light.svg" width="700">
   </picture>
 
-When `fmt()` is used, other textual parameters, such as the ones passed by `message()` or `speed_unit()` are ignored.
+When `format` is used, other textual parameters, such as `message` or `speed_unit` are ignored.
 
 - For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
 - With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
@@ -279,11 +283,12 @@ When `fmt()` is used, other textual parameters, such as the ones passed by `mess
 Additionally, some basic ansi color sequences are predefined as identifiers which could be used to add color:
 ```cpp
 std::atomic<size_t> work{0};
-auto bar = bk::ProgressBar(&work)
-               .total(1010)
-               .fmt("Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
-                    "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)")
-               .speed(0.1);
+auto bar = bk::ProgressBar(
+    &work,
+    {.total = 1010,
+     .format = "Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
+               "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
+     .speed = 0.1});
 bar.show();
 for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
 bar.done();
