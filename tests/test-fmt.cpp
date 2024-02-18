@@ -230,14 +230,15 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(&progress,
-                         {
-                             .out = &out,
-                             .total = 50,
-                             .format = "Computing {percent:6.2f}%) {bar} {value:2d}/{total}",
-                             .style = Bars,
-                             .interval = 0.001,
-                         });
+  auto bar = ProgressBar(
+      &progress,
+      {
+          .out = &out,
+          .total = 50,
+          .format = "Computing {percent:6.2f}%) {bar} {value:2d}/{total}",
+          .style = Bars,
+          .interval = 0.001,
+      });
 
   SECTION("Above") {
     progress = 50;

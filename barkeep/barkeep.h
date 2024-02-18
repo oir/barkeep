@@ -843,64 +843,61 @@ struct IterableBarConfig {
   bool no_tty = false;
 };
 
- template <typename Container>
- class IterableBar {
-  public:
-   using ProgressType = std::atomic<size_t>;
-   using ValueType = value_t<ProgressType>;
+template <typename Container>
+class IterableBar {
+ public:
+  using ProgressType = std::atomic<size_t>;
+  using ValueType = value_t<ProgressType>;
 
-  private:
-   Container& container_;
-   std::shared_ptr<ProgressType> idx_;
-   std::shared_ptr<ProgressBar<ProgressType>> bar_;
+ private:
+  Container& container_;
+  std::shared_ptr<ProgressType> idx_;
+  std::shared_ptr<ProgressBar<ProgressType>> bar_;
 
-  public:
-   class Iterator {
-     private:
-       typename Container::iterator it_;
-       ProgressType& idx_;
-     public:
-       Iterator(typename Container::iterator it, ProgressType& idx)
-           : it_(it), idx_(idx) {}
+ public:
+  class Iterator {
+   private:
+    typename Container::iterator it_;
+    ProgressType& idx_;
 
-       Iterator& operator++() {
-         it_++;
-         idx_++;
-         return *this;
-       }
+   public:
+    Iterator(typename Container::iterator it, ProgressType& idx)
+        : it_(it), idx_(idx) {}
 
-       bool operator!=(const Iterator& other) const {
-         return it_ != other.it_;
-       }
+    Iterator& operator++() {
+      it_++;
+      idx_++;
+      return *this;
+    }
 
-       auto& operator*() {
-         return *it_;
-       }
-   };
+    bool operator!=(const Iterator& other) const { return it_ != other.it_; }
 
-   IterableBar(Container& container, const IterableBarConfig<ValueType>& cfg = {})
-       : container_(container),
-         idx_(std::make_shared<std::atomic<size_t>>(0)),
-         bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(&*idx_,
-         ProgressBarConfig{cfg.out, 
-                           container.size(), 
-                           cfg.format, 
-                           cfg.message, 
-                           cfg.speed, 
-                           cfg.speed_unit, 
-                           cfg.style, 
-                           cfg.interval, 
-                           cfg.no_tty} 
-         )) {
-   }
+    auto& operator*() { return *it_; }
+  };
 
-   auto begin() {
-     bar_->show();
-     return Iterator(container_.begin(), *idx_);
-   }
+  IterableBar(Container& container,
+              const IterableBarConfig<ValueType>& cfg = {})
+      : container_(container),
+        idx_(std::make_shared<std::atomic<size_t>>(0)),
+        bar_(std::make_shared<ProgressBar<std::atomic<size_t>>>(
+            &*idx_,
+            ProgressBarConfig{cfg.out,
+                              container.size(),
+                              cfg.format,
+                              cfg.message,
+                              cfg.speed,
+                              cfg.speed_unit,
+                              cfg.style,
+                              cfg.interval,
+                              cfg.no_tty})) {}
 
-   auto end() { return Iterator(container_.end(), *idx_); }
- };
+  auto begin() {
+    bar_->show();
+    return Iterator(container_.begin(), *idx_);
+  }
+
+  auto end() { return Iterator(container_.end(), *idx_); }
+};
 
 } // namespace barkeep
 
