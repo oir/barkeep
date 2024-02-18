@@ -254,11 +254,12 @@ class AsyncDisplay {
 
 /// Animation parameters
 struct AnimationConfig {
-  std::ostream* out = &std::cout;
-  std::string message = "";
-  AnimationStyle style = Ellipsis;
+  std::ostream* out = &std::cout;  ///< output stream
+  std::string message = "";        ///< message to display before the animation
+  AnimationStyle style = Ellipsis; ///< style of animation
+  /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false;
+  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
 };
 
 Duration as_duration(std::variant<Duration, double> interval) {
@@ -461,13 +462,21 @@ class Speedometer {
 
 /// Counter parameters
 struct CounterConfig {
-  std::ostream* out = &std::cout;
-  std::string format = "";
-  std::string message = "";
+  std::ostream* out = &std::cout; ///< output stream
+  std::string format = "";        ///< format string to format entire counter
+  std::string message = "";       ///< message to display with the counter
+
+  /// Speed discount factor in [0, 1] to use in computing the speed.
+  /// Previous increments are weighted by (1-speed).
+  /// If speed is 0, all increments are weighed equally.
+  /// If speed is 1, only the most recent increment is
+  /// considered. If speed is `std::nullopt`, speed is not computed.
   std::optional<double> speed = std::nullopt;
-  std::string speed_unit = "it/s";
+
+  std::string speed_unit = "it/s"; ///< unit of speed text next to speed
+  /// interval in which the counter is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false;
+  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
 };
 
 /// Monitors and displays a single numeric variable
@@ -583,27 +592,27 @@ class Counter : public AsyncDisplay {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Counter>(*this);
   }
-
-  // Set how to compute speed.
-  // @param discount Discount factor in [0, 1] to use in computing the speed.
-  //                 Previous increments are weighted by (1-discount).
-  //                 If discount is 0, all increments are weighted equally.
-  //                 If discount is 1, only the most recent increment is
-  //                 considered. If discount is `std::nullopt`, speed is not
-  //                 computed.
 };
 
 template <typename ValueType>
 struct ProgressBarConfig {
-  std::ostream* out = &std::cout;
-  ValueType total = 100;
-  std::string format = "";
-  std::string message = "";
+  std::ostream* out = &std::cout; ///< output stream
+  ValueType total = 100;          ///< total amount of work for a full bar
+  std::string format = "";        ///< format string for the entire progress bar
+  std::string message = "";       ///< message to display with the bar
+
+  /// Speed discount factor in [0, 1] to use in computing the speed.
+  /// Previous increments are weighted by (1-speed).
+  /// If speed is 0, all increments are weighed equally.
+  /// If speed is 1, only the most recent increment is
+  /// considered. If speed is `std::nullopt`, speed is not computed.
   std::optional<double> speed = std::nullopt;
-  std::string speed_unit = "it/s";
-  ProgressBarStyle style = Blocks;
+
+  std::string speed_unit = "it/s"; ///< unit of speed text next to speed
+  ProgressBarStyle style = Blocks; ///< style of progress bar
+  /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false;
+  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
 };
 
 /// Displays a progress bar, by comparing the progress value being monitored to
@@ -826,23 +835,30 @@ class ProgressBar : public AsyncDisplay {
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<ProgressBar>(*this);
   }
-
-  /// Set total amount of work to be done, for the progress bar to be full.
-  /// @param tot total amount of work  @return reference to self
 };
 
 template <typename ValueType>
 struct IterableBarConfig {
-  std::ostream* out = &std::cout;
-  std::string format = "";
-  std::string message = "";
+  std::ostream* out = &std::cout; ///< output stream
+  std::string format = "";        ///< format string for the entire progress bar
+  std::string message = "";       ///< message to display with the bar
+
+  /// Speed discount factor in [0, 1] to use in computing the speed.
+  /// Previous increments are weighted by (1-speed).
+  /// If speed is 0, all increments are weighed equally.
+  /// If speed is 1, only the most recent increment is
+  /// considered. If speed is `std::nullopt`, speed is not computed.
   std::optional<double> speed = std::nullopt;
-  std::string speed_unit = "it/s";
-  ProgressBarStyle style = Blocks;
+
+  std::string speed_unit = "it/s"; ///< unit of speed text next to speed
+  ProgressBarStyle style = Blocks; ///< style of progress bar
+  /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false;
+  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
 };
 
+/// A progress bar that can be used with range-based for loops, that
+/// automatically tracks the progress of the loop.
 template <typename Container>
 class IterableBar {
  public:
@@ -882,14 +898,14 @@ class IterableBar {
         bar_(std::make_shared<ProgressBar<ProgressType>>(
             &*idx_,
             ProgressBarConfig<ValueType>{cfg.out,
-                              container.size(),
-                              cfg.format,
-                              cfg.message,
-                              cfg.speed,
-                              cfg.speed_unit,
-                              cfg.style,
-                              cfg.interval,
-                              cfg.no_tty})) {}
+                                         container.size(),
+                                         cfg.format,
+                                         cfg.message,
+                                         cfg.speed,
+                                         cfg.speed_unit,
+                                         cfg.style,
+                                         cfg.interval,
+                                         cfg.no_tty})) {}
 
   auto begin() {
     bar_->show();
