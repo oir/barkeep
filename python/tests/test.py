@@ -1,6 +1,7 @@
 from barkeep import (
     Animation,
     AnimationStyle,
+    BarParts,
     Counter,
     DType,
     ProgressBar,
@@ -77,6 +78,17 @@ def test_animation(i: int, sty: AnimationStyle):
     anim.done()
 
     check_anim(check_and_get_parts(out.getvalue()), "Working", animation_stills[i])
+
+
+def test_custom_animation():
+    out = io.StringIO()
+
+    anim = Animation(message="Working", style=["a", "b", "c"], interval=0.1, file=out)
+    anim.show()
+    time.sleep(1)
+    anim.done()
+
+    check_anim(check_and_get_parts(out.getvalue()), "Working", ["a", "b", "c"])
 
 
 @pytest.mark.parametrize("dtype", dtypes, indirect=True)
@@ -259,6 +271,37 @@ def test_progress_bar(dtype, sty, no_tty):
         file=out,
         dtype=dtype,
         style=sty,
+        no_tty=no_tty,
+    )
+    bar.show()
+    for _ in range(50):
+        time.sleep(0.0013)
+        bar += 1
+    bar.done()
+
+    parts = check_and_get_parts(out.getvalue(), no_tty=no_tty)
+
+    # Check that space is shrinking
+    last_spaces = 100000
+    for part in parts:
+        spaces = part.count(" ")
+        assert spaces <= last_spaces
+        last_spaces = spaces
+
+
+@pytest.mark.parametrize("dtype", dtypes, indirect=True)
+@pytest.mark.parametrize("no_tty", [True, False])
+def test_custom_progress_bar(dtype, no_tty):
+    out = io.StringIO()
+
+    bar = ProgressBar(
+        value=0,
+        total=50,
+        message="Computing",
+        interval=0.001,
+        file=out,
+        dtype=dtype,
+        style=BarParts(left="[", right="]", fill=[")"], empty=[" "]),
         no_tty=no_tty,
     )
     bar.show()
