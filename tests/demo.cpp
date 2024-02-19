@@ -97,13 +97,13 @@ int main(int /*argc*/, char** /*argv*/) {
     std::atomic<size_t> work{0};
     bk::BarParts sty{"[", "]", {"/"}, {" "}};
     auto bar = bk::ProgressBar(&work,
-                                {
-                                    .total = 1010,
-                                    .message = "Doing stuff",
-                                    .speed = 0.1,
-                                    .speed_unit = "tk/s",
-                                    .style = sty,
-                                });
+                               {
+                                   .total = 1010,
+                                   .message = "Doing stuff",
+                                   .speed = 0.1,
+                                   .speed_unit = "tk/s",
+                                   .style = sty,
+                               });
     bar.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(7ms);

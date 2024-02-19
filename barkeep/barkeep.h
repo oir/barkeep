@@ -252,8 +252,8 @@ class AsyncDisplay {
 
 /// Animation parameters
 struct AnimationConfig {
-  std::ostream* out = &std::cout;  ///< output stream
-  std::string message = "";        ///< message to display before the animation
+  std::ostream* out = &std::cout; ///< output stream
+  std::string message = "";       ///< message to display before the animation
   /// style as AnimationStyle or custom animation as a list of strings
   std::variant<AnimationStyle, Strings> style = Ellipsis;
   /// interval in which the animation is refreshed
