@@ -56,7 +56,7 @@ Inherits from [barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out =&std::cout, Duration interval =Duration{0.}, [bool](api/Classes/classbarkeep_1_1_counter.md) complete =[false](api/Classes/classbarkeep_1_1_counter.md), std::string message ="", std::string format ="", [bool](api/Classes/classbarkeep_1_1_counter.md) no_tty =[false](api/Classes/classbarkeep_1_1_counter.md)) |
+| | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out =&std::cout, Duration interval =Duration{0.}, std::string message ="", std::string format ="", [bool](api/Classes/classbarkeep_1_1_counter.md) no_tty =[false](api/Classes/classbarkeep_1_1_counter.md)) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other) |
 | | **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other) |
 | virtual | **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**() |
@@ -199,4 +199,4 @@ inline virtual Duration default_interval_() const override
 
 -------------------------------
 
-Updated on 2024-02-18 at 11:29:07 -0500
+Updated on 2024-02-19 at 09:47:42 -0500

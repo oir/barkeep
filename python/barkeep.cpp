@@ -1,3 +1,4 @@
+#include <iostream>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -28,8 +29,6 @@ enum class DType { Int, Float, AtomicInt, AtomicFloat };
 enum class DType { Int, Float, AtomicInt };
 #endif
 
-#include <iostream>
-
 struct PyFileStream : public std::stringbuf, public std::ostream {
   py::object file_;
 
@@ -53,7 +52,7 @@ class Animation_ : public Animation {
 
   Animation_(py::object file = py::none(),
              std::string message = "",
-             AnimationStyle style = Ellipsis,
+             std::variant<AnimationStyle, Strings> style = Ellipsis,
              double interval = 0.,
              bool no_tty = false)
       : Animation({.out = nullptr,
@@ -165,7 +164,7 @@ class ProgressBar_ : public ProgressBar<T> {
                std::string message = "",
                std::optional<double> speed = std::nullopt,
                std::string speed_unit = "it/s",
-               ProgressBarStyle style = Blocks,
+               std::variant<ProgressBarStyle, BarParts> style = Blocks,
                double interval = 0.,
                bool no_tty = false)
       : ProgressBar<T>(nullptr,
@@ -259,6 +258,36 @@ PYBIND11_MODULE(barkeep, m) {
 #endif
       .export_values();
 
+  py::class_<BarParts>(m, "BarParts")
+      .def(py::init<std::string,
+                    std::string,
+                    std::vector<std::string>,
+                    std::vector<std::string>,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string,
+                    std::string>(),
+           "left"_a,
+           "right"_a,
+           "fill"_a,
+           "empty"_a,
+           "incomplete_left_modifier"_a = "",
+           "complete_left_modifier"_a = "",
+           "middle_modifier"_a = "",
+           "right_modifier"_a = "",
+           "percent_left_modifier"_a = "",
+           "percent_right_modifier"_a = "",
+           "value_left_modifier"_a = "",
+           "value_right_modifier"_a = "",
+           "speed_left_modifier"_a = "",
+           "speed_right_modifier"_a = "");
+
   auto async_display = py::class_<AsyncDisplay>(m, "AsyncDisplay")
                            .def("show", &AsyncDisplay::show)
                            .def("done", &AsyncDisplay::done);
@@ -267,7 +296,7 @@ PYBIND11_MODULE(barkeep, m) {
       .def(py::init([](py::object file,
                        std::string msg,
                        double interval,
-                       AnimationStyle style,
+                       std::variant<AnimationStyle, Strings> style,
                        bool no_tty) {
              return Animation_(file, msg, style, interval, no_tty);
            }),
@@ -423,7 +452,7 @@ PYBIND11_MODULE(barkeep, m) {
          py::object file,
          std::string msg,
          std::optional<double> interval,
-         ProgressBarStyle style,
+         std::variant<ProgressBarStyle, BarParts> style,
          std::optional<double> speed,
          std::string speed_unit,
          std::optional<std::string> fmt,

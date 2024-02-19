@@ -14,6 +14,16 @@ int main(int /*argc*/, char** /*argv*/) {
     anim.done();
   }
 
+  {
+    std::vector<std::string> stills{
+        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
+    auto anim = bk::Animation(
+        {.message = "Working", .style = stills, .interval = 0.5s});
+    anim.show();
+    std::this_thread::sleep_for(10s);
+    anim.done();
+  }
+
   std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
   for (auto speed : speeds) {
     std::atomic<size_t> work{0};
@@ -81,6 +91,25 @@ int main(int /*argc*/, char** /*argv*/) {
       }
       bar.done();
     }
+  }
+
+  { // Custom bar style
+    std::atomic<size_t> work{0};
+    bk::BarParts sty{"[", "]", {"/"}, {" "}};
+    auto bar = bk::ProgressBar(&work,
+                               {
+                                   .total = 1010,
+                                   .message = "Doing stuff",
+                                   .speed = 0.1,
+                                   .speed_unit = "tk/s",
+                                   .style = sty,
+                               });
+    bar.show();
+    for (int i = 0; i < 1010; i++) {
+      std::this_thread::sleep_for(7ms);
+      work++;
+    }
+    bar.done();
   }
 
   { // Decreasing progress

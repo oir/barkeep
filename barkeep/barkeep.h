@@ -252,9 +252,10 @@ class AsyncDisplay {
 
 /// Animation parameters
 struct AnimationConfig {
-  std::ostream* out = &std::cout;  ///< output stream
-  std::string message = "";        ///< message to display before the animation
-  AnimationStyle style = Ellipsis; ///< style of animation
+  std::ostream* out = &std::cout; ///< output stream
+  std::string message = "";       ///< message to display before the animation
+  /// style as AnimationStyle or custom animation as a list of strings
+  std::variant<AnimationStyle, Strings> style = Ellipsis;
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -295,8 +296,14 @@ class Animation : public AsyncDisplay {
                      as_duration(cfg.interval),
                      cfg.message,
                      "",
-                     cfg.no_tty),
-        stills_(animation_stills_[static_cast<unsigned short>(cfg.style)]) {}
+                     cfg.no_tty) {
+    if (std::holds_alternative<Strings>(cfg.style)) {
+      stills_ = std::get<Strings>(cfg.style);
+    } else {
+      stills_ = animation_stills_[static_cast<unsigned short>(
+          std::get<AnimationStyle>(cfg.style))];
+    }
+  }
 
   Animation(const Animation& other) = default;
   Animation(Animation&&) = default;
@@ -602,7 +609,8 @@ struct ProgressBarConfig {
   std::optional<double> speed = std::nullopt;
 
   std::string speed_unit = "it/s"; ///< unit of speed text next to speed
-  ProgressBarStyle style = Blocks; ///< style of progress bar
+  /// progress bar style, or custom style as BarParts
+  std::variant<ProgressBarStyle, BarParts> style = Blocks;
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -790,9 +798,13 @@ class ProgressBar : public AsyncDisplay {
                      cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit),
-        total_(cfg.total),
-        bar_parts_(
-            progress_bar_parts_[static_cast<unsigned short>(cfg.style)]) {
+        total_(cfg.total) {
+    if (std::holds_alternative<BarParts>(cfg.style)) {
+      bar_parts_ = std::get<BarParts>(cfg.style);
+    } else {
+      bar_parts_ = progress_bar_parts_[static_cast<unsigned short>(
+          std::get<ProgressBarStyle>(cfg.style))];
+    }
     if (cfg.speed) {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
