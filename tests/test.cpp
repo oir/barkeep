@@ -95,6 +95,29 @@ TEST_CASE("Animation", "[anim]") {
   check_anim(parts, "Working", animation_stills_[size_t(sty)]);
 }
 
+TEST_CASE("Animation custom", "[anim]") {
+  std::stringstream out;
+
+  auto sty = std::vector<std::string>{"a", "b", "c"};
+  auto no_tty = GENERATE(true, false);
+  auto interval = GENERATE(as<std::variant<Duration, double>>(), 100ms, 0.1);
+
+  auto anim = Animation({
+      .out = &out,
+      .message = "Working",
+      .style = sty,
+      .interval = interval,
+      .no_tty = no_tty,
+  });
+
+  anim.show();
+  std::this_thread::sleep_for(1s);
+  anim.done();
+
+  auto parts = check_and_get_parts(out.str(), no_tty);
+  check_anim(parts, "Working", sty);
+}
+
 using ProgressTypeList =
     std::tuple<size_t, std::atomic<size_t>, int, unsigned, float, double>;
 
@@ -330,18 +353,17 @@ TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
   }());
 }
 
-void check_shrinking_space(const Strings& parts, ProgressBarStyle sty) {
+void check_shrinking_space(const Strings& parts, const BarParts& sty) {
   // Check that space is shrinking
   size_t last_spaces = std::numeric_limits<size_t>::max();
   size_t first_spaces = std::numeric_limits<size_t>::max();
   for (auto& part : parts) {
     size_t spaces;
-    if (sty != Pip) {
+    if (sty.middle_modifier.empty() or sty.right_modifier.empty()) {
       spaces = size_t(std::count(part.begin(), part.end(), ' '));
     } else {
-      size_t left = part.find(progress_bar_parts_[size_t(sty)].middle_modifier);
-      size_t right =
-          part.find(progress_bar_parts_[size_t(sty)].right_modifier, left);
+      size_t left = part.find(sty.middle_modifier);
+      size_t right = part.find(sty.right_modifier, left);
       spaces = right - left - 1;
     }
     CHECK(spaces <= last_spaces);
@@ -355,12 +377,51 @@ void check_shrinking_space(const Strings& parts, ProgressBarStyle sty) {
   CHECK(last_spaces < first_spaces);
 }
 
+void check_shrinking_space(const Strings& parts, ProgressBarStyle sty) {
+  check_shrinking_space(parts, progress_bar_parts_[size_t(sty)]);
+}
+
 TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
 
   bool no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .message = "Computing",
+                             .style = sty,
+                             .interval = 0.001s,
+                             .no_tty = no_tty,
+                         });
+  bar.show();
+  for (size_t i = 0; i < 50; i++) {
+    std::this_thread::sleep_for(1.3ms);
+    progress++;
+  }
+  bar.done();
+
+  auto parts = check_and_get_parts(out.str(), no_tty);
+
+  // Check that message is correct
+  for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
+
+  // Check that default speed unit does not appear
+  for (auto& part : parts) { CHECK(part.find("it/s") == std::string::npos); }
+
+  // Check that space is shrinking
+  check_shrinking_space(parts, sty);
+}
+
+TEMPLATE_LIST_TEST_CASE("Progress bar custom", "[bar]", ProgressTypeList) {
+  std::stringstream out;
+  TestType progress{0};
+
+  bool no_tty = GENERATE(true, false);
+  BarParts sty{"[", "]", {"|"}, {" "}};
 
   auto bar = ProgressBar(&progress,
                          {
@@ -401,7 +462,7 @@ TEST_CASE("Iterable bar", "[bar]") {
 
   for (auto& thing : IterableBar(things,
                                  {
-                                    .out = &out,
+                                     .out = &out,
                                     .message = "Computing",
                                     .style = sty,
                                     .interval = 0.001s,
