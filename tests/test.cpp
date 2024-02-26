@@ -264,41 +264,54 @@ TEST_CASE("Decreasing counter", "[counter]") {
 }
 
 template <typename Display>
-Display factory_helper();
+Display factory_helper(bool /*speedy*/ = false);
 
 template <>
-Animation factory_helper<Animation>() {
+Animation factory_helper<Animation>(bool /*speedy*/) {
   static std::stringstream hide;
   return Animation({&hide});
 }
 
 template <>
-Counter<> factory_helper<Counter<>>() {
+Counter<> factory_helper<Counter<>>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
-  return Counter(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return Counter(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return Counter(&progress, {.out = &hide});
+  }
 }
 
 template <>
-ProgressBar<float> factory_helper<ProgressBar<float>>() {
+ProgressBar<float> factory_helper<ProgressBar<float>>(bool speedy) {
   static float progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return ProgressBar(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return ProgressBar(&progress, {.out = &hide});
+  }
 }
 
 template <>
-Composite factory_helper<Composite>() {
+Composite factory_helper<Composite>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, {.out = &hide, .speed = 1}) |
-         Counter(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return ProgressBar(&progress, {.out = &hide, .speed = 1}) |
+           Counter(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return ProgressBar(&progress, {.out = &hide}) |
+           Counter(&progress, {.out = &hide});
+  }
 }
 
 using DisplayTypes =
     std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
-  auto orig = factory_helper<TestType>();
+  auto orig = factory_helper<TestType>(GENERATE(true, false));
   orig.show();
   SECTION("Running copy & move") {
     CHECK_THROWS([&]() { auto copy{orig}; }());
@@ -334,7 +347,7 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
 
 TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
+    auto orig = factory_helper<TestType>(GENERATE(true, false));
     auto copy = orig;
     auto moved = std::move(orig);
     copy.show();
@@ -346,7 +359,7 @@ TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
 
 TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
+    auto orig = factory_helper<TestType>(GENERATE(true, false));
     auto clone = orig.clone();
     clone->show();
     clone->done();
