@@ -131,9 +131,7 @@ int main(int /*argc*/, char** /*argv*/) {
     // completion in terms of #sentences but we are also interested in speed
     // in terms of tokens per second.'
     std::atomic<size_t> sents{0}, toks{0};
-    // auto bar = bk::ProgressBar(&sents).total(1010).message("Sents").speed(1)
-    // |
-    //            bk::Counter(&toks).message("Toks").speed(1);
+    // TODO: clang-format makes this very ugly
     auto bar = bk::ProgressBar(&sents,
                                {
                                    .total = 1010,
