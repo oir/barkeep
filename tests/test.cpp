@@ -457,15 +457,17 @@ TEST_CASE("Iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  // bool no_tty = GENERATE(true, false);
+  auto no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
+  // TODO: is misalignment below a clang-format issue?
   for (auto& thing : IterableBar(things,
                                  {
                                      .out = &out,
                                     .message = "Computing",
                                     .style = sty,
                                     .interval = 0.001s,
+                                    .no_tty = no_tty,
                                  })) {
     dummy_sum += thing;
     std::this_thread::sleep_for(1.3ms);
@@ -473,7 +475,7 @@ TEST_CASE("Iterable bar", "[bar]") {
 
   CHECK(dummy_sum == 150);
 
-  auto parts = check_and_get_parts(out.str(), false);
+  auto parts = check_and_get_parts(out.str(), no_tty);
 
   // Check that message is correct
   for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
@@ -551,35 +553,58 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  // bool no_tty = GENERATE(true, false);
-  // auto default_speed_unit = GENERATE(true, false);
+  bool no_tty = GENERATE(true, false);
+  auto default_speed_unit = GENERATE(true, false);
 
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto& thing : IterableBar(things,
-                                 {
-                                     .out = &out,
-                                    .message = "Computing",
-                                    .speed = 1,
-                                    .speed_unit = "thing/time",
-                                    .style = sty,
-                                    .interval = 0.001s,
-                                 })) {
-    std::this_thread::sleep_for(1.3ms);
-    dummy_sum += thing;
+  if (default_speed_unit) {
+    for (auto& thing : IterableBar(things,
+                                   {
+                                       .out = &out,
+                                      .message = "Computing",
+                                      .speed = 1,
+                                      .style = sty,
+                                      .interval = 0.001s,
+                                      .no_tty = no_tty,
+                                   })) {
+      std::this_thread::sleep_for(1.3ms);
+      dummy_sum += thing;
+    }
+  } else {
+    for (auto& thing : IterableBar(things,
+                                   {
+                                       .out = &out,
+                                      .message = "Computing",
+                                      .speed = 1,
+                                      .speed_unit = "thing/time",
+                                      .style = sty,
+                                      .interval = 0.001s,
+                                      .no_tty = no_tty,
+                                   })) {
+      std::this_thread::sleep_for(1.3ms);
+      dummy_sum += thing;
+    }
   }
 
   CHECK(dummy_sum == 150);
 
-  auto parts = check_and_get_parts(out.str());
+  auto parts = check_and_get_parts(out.str(), no_tty);
 
   // Check that message is correct
   for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
 
   // Check speed unit
-  for (auto& part : parts) {
-    CHECK(part.find("it/s") == std::string::npos);
-    CHECK(part.find("thing/time") != std::string::npos);
+  if (default_speed_unit) {
+    for (auto& part : parts) {
+      CHECK(part.find("thing/time") == std::string::npos);
+      CHECK(part.find("it/s") != std::string::npos);
+    }
+  } else {
+    for (auto& part : parts) {
+      CHECK(part.find("it/s") == std::string::npos);
+      CHECK(part.find("thing/time") != std::string::npos);
+    }
   }
 
   // Check that space is shrinking
