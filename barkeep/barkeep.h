@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <cassert>
+#include <cmath>
 #include <chrono>
 #include <condition_variable>
 #include <iomanip>
@@ -19,9 +20,11 @@
 
 #define BARKEEP_VERSION "0.1.0"
 
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+#include <format>
 #endif
 
 namespace barkeep {
@@ -186,12 +189,12 @@ class AsyncDisplay {
       : out_(other.out_),
         complete_(bool(other.complete_)),
         interval_(other.interval_),
+        message_(std::move(other.message_)),
+        format_(std::move(other.format_)),
         no_tty_(other.no_tty_) {
     if (other.running()) {
       throw std::runtime_error("A running display cannot be moved");
     }
-    message_ = std::move(other.message_);
-    format_ = std::move(other.format_);
   }
 
   virtual ~AsyncDisplay() { done(); }
@@ -502,7 +505,7 @@ class Counter : public AsyncDisplay {
 
   /// Write the value of progress with the message to the output stream
   void render_() override {
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
@@ -530,6 +533,24 @@ class Counter : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
+      return;
+    }
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+    if (not format_.empty()) {
+      value_t<Progress> progress = *progress_;
+      *out_ << std::vformat(
+          format_,
+          std::make_format_args(progress,
+                                speedom_ ? speedom_->speed() : std::nan(""),
+                                red,
+                                green,
+                                yellow,
+                                blue,
+                                magenta,
+                                cyan,
+                                reset)
+
+      );
       return;
     }
 #endif
@@ -713,7 +734,7 @@ class ProgressBar : public AsyncDisplay {
 
   /// Run all of the individual render methods to write everything to stream
   void render_() override {
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
@@ -753,6 +774,31 @@ class ProgressBar : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
+      return;
+    }
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+    if (not format_.empty()) {
+      value_t<Progress> progress = *progress_;
+      
+      std::stringstream bar_ss;
+      render_progress_bar_(&bar_ss);
+      
+      double percent = progress * 100. / total_;
+      
+      *out_ << std::vformat(
+          format_,
+          std::make_format_args(progress,
+                                bar_ss.str(),
+                                percent,
+                                total_,
+                                speedom_ ? speedom_->speed() : std::nan(""),
+                                red,
+                                green,
+                                yellow,
+                                blue,
+                                magenta,
+                                cyan,
+                                reset));
       return;
     }
 #endif
