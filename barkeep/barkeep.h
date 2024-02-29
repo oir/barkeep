@@ -787,18 +787,18 @@ class ProgressBar : public AsyncDisplay {
       
       *out_ << std::vformat(
           format_,
-          std::make_format_args(progress,
-                                bar_ss.str(),
-                                percent,
-                                total_,
-                                speedom_ ? speedom_->speed() : std::nan(""),
-                                red,
-                                green,
-                                yellow,
-                                blue,
-                                magenta,
-                                cyan,
-                                reset));
+          std::make_format_args(progress, // 0
+                                bar_ss.str(), // 1
+                                percent, // 2
+                                total_, // 3
+                                speedom_ ? speedom_->speed() : std::nan(""), // 4
+                                red, // 5
+                                green, // 6
+                                yellow, // 7 
+                                blue, // 8
+                                magenta, // 9
+                                cyan, // 10
+                                reset)); // 11
       return;
     }
 #endif

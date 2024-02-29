@@ -29,4 +29,20 @@ int main(int /*argc*/, char** /*argv*/) {
     }
   }
 
+  for (double speed : {0., 0.1, 1.}) {
+    for (
+        std::string fmtstr : {
+            "Picking flowers {0:4d}/1010  {1}  ({4:.1f} flo/s)",
+            "Picking flowers {8}{0:4d}/1010  {6}{1} {7}{2:3.0f}%{11}  ({4:.1f} flo/s)",
+        }) {
+      std::atomic<size_t> work{0};
+      auto bar = bk::ProgressBar(&work, {.total = 1010, .format = fmtstr, .speed = speed});
+      bar.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        work++;
+      }
+      bar.done();
+    }
+  }
 }

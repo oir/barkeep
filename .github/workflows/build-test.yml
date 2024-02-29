@@ -18,10 +18,16 @@ jobs:
           sudo apt-get install lcov
           make -j3
           ./test.out
-          ./test-fmt.out
+          ./test-fmtlib.out
+          ./test-stdfmt.out
           gcov -b -p -c test.gcno && \
           lcov -c -d . -o cov.info && \
-          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/subprojects/*' '*/test.cpp*' '*/test-fmt.cpp' -o barkeep.info
+          lcov --remove cov.info '/usr/local/include*' \
+                                 '/usr/include*' \
+                                 '*/subprojects/*' \
+                                 '*/test.cpp*' \
+                                 '*/test-fmtlib.cpp' \
+                                 '*/test-stdfmt.cpp' -o barkeep.info
           rm cov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master

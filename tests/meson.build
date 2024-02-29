@@ -5,7 +5,8 @@ sources = [
   'demo-fmtlib.cpp',
   'demo-stdfmt.cpp',
   'test.cpp',
-  'test-fmtlib.cpp'
+  'test-fmtlib.cpp',
+  'test-stdfmt.cpp',
 ]
 
 tests = []
