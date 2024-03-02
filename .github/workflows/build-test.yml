@@ -25,6 +25,7 @@ jobs:
           ./test-stdfmt.out
           ls -l
           gcov-13 -b -p -c test.out-test.gcno && \
+          echo "gcov done" && \
           lcov -c -d . -o cov.info && \
           lcov --remove cov.info '/usr/local/include*' \
                                  '/usr/include*' \
