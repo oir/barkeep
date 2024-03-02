@@ -15,12 +15,10 @@ jobs:
         with:
           submodules: true
       - run: |
-          sudo apt-get update
-          sudo apt-get install gcc-13
           sudo apt-get install lcov
       - run: |
-          g++ --version
-          make -j3
+          g++-13 --version
+          CXX=g++-13 make -j3
           ./test.out
           ./test-fmtlib.out
           ./test-stdfmt.out
