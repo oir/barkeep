@@ -15,8 +15,11 @@ jobs:
         with:
           submodules: true
       - run: |
-          g++ --version
+          sudo apt-get update
+          sudo apt-get install gcc-13
           sudo apt-get install lcov
+      - run: |
+          g++ --version
           make -j3
           ./test.out
           ./test-fmtlib.out
