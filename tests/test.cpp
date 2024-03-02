@@ -264,41 +264,54 @@ TEST_CASE("Decreasing counter", "[counter]") {
 }
 
 template <typename Display>
-Display factory_helper();
+Display factory_helper(bool /*speedy*/ = false);
 
 template <>
-Animation factory_helper<Animation>() {
+Animation factory_helper<Animation>(bool /*speedy*/) {
   static std::stringstream hide;
   return Animation({&hide});
 }
 
 template <>
-Counter<> factory_helper<Counter<>>() {
+Counter<> factory_helper<Counter<>>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
-  return Counter(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return Counter(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return Counter(&progress, {.out = &hide});
+  }
 }
 
 template <>
-ProgressBar<float> factory_helper<ProgressBar<float>>() {
+ProgressBar<float> factory_helper<ProgressBar<float>>(bool speedy) {
   static float progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return ProgressBar(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return ProgressBar(&progress, {.out = &hide});
+  }
 }
 
 template <>
-Composite factory_helper<Composite>() {
+Composite factory_helper<Composite>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
-  return ProgressBar(&progress, {.out = &hide, .speed = 1}) |
-         Counter(&progress, {.out = &hide, .speed = 1});
+  if (speedy) {
+    return ProgressBar(&progress, {.out = &hide, .speed = 1}) |
+           Counter(&progress, {.out = &hide, .speed = 1});
+  } else {
+    return ProgressBar(&progress, {.out = &hide}) |
+           Counter(&progress, {.out = &hide});
+  }
 }
 
 using DisplayTypes =
     std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
-  auto orig = factory_helper<TestType>();
+  auto orig = factory_helper<TestType>(GENERATE(true, false));
   orig.show();
   SECTION("Running copy & move") {
     CHECK_THROWS([&]() { auto copy{orig}; }());
@@ -334,7 +347,7 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
 
 TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
+    auto orig = factory_helper<TestType>(GENERATE(true, false));
     auto copy = orig;
     auto moved = std::move(orig);
     copy.show();
@@ -346,7 +359,7 @@ TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
 
 TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>();
+    auto orig = factory_helper<TestType>(GENERATE(true, false));
     auto clone = orig.clone();
     clone->show();
     clone->done();
@@ -457,15 +470,17 @@ TEST_CASE("Iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  // bool no_tty = GENERATE(true, false);
+  auto no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
+  // TODO: is misalignment below a clang-format issue?
   for (auto& thing : IterableBar(things,
                                  {
                                      .out = &out,
                                     .message = "Computing",
                                     .style = sty,
                                     .interval = 0.001s,
+                                    .no_tty = no_tty,
                                  })) {
     dummy_sum += thing;
     std::this_thread::sleep_for(1.3ms);
@@ -473,7 +488,7 @@ TEST_CASE("Iterable bar", "[bar]") {
 
   CHECK(dummy_sum == 150);
 
-  auto parts = check_and_get_parts(out.str(), false);
+  auto parts = check_and_get_parts(out.str(), no_tty);
 
   // Check that message is correct
   for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
@@ -551,35 +566,58 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   std::vector<int> things(50, 3);
   int dummy_sum = 0;
 
-  // bool no_tty = GENERATE(true, false);
-  // auto default_speed_unit = GENERATE(true, false);
+  bool no_tty = GENERATE(true, false);
+  auto default_speed_unit = GENERATE(true, false);
 
   auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
 
-  for (auto& thing : IterableBar(things,
-                                 {
-                                     .out = &out,
-                                    .message = "Computing",
-                                    .speed = 1,
-                                    .speed_unit = "thing/time",
-                                    .style = sty,
-                                    .interval = 0.001s,
-                                 })) {
-    std::this_thread::sleep_for(1.3ms);
-    dummy_sum += thing;
+  if (default_speed_unit) {
+    for (auto& thing : IterableBar(things,
+                                   {
+                                       .out = &out,
+                                      .message = "Computing",
+                                      .speed = 1,
+                                      .style = sty,
+                                      .interval = 0.001s,
+                                      .no_tty = no_tty,
+                                   })) {
+      std::this_thread::sleep_for(1.3ms);
+      dummy_sum += thing;
+    }
+  } else {
+    for (auto& thing : IterableBar(things,
+                                   {
+                                       .out = &out,
+                                      .message = "Computing",
+                                      .speed = 1,
+                                      .speed_unit = "thing/time",
+                                      .style = sty,
+                                      .interval = 0.001s,
+                                      .no_tty = no_tty,
+                                   })) {
+      std::this_thread::sleep_for(1.3ms);
+      dummy_sum += thing;
+    }
   }
 
   CHECK(dummy_sum == 150);
 
-  auto parts = check_and_get_parts(out.str());
+  auto parts = check_and_get_parts(out.str(), no_tty);
 
   // Check that message is correct
   for (auto& part : parts) { CHECK(part.substr(0, 10) == "Computing "); }
 
   // Check speed unit
-  for (auto& part : parts) {
-    CHECK(part.find("it/s") == std::string::npos);
-    CHECK(part.find("thing/time") != std::string::npos);
+  if (default_speed_unit) {
+    for (auto& part : parts) {
+      CHECK(part.find("thing/time") == std::string::npos);
+      CHECK(part.find("it/s") != std::string::npos);
+    }
+  } else {
+    for (auto& part : parts) {
+      CHECK(part.find("it/s") == std::string::npos);
+      CHECK(part.find("thing/time") != std::string::npos);
+    }
   }
 
   // Check that space is shrinking
