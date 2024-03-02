@@ -15,6 +15,7 @@ jobs:
         with:
           submodules: true
       - run: |
+          g++ --version
           sudo apt-get install lcov
           make -j3
           ./test.out
