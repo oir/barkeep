@@ -21,3 +21,4 @@ foreach src : sources
   test(exec_name, exe)
 endforeach
 
+alias_target('tests', tests)
