@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#define FMT_HEADER_ONLY
-#ifndef BARKEEP_ENABLE_FMT
-#define BARKEEP_ENABLE_FMT
+#ifndef BARKEEP_ENABLE_STD_FORMAT
+#define BARKEEP_ENABLE_STD_FORMAT
 #endif
 
 #include <algorithm>
@@ -74,16 +73,16 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::string unit = GENERATE("", "thing/10ms");
 
   std::string value_fmt =
-      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value}";
+      std::is_floating_point_v<ValueType> ? "{0:.2f}" : "{0}";
 
   std::string fmtstr;
   if (not sp) {
     fmtstr = "Doing things " + value_fmt;
   } else {
     if (unit.empty()) {
-      fmtstr = "Doing things " + value_fmt + " ({speed:.2f})";
+      fmtstr = "Doing things " + value_fmt + " ({1:.2f})";
     } else {
-      fmtstr = "Doing things " + value_fmt + " ({speed:.2f} " + unit + ")";
+      fmtstr = "Doing things " + value_fmt + " ({1:.2f} " + unit + ")";
     }
   }
 
@@ -143,15 +142,15 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   std::string unit = GENERATE("", "thing/10ms");
 
   std::string value_fmt =
-      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value}";
+      std::is_floating_point_v<ValueType> ? "{0:.2f}" : "{0}";
   std::string fmtstr;
   if (not sp) {
     fmtstr = "Doing things " + value_fmt;
   } else {
     if (unit.empty()) {
-      fmtstr = "Doing things " + value_fmt + " ({speed:.2f})";
+      fmtstr = "Doing things " + value_fmt + " ({1:.2f})";
     } else {
-      fmtstr = "Doing things " + value_fmt + " ({speed:.2f} " + unit + ")";
+      fmtstr = "Doing things " + value_fmt + " ({1:.2f} " + unit + ")";
     }
   }
 
@@ -195,14 +194,14 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 
   using ValueType = value_t<TestType>;
   std::string value_fmt =
-      std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value:2d}";
+      std::is_floating_point_v<ValueType> ? "{0:.2f}" : "{0:2d}";
 
   auto bar = ProgressBar(&progress,
                          {
                              .out = &out,
                              .total = 50,
-                             .format = "Computing {percent:6.2f}%) {bar} " +
-                                       value_fmt + "/{total}",
+                             .format = "Computing {2:6.2f}%) {1} " +
+                                       value_fmt + "/{3}",
                              .speed = 0.9,
                              .style = GENERATE(Bars, Blocks, Arrow),
                              .interval = 0.001s,
@@ -235,7 +234,7 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
       {
           .out = &out,
           .total = 50,
-          .format = "Computing {percent:6.2f}%) {bar} {value:2d}/{total}",
+          .format = "Computing {2:6.2f}%) {1} {0:2d}/{3}",
           .style = Bars,
           .interval = 0.001,
       });
@@ -281,13 +280,13 @@ TEST_CASE("Composite bar-counter", "[composite]") {
           {
               .out = &out,
               .total = 505,
-              .format = "Sents {percent:6.2f}% {bar} {value:3d}/{total:3d}",
+              .format = "Sents {2:6.2f}% {1} {0:3d}/{3:3d}",
               .style = Bars,
               .interval = 0.01,
           }) |
       Counter(&toks,
               {.out = &out,
-               .format = "Toks {value}  ({speed:.2f} tok/s)",
+               .format = "Toks {0}  ({1:.2f} tok/s)",
                .speed = 1});
 
   bar.show();

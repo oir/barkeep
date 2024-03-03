@@ -2,8 +2,8 @@
 #include <iostream>
 
 #define FMT_HEADER_ONLY
-#ifndef BARKEEP_ENABLE_FMT
-#define BARKEEP_ENABLE_FMT
+#ifndef BARKEEP_ENABLE_FMT_FORMAT
+#define BARKEEP_ENABLE_FMT_FORMAT
 #endif
 #include <barkeep/barkeep.h>
 

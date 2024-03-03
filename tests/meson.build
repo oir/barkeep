@@ -2,9 +2,11 @@ catch = subproject('catch2').get_variable('catch2_dep')
 
 sources = [
   'demo.cpp',
-  'demo-fmt.cpp',
+  'demo-fmtlib.cpp',
+  'demo-stdfmt.cpp',
   'test.cpp',
-  'test-fmt.cpp'
+  'test-fmtlib.cpp',
+  'test-stdfmt.cpp',
 ]
 
 tests = []
