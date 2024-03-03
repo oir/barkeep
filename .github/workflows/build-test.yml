@@ -56,9 +56,9 @@ jobs:
       - run: |
           CXX=g++-13 meson setup build --buildtype=release --warnlevel=3
           meson compile -C build tests
-          ./build/test/test.out
-          ./build/test/test-fmtlib.out
-          ./build/test/test-stdfmt.out
+          ./build/tests/test.out
+          ./build/tests/test-fmtlib.out
+          ./build/tests/test-stdfmt.out
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10
