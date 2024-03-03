@@ -23,9 +23,7 @@ jobs:
           ./test.out
           ./test-fmtlib.out
           ./test-stdfmt.out
-          gcov-13 -b -p -c test.out-test.gcno test-stdfmt.out-test-stdfmt.gcno && \
           ls -l
-          echo "gcov done" && \
           lcov -c -d . -o cov.info --gcov-tool gcov-13 && \
           lcov --gcov-tool gcov-13 \
                --remove cov.info '/usr/local/include*' \
