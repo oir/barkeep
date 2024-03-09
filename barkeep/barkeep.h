@@ -168,7 +168,8 @@ class AsyncDisplay {
         interval_(interval),
         message_(message),
         format_(format),
-        no_tty_(no_tty) {}
+        no_tty_(no_tty) {
+        }
 
   AsyncDisplay(const AsyncDisplay& other)
       : out_(other.out_),
@@ -178,7 +179,7 @@ class AsyncDisplay {
         format_(other.format_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
-      throw std::runtime_error("A running display cannot be copied");
+      //throw std::runtime_error("A running display cannot be copied");
     }
   }
 
@@ -186,12 +187,12 @@ class AsyncDisplay {
       : out_(other.out_),
         complete_(bool(other.complete_)),
         interval_(other.interval_),
+        message_(std::move(other.message_)),
+        format_(std::move(other.format_)),
         no_tty_(other.no_tty_) {
     if (other.running()) {
-      throw std::runtime_error("A running display cannot be moved");
+      //throw std::runtime_error("A running display cannot be moved");
     }
-    message_ = std::move(other.message_);
-    format_ = std::move(other.format_);
   }
 
   virtual ~AsyncDisplay() { done(); }
@@ -346,7 +347,10 @@ class Composite : public AsyncDisplay {
                      left->no_tty_ or right->no_tty_),
         left_(std::move(left)),
         right_(std::move(right)) {
+    left_->done();
+    right_->done();
     right_->out_ = left_->out_;
+    show();
   }
 
   /// Copy constructor clones child displays.
@@ -355,6 +359,7 @@ class Composite : public AsyncDisplay {
         left_(other.left_->clone()),
         right_(other.right_->clone()) {
     right_->out_ = left_->out_;
+    if (other.running()) { show(); }
   }
   ~Composite() { done(); }
 
@@ -568,6 +573,7 @@ class Counter : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
+    show();
   }
 
   Counter(const Counter<Progress>& other)
@@ -579,13 +585,16 @@ class Counter : public AsyncDisplay {
     } else {
       speedom_.reset();
     }
+    if (other.running()) { show(); }
   }
 
   Counter(Counter<Progress>&& other)
       : AsyncDisplay(std::move(other)),
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
-        speed_unit_(other.speed_unit_) {}
+        speed_unit_(other.speed_unit_) {
+    if (other.running()) { show(); }
+        }
 
   ~Counter() { done(); }
 
@@ -809,6 +818,7 @@ class ProgressBar : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
+    show();
   }
 
   /// move constructor
@@ -818,7 +828,9 @@ class ProgressBar : public AsyncDisplay {
         speedom_(std::move(other.speedom_)),
         speed_unit_(other.speed_unit_),
         total_(other.total_),
-        bar_parts_(std::move(other.bar_parts_)) {}
+        bar_parts_(std::move(other.bar_parts_)) {
+    if (other.running()) { show(); }
+        }
 
   /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
@@ -832,6 +844,7 @@ class ProgressBar : public AsyncDisplay {
     } else {
       speedom_.reset();
     }
+    if (other.running()) { show(); }
   }
 
   ~ProgressBar() { done(); }

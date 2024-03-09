@@ -6,40 +6,40 @@ int main(int /*argc*/, char** /*argv*/) {
   using namespace std::chrono_literals;
   namespace bk = barkeep;
 
-  for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
-    auto anim =
-        bk::Animation({.message = "Working", .style = sty, .interval = 0.5s});
-    anim.show();
-    std::this_thread::sleep_for(10s);
-    anim.done();
-  }
+  //for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
+  //  auto anim =
+  //      bk::Animation({.message = "Working", .style = sty, .interval = 0.5s});
+  //  anim.show();
+  //  std::this_thread::sleep_for(10s);
+  //  anim.done();
+  //}
 
-  {
-    std::vector<std::string> stills{
-        "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
-    auto anim = bk::Animation(
-        {.message = "Working", .style = stills, .interval = 0.5s});
-    anim.show();
-    std::this_thread::sleep_for(10s);
-    anim.done();
-  }
+  //{
+  //  std::vector<std::string> stills{
+  //      "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"};
+  //  auto anim = bk::Animation(
+  //      {.message = "Working", .style = stills, .interval = 0.5s});
+  //  anim.show();
+  //  std::this_thread::sleep_for(10s);
+  //  anim.done();
+  //}
 
   std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
-  for (auto speed : speeds) {
-    std::atomic<size_t> work{0};
-    auto c = bk::Counter(&work,
-                         {
-                             .message = "Doing stuff",
-                             .speed = speed,
-                             .speed_unit = "tk/s",
-                         });
-    c.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(13ms);
-      work++;
-    }
-    c.done();
-  }
+  //for (auto speed : speeds) {
+  //  std::atomic<size_t> work{0};
+  //  auto c = bk::Counter(&work,
+  //                       {
+  //                           .message = "Doing stuff",
+  //                           .speed = speed,
+  //                           .speed_unit = "tk/s",
+  //                       });
+  //  c.show();
+  //  for (int i = 0; i < 1010; i++) {
+  //    std::this_thread::sleep_for(13ms);
+  //    work++;
+  //  }
+  //  c.done();
+  //}
 
   for (auto speed : speeds) {
     float work{0};
@@ -57,83 +57,80 @@ int main(int /*argc*/, char** /*argv*/) {
     c.done();
   }
 
-  for (auto speed : speeds) {
-    unsigned long long work{677};
-    auto c = bk::Counter(&work,
-                         {
-                             .message = "Decreasing",
-                             .speed = speed,
-                             .speed_unit = "",
-                         });
-    c.show();
-    while (work > 0) {
-      std::this_thread::sleep_for(13ms);
-      work--;
-    }
-    // Let destructor do the c.done() this time
-  }
+  //for (auto speed : speeds) {
+  //  unsigned long long work{677};
+  //  auto c = bk::Counter(&work,
+  //                       {
+  //                           .message = "Decreasing",
+  //                           .speed = speed,
+  //                           .speed_unit = "",
+  //                       });
+  //  c.show();
+  //  while (work > 0) {
+  //    std::this_thread::sleep_for(13ms);
+  //    work--;
+  //  }
+  //  // Let destructor do the c.done() this time
+  //}
 
-  for (auto speed : speeds) {
-    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Arrow}) {
-      std::atomic<size_t> work{0};
-      auto bar = bk::ProgressBar(&work,
-                                 {
-                                     .total = 1010,
-                                     .message = "Doing stuff",
-                                     .speed = speed,
-                                     .speed_unit = "tk/s",
-                                     .style = sty,
-                                 });
-      bar.show();
-      for (int i = 0; i < 1010; i++) {
-        std::this_thread::sleep_for(7ms);
-        work++;
-      }
-      bar.done();
-    }
-  }
+  //for (auto speed : speeds) {
+  //  for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Arrow}) {
+  //    std::atomic<size_t> work{0};
+  //    auto bar = bk::ProgressBar(&work,
+  //                               {
+  //                                   .total = 1010,
+  //                                   .message = "Doing stuff",
+  //                                   .speed = speed,
+  //                                   .speed_unit = "tk/s",
+  //                                   .style = sty,
+  //                               });
+  //    bar.show();
+  //    for (int i = 0; i < 1010; i++) {
+  //      std::this_thread::sleep_for(7ms);
+  //      work++;
+  //    }
+  //    bar.done();
+  //  }
+  //}
 
-  { // Custom bar style
-    std::atomic<size_t> work{0};
-    bk::BarParts sty{"[", "]", {"/"}, {" "}};
-    auto bar = bk::ProgressBar(&work,
-                               {
-                                   .total = 1010,
-                                   .message = "Doing stuff",
-                                   .speed = 0.1,
-                                   .speed_unit = "tk/s",
-                                   .style = sty,
-                               });
-    bar.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(7ms);
-      work++;
-    }
-    bar.done();
-  }
+  //{ // Custom bar style
+  //  std::atomic<size_t> work{0};
+  //  bk::BarParts sty{"[", "]", {"/"}, {" "}};
+  //  auto bar = bk::ProgressBar(&work,
+  //                             {
+  //                                 .total = 1010,
+  //                                 .message = "Doing stuff",
+  //                                 .speed = 0.1,
+  //                                 .speed_unit = "tk/s",
+  //                                 .style = sty,
+  //                             });
+  //  bar.show();
+  //  for (int i = 0; i < 1010; i++) {
+  //    std::this_thread::sleep_for(7ms);
+  //    work++;
+  //  }
+  //  bar.done();
+  //}
 
-  { // Decreasing progress
-    unsigned long work{1010};
-    auto bar = bk::ProgressBar(&work,
-                               {
-                                   .total = 1010,
-                                   .speed = 1.,
-                               });
-    bar.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(7ms);
-      work--;
-    }
-    bar.done();
-  }
+  //{ // Decreasing progress
+  //  unsigned long work{1010};
+  //  auto bar = bk::ProgressBar(&work,
+  //                             {
+  //                                 .total = 1010,
+  //                                 .speed = 1.,
+  //                             });
+  //  bar.show();
+  //  for (int i = 0; i < 1010; i++) {
+  //    std::this_thread::sleep_for(7ms);
+  //    work--;
+  //  }
+  //  bar.done();
+  //}
 
   { // Composite display of a ProgressBar and Counter. We want to measure
     // completion in terms of #sentences but we are also interested in speed
     // in terms of tokens per second.'
     std::atomic<size_t> sents{0}, toks{0};
-    // auto bar = bk::ProgressBar(&sents).total(1010).message("Sents").speed(1)
-    // |
-    //            bk::Counter(&toks).message("Toks").speed(1);
     auto bar = bk::ProgressBar(&sents,
                                {
                                    .total = 1010,
