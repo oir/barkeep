@@ -232,22 +232,42 @@ If you still want to be extra safe and __guarantee__ non-racing read and writes,
 
 ## Advanced formatting
 
-You can enable advanced formatting by defining the `BARKEEP_ENABLE_FMT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode).
+You can enable advanced formatting by either
+  - defining the `BARKEEP_ENABLE_FMT_FORMAT` compile-time flag, at the expense of introducing a dependency to [`fmt`](https://github.com/fmtlib/fmt) (which has an optional header-only mode), or
+  - defining the `BARKEEP_ENABLE_STD_FORMAT` flag, which uses the standard `std::format` from `<format>`, which might require a more recent compiler version (e.g. gcc >= 13.1) despite not introducing external dependencies.
 
-In this case, `Counter`s and `ProgressBar`s have an additional `Config` option `format` which can be used to format the display using a `fmt`-like format string:
+Unlike `fmt::format`, `std::format` does not support named arguments, which is a limitation you might consider.
+Thus, `std::format` requires to use integer identifiers to refer to bar components as you will see below.
+
+In either of these cases, `Counter`s and `ProgressBar`s have an additional `Config` option "`format`".
+This option can be used to format the entire display using a `fmt`-like format string instead of using textual options like `message` or `speed_unit`:
 
 - A counter:
+  - with `fmt` enabled:
 
-  ```cpp
-  size_t work{0};
-  auto c = bk::Counter(&work, {
-    .format = "Picked up {value} flowers, at {speed:.1f} flo/s",
-    .speed = 0.1
-  });
-  c.show();
-  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
-  c.done();
-  ```
+    ```cpp
+    size_t work{0};
+    auto c = bk::Counter(&work, {
+      .format = "Picked up {value} flowers, at {speed:.1f} flo/s",
+      .speed = 0.1
+    });
+    c.show();
+    for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
+    c.done();
+    ```
+
+  - with standard `<format>` enabled:
+
+    ```cpp
+    size_t work{0};
+    auto c = bk::Counter(&work, {
+      .format = "Picked up {0} flowers, at {1:.1f} flo/s",
+      .speed = 0.1
+    });
+    c.show();
+    for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
+    c.done();
+    ```
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="rec/fmt-counter-dark.svg" width="700">
@@ -256,18 +276,33 @@ In this case, `Counter`s and `ProgressBar`s have an additional `Config` option `
   </picture>
 
 - A bar:
+  - with `fmt` enabled:
 
-  ```cpp
-  size_t work{0};
-  auto bar = bk::ProgressBar(
-      &work,
-      {.total = 1010,
-       .format = "Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)",
-       .speed = 0.1});
-  bar.show();
-  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-  bar.done();
-  ```
+    ```cpp
+    size_t work{0};
+    auto bar = bk::ProgressBar(&work, {
+        .total = 1010,
+        .format = "Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)",
+        .speed = 0.1
+    });
+    bar.show();
+    for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+    bar.done();
+    ```
+
+  - with standard `<format>` enabled:
+
+    ```cpp
+    size_t work{0};
+    auto bar = bk::ProgressBar(&work, {
+        .total = 1010,
+        .format = "Picking flowers {0:4d}/{3}  {1}  ({4:.1f} flo/s)",
+        .speed = 0.1
+    });
+    bar.show();
+    for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+    bar.done();
+    ```
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="rec/fmt-bar-dark.svg" width="700">
@@ -277,22 +312,38 @@ In this case, `Counter`s and `ProgressBar`s have an additional `Config` option `
 
 When `format` is used, other textual parameters, such as `message` or `speed_unit` are ignored.
 
-- For counters, you can use the predefined identifiers `{value}`, and `{speed}`.
-- With bars, you can use `{value}`, `{bar}`, `{percent}`, `{total}`, and `{speed}`.
+- For counters, you can use the predefined identifiers `{value}` (`{0}`), and `{speed}` (`{1}`) with `fmt` (`<format>`).
+- With bars, you can use `{value}` (`{0}`), `{bar}` (`{1}`), `{percent}` (`{2}`), `{total}` (`{3}`), and `{speed}` (`{4}`) with `fmt` (`<format>`).
 
 Additionally, some basic ansi color sequences are predefined as identifiers which could be used to add color:
-```cpp
-std::atomic<size_t> work{0};
-auto bar = bk::ProgressBar(
-    &work,
-    {.total = 1010,
-     .format = "Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
-               "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
-     .speed = 0.1});
-bar.show();
-for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-bar.done();
-```
+
+- with `fmt` enabled:
+
+  ```cpp
+  std::atomic<size_t> work{0};
+  auto bar = bk::ProgressBar(&work, {
+      .total = 1010,
+      .format = "Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
+                "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
+      .speed = 0.1});
+  bar.show();
+  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+  bar.done();
+  ```
+
+- with standard `<format>` enabled:
+
+  ```cpp
+  std::atomic<size_t> work{0};
+  auto bar = bk::ProgressBar(&work, {
+      .total = 1010,
+      .format = "Picking flowers {8}{0:4d}/{3}  {6}{1} "
+                "{7}{2:3.0f}%{11}  ({4:.1f} flo/s)",
+      .speed = 0.1});
+  bar.show();
+  for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
+  bar.done();
+  ```
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="rec/fmt-color-dark.svg" width="700">
@@ -300,9 +351,16 @@ bar.done();
   <img src="rec/fmt-color-light.svg" width="700">
 </picture>
 
-- You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}`.
+- You can use `{red}`, `{green}`, `{yellow}`, `{blue}`, `{magenta}`, `{cyan}`, and `{reset}` with `fmt`.
+- With the standard `<format>` you can use the following, based on whether you are specifying a `Counter` or a `ProgressBar`:
 
-See `demo-fmt.cpp` for more examples.
+  | | red | green | yellow | blue | magenta | cyan | reset |
+  | - | - | - | - | - | - | - | - |
+  | `Counter` | `{2}` | `{3}` | `{4}` | `{5}` | `{6}` | `{7}` | `{8}` |
+  | `ProgressBar` | `{5}` | `{6}` | `{7}` | `{8}` | `{9}` | `{10}` | `{11}` |
+
+
+See `demo-fmtlib.cpp` or `demo-stdfmt.cpp` for more examples.
 
 
 ## Notes

@@ -542,13 +542,13 @@ class Counter : public AsyncDisplay {
           format_,
           std::make_format_args(progress,
                                 speedom_ ? speedom_->speed() : std::nan(""),
-                                red,
-                                green,
-                                yellow,
-                                blue,
-                                magenta,
-                                cyan,
-                                reset)
+                                red, // 2
+                                green, // 3
+                                yellow, // 4
+                                blue, // 5
+                                magenta, // 6
+                                cyan, // 7
+                                reset) // 8
 
       );
       return;
