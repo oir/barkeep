@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <cassert>
+#include <cmath>
 #include <chrono>
 #include <condition_variable>
 #include <iomanip>
@@ -19,9 +20,11 @@
 
 #define BARKEEP_VERSION "0.1.0"
 
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+#include <format>
 #endif
 
 namespace barkeep {
@@ -507,7 +510,7 @@ class Counter : public AsyncDisplay {
 
   /// Write the value of progress with the message to the output stream
   void render_() override {
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
@@ -535,6 +538,24 @@ class Counter : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
+      return;
+    }
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+    if (not format_.empty()) {
+      value_t<Progress> progress = *progress_;
+      *out_ << std::vformat(
+          format_,
+          std::make_format_args(progress,
+                                speedom_ ? speedom_->speed() : std::nan(""),
+                                red, // 2
+                                green, // 3
+                                yellow, // 4
+                                blue, // 5
+                                magenta, // 6
+                                cyan, // 7
+                                reset) // 8
+
+      );
       return;
     }
 #endif
@@ -722,7 +743,7 @@ class ProgressBar : public AsyncDisplay {
 
   /// Run all of the individual render methods to write everything to stream
   void render_() override {
-#ifdef BARKEEP_ENABLE_FMT
+#if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
       value_t<Progress> progress = *progress_;
@@ -762,6 +783,31 @@ class ProgressBar : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
+      return;
+    }
+#elif defined(BARKEEP_ENABLE_STD_FORMAT)
+    if (not format_.empty()) {
+      value_t<Progress> progress = *progress_;
+      
+      std::stringstream bar_ss;
+      render_progress_bar_(&bar_ss);
+      
+      double percent = progress * 100. / total_;
+      
+      *out_ << std::vformat(
+          format_,
+          std::make_format_args(progress, // 0
+                                bar_ss.str(), // 1
+                                percent, // 2
+                                total_, // 3
+                                speedom_ ? speedom_->speed() : std::nan(""), // 4
+                                red, // 5
+                                green, // 6
+                                yellow, // 7 
+                                blue, // 8
+                                magenta, // 9
+                                cyan, // 10
+                                reset)); // 11
       return;
     }
 #endif

@@ -6,22 +6,32 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
-  build-and-test-for-cpp:
-    name: "Build and test for C++"
+  build-and-test-for-cpp-make:
+    name: "Build and test for C++ with make"
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: |
+      - name: "Install tooling"
+        run: |
           sudo apt-get install lcov
-          make -j3
+          g++-13 --version
+          gcov-13 --version
+      - run: |
+          CXX=g++-13 make -j3
           ./test.out
-          ./test-fmt.out
-          gcov -b -p -c test.gcno && \
-          lcov -c -d . -o cov.info && \
-          lcov --remove cov.info '/usr/local/include*' '/usr/include*' '*/subprojects/*' '*/test.cpp*' '*/test-fmt.cpp' -o barkeep.info
+          ./test-fmtlib.out
+          ./test-stdfmt.out
+          lcov -c -d . -o cov.info --gcov-tool gcov-13 && \
+          lcov --gcov-tool gcov-13 \
+               --remove cov.info '/usr/local/include*' \
+                                 '/usr/include*' \
+                                 '*/subprojects/*' \
+                                 '*/test.cpp*' \
+                                 '*/test-fmtlib.cpp' \
+                                 '*/test-stdfmt.cpp' -o barkeep.info
           rm cov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -29,6 +39,26 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
       # - run: ./demo.out
+  build-and-test-for-cpp-meson:
+    name: "Build and test for C++ with meson"
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: "Install tooling"
+        run: |
+          g++-13 --version
+          gcov-13 --version
+          pip install meson pytest
+          sudo apt install ninja-build
+      - run: |
+          CXX=g++-13 meson setup build --buildtype=release --warnlevel=3
+          meson compile -C build tests
+          ./build/tests/test.out
+          ./build/tests/test-fmtlib.out
+          ./build/tests/test-stdfmt.out
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10

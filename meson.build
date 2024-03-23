@@ -16,3 +16,7 @@ deps = [threads, fmt]
 
 subdir('tests')
 subdir('python')
+
+barkeep_dep = declare_dependency(
+    include_directories : include_directories('./')
+)

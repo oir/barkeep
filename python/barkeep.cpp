@@ -3,8 +3,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#ifndef BARKEEP_ENABLE_FMT
-#define BARKEEP_ENABLE_FMT
+#ifndef BARKEEP_ENABLE_FMT_FORMAT
+#define BARKEEP_ENABLE_FMT_FORMAT
 #endif
 #include <barkeep/barkeep.h>
 
