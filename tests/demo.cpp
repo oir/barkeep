@@ -137,12 +137,14 @@ int main(int /*argc*/, char** /*argv*/) {
                                    .total = 1010,
                                    .message = "Sents",
                                    .speed = 1,
+                                   .show = false,
                                }) |
                bk::Counter(&toks,
                            {
                                .message = "Toks",
                                .speed = 1,
                                .speed_unit = "tok/s",
+                               .show = false,
                            });
     bar.show();
     for (int i = 0; i < 1010; i++) {
@@ -160,16 +162,19 @@ int main(int /*argc*/, char** /*argv*/) {
                                 {
                                     .message = "Squares",
                                     .speed = 0.1,
+                                    .show = false,
                                 }) |
                     bk::Counter(&cubes,
                                 {
                                     .message = "Cubes",
                                     .speed = 0.1,
+                                    .show = false,
                                 }) |
                     bk::Counter(&hypercubes,
                                 {
                                     .message = "Hypercubes",
                                     .speed = 0.1,
+                                    .show = false,
                                 });
     counters.show();
     for (int i = 0; i < 1010; i++) {
@@ -220,6 +225,7 @@ int main(int /*argc*/, char** /*argv*/) {
                                    .total = 20100,
                                    .message = "Sents",
                                    .no_tty = true,
+                                   .show = false,
                                }) |
                bk::Counter(&toks,
                            {
@@ -227,6 +233,7 @@ int main(int /*argc*/, char** /*argv*/) {
                                .speed = 1,
                                .speed_unit = "tok/s",
                                .no_tty = true,
+                               .show = false,
                            });
     bar.show();
     for (int i = 0; i < 20100; i++) {

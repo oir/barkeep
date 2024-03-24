@@ -68,7 +68,7 @@ void check_anim(const std::vector<std::string>& parts,
 }
 
 TEST_CASE("Animation default", "[anim]") {
-  auto anim = Animation();
+  auto anim = Animation({.show=false});
   anim.done();
 }
 
@@ -87,7 +87,6 @@ TEST_CASE("Animation", "[anim]") {
       .no_tty = no_tty,
   });
 
-  anim.show();
   std::this_thread::sleep_for(1s);
   anim.done();
 
@@ -110,7 +109,6 @@ TEST_CASE("Animation custom", "[anim]") {
       .no_tty = no_tty,
   });
 
-  anim.show();
   std::this_thread::sleep_for(1s);
   anim.done();
 
@@ -125,7 +123,7 @@ TEMPLATE_LIST_TEST_CASE("Counter default", "[counter]", ProgressTypeList) {
   using ValueType = value_t<TestType>;
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
 
-  auto ctr = Counter(&amount);
+  auto ctr = Counter(&amount, {.show=false});
   ctr.done();
 }
 
@@ -146,7 +144,6 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
                          .speed_unit = unit,
                          .interval = 0.001s,
                      });
-  ctr.show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
     // no work
@@ -208,8 +205,6 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
                          .interval = 0.01s,
                          .no_tty = no_tty,
                      });
-  ctr.show();
-
   ValueType increment = ValueType(1.2); // becomes 1 for integral types
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(1.3ms);
@@ -244,8 +239,6 @@ TEST_CASE("Decreasing counter", "[counter]") {
                          .message = "Doing things",
                          .interval = 0.01,
                      });
-  ctr.show();
-
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(1.3ms);
     amount--;
@@ -269,7 +262,7 @@ Display factory_helper(bool /*speedy*/ = false);
 template <>
 Animation factory_helper<Animation>(bool /*speedy*/) {
   static std::stringstream hide;
-  return Animation({&hide});
+  return Animation({.out = &hide, .show = false});
 }
 
 template <>
@@ -277,9 +270,9 @@ Counter<> factory_helper<Counter<>>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
   if (speedy) {
-    return Counter(&progress, {.out = &hide, .speed = 1});
+    return Counter(&progress, {.out = &hide, .speed = 1, .show = false});
   } else {
-    return Counter(&progress, {.out = &hide});
+    return Counter(&progress, {.out = &hide, .show = false});
   }
 }
 
@@ -288,9 +281,9 @@ ProgressBar<float> factory_helper<ProgressBar<float>>(bool speedy) {
   static float progress;
   static std::stringstream hide;
   if (speedy) {
-    return ProgressBar(&progress, {.out = &hide, .speed = 1});
+    return ProgressBar(&progress, {.out = &hide, .speed = 1, .show = false});
   } else {
-    return ProgressBar(&progress, {.out = &hide});
+    return ProgressBar(&progress, {.out = &hide, .show = false});
   }
 }
 
@@ -299,11 +292,11 @@ Composite factory_helper<Composite>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
   if (speedy) {
-    return ProgressBar(&progress, {.out = &hide, .speed = 1}) |
-           Counter(&progress, {.out = &hide, .speed = 1});
+    return ProgressBar(&progress, {.out = &hide, .speed = 1, .show = false}) |
+           Counter(&progress, {.out = &hide, .speed = 1, .show = false});
   } else {
-    return ProgressBar(&progress, {.out = &hide}) |
-           Counter(&progress, {.out = &hide});
+    return ProgressBar(&progress, {.out = &hide, .show = false}) |
+           Counter(&progress, {.out = &hide, .show = false});
   }
 }
 
@@ -688,6 +681,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
                              .message = "Sents",
                              .style = Bars,
                              .interval = 0.01,
+                             .show = false,
                          }) |
              Counter(&toks,
                      {
@@ -695,6 +689,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
                          .message = "Toks",
                          .speed = 1,
                          .speed_unit = "tok/s",
+                         .show = false,
                      });
   bar.show();
   for (int i = 0; i < 505; i++) {

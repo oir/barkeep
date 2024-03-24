@@ -171,8 +171,7 @@ class AsyncDisplay {
         interval_(interval),
         message_(message),
         format_(format),
-        no_tty_(no_tty) {
-        }
+        no_tty_(no_tty) {}
 
   AsyncDisplay(const AsyncDisplay& other)
       : out_(other.out_),
@@ -182,7 +181,7 @@ class AsyncDisplay {
         format_(other.format_),
         no_tty_(other.no_tty_) {
     if (other.running()) {
-      //throw std::runtime_error("A running display cannot be copied");
+      throw std::runtime_error("A running display cannot be copied");
     }
   }
 
@@ -194,7 +193,7 @@ class AsyncDisplay {
         format_(std::move(other.format_)),
         no_tty_(other.no_tty_) {
     if (other.running()) {
-      //throw std::runtime_error("A running display cannot be moved");
+      throw std::runtime_error("A running display cannot be moved");
     }
   }
 
@@ -263,6 +262,7 @@ struct AnimationConfig {
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the animation immediately after construction
 };
 
 Duration as_duration(std::variant<Duration, double> interval) {
@@ -307,6 +307,8 @@ class Animation : public AsyncDisplay {
       stills_ = animation_stills_[static_cast<unsigned short>(
           std::get<AnimationStyle>(cfg.style))];
     }
+
+    if (cfg.show) { show(); }
   }
 
   Animation(const Animation& other) = default;
@@ -353,7 +355,7 @@ class Composite : public AsyncDisplay {
     left_->done();
     right_->done();
     right_->out_ = left_->out_;
-    show();
+    //show();
   }
 
   /// Copy constructor clones child displays.
@@ -488,6 +490,7 @@ struct CounterConfig {
   /// interval in which the counter is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the counter immediately after construction
 };
 
 /// Monitors and displays a single numeric variable
@@ -594,7 +597,7 @@ class Counter : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
-    show();
+    if (cfg.show) { show(); }
   }
 
   Counter(const Counter<Progress>& other)
@@ -644,6 +647,7 @@ struct ProgressBarConfig {
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the progress bar immediately after construction
 };
 
 /// Displays a progress bar, by comparing the progress value being monitored to
@@ -864,7 +868,7 @@ class ProgressBar : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
-    show();
+    if (cfg.show) { show(); }
   }
 
   /// move constructor
