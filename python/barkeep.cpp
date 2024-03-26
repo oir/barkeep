@@ -59,7 +59,8 @@ class Animation_ : public Animation {
                    .message = message,
                    .style = style,
                    .interval = interval,
-                   .no_tty = no_tty}) {
+                   .no_tty = no_tty,
+                   .show = false}) {
     if (not file.is_none()) {
       file_ = std::make_shared<PyFileStream>(std::move(file));
     }
@@ -105,7 +106,8 @@ class Counter_ : public Counter<T> {
                     .speed = std::nullopt,
                     .speed_unit = speed_unit,
                     .interval = interval,
-                    .no_tty = no_tty}) {
+                    .no_tty = no_tty,
+                    .show = false}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
     }
@@ -176,7 +178,8 @@ class ProgressBar_ : public ProgressBar<T> {
                         .speed_unit = speed_unit,
                         .style = style,
                         .interval = interval,
-                        .no_tty = no_tty}) {
+                        .no_tty = no_tty,
+                        .show = false}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(*work.get(), *speed);
     }
