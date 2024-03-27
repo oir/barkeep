@@ -222,7 +222,11 @@ def factory_helper(display_type):
     if display_type == "progressbar":
         return ProgressBar(file=hide, show=False)
     if display_type == "composite":
-        return Animation(file=hide, show=False) | Counter(file=hide, show=False) | ProgressBar(file=hide, show=False)
+        return (
+            Animation(file=hide, show=False)
+            | Counter(file=hide, show=False)
+            | ProgressBar(file=hide, show=False)
+        )
     raise Exception("Invalid display type!")
 
 
