@@ -262,6 +262,7 @@ struct AnimationConfig {
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the animation immediately after construction
 };
 
 Duration as_duration(std::variant<Duration, double> interval) {
@@ -306,6 +307,8 @@ class Animation : public AsyncDisplay {
       stills_ = animation_stills_[static_cast<unsigned short>(
           std::get<AnimationStyle>(cfg.style))];
     }
+
+    if (cfg.show) { show(); }
   }
 
   Animation(const Animation& other) = default;
@@ -349,7 +352,10 @@ class Composite : public AsyncDisplay {
                      left->no_tty_ or right->no_tty_),
         left_(std::move(left)),
         right_(std::move(right)) {
+    left_->done();
+    right_->done();
     right_->out_ = left_->out_;
+    //show();
   }
 
   /// Copy constructor clones child displays.
@@ -358,6 +364,7 @@ class Composite : public AsyncDisplay {
         left_(other.left_->clone()),
         right_(other.right_->clone()) {
     right_->out_ = left_->out_;
+    if (other.running()) { show(); }
   }
   ~Composite() { done(); }
 
@@ -483,6 +490,7 @@ struct CounterConfig {
   /// interval in which the counter is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the counter immediately after construction
 };
 
 /// Monitors and displays a single numeric variable
@@ -589,6 +597,7 @@ class Counter : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
+    if (cfg.show) { show(); }
   }
 
   Counter(const Counter<Progress>& other)
@@ -600,13 +609,16 @@ class Counter : public AsyncDisplay {
     } else {
       speedom_.reset();
     }
+    if (other.running()) { show(); }
   }
 
   Counter(Counter<Progress>&& other)
       : AsyncDisplay(std::move(other)),
         progress_(other.progress_),
         speedom_(std::move(other.speedom_)),
-        speed_unit_(other.speed_unit_) {}
+        speed_unit_(other.speed_unit_) {
+    if (other.running()) { show(); }
+        }
 
   ~Counter() { done(); }
 
@@ -635,6 +647,7 @@ struct ProgressBarConfig {
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
+  bool show = true;    ///< show the progress bar immediately after construction
 };
 
 /// Displays a progress bar, by comparing the progress value being monitored to
@@ -855,6 +868,7 @@ class ProgressBar : public AsyncDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(*progress_, *cfg.speed);
     }
+    if (cfg.show) { show(); }
   }
 
   /// move constructor
@@ -864,7 +878,9 @@ class ProgressBar : public AsyncDisplay {
         speedom_(std::move(other.speedom_)),
         speed_unit_(other.speed_unit_),
         total_(other.total_),
-        bar_parts_(std::move(other.bar_parts_)) {}
+        bar_parts_(std::move(other.bar_parts_)) {
+    if (other.running()) { show(); }
+        }
 
   /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
@@ -878,6 +894,7 @@ class ProgressBar : public AsyncDisplay {
     } else {
       speedom_.reset();
     }
+    if (other.running()) { show(); }
   }
 
   ~ProgressBar() { done(); }
