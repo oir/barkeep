@@ -629,6 +629,7 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
                              .speed_unit = "",
                              .style = Bars,
                              .interval = 0.001s,
+                             .show = false,
                          });
 
   SECTION("Above") {
