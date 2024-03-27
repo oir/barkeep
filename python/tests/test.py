@@ -216,13 +216,13 @@ def test_decreasing_counter(dtype, no_tty):
 def factory_helper(display_type):
     hide = io.StringIO()
     if display_type == "animation":
-        return Animation(file=hide)
+        return Animation(file=hide, show=False)
     if display_type == "counter":
-        return Counter(file=hide)
+        return Counter(file=hide, show=False)
     if display_type == "progressbar":
-        return ProgressBar(file=hide)
+        return ProgressBar(file=hide, show=False)
     if display_type == "composite":
-        return Animation(file=hide) | Counter(file=hide) | ProgressBar(file=hide)
+        return Animation(file=hide, show=False) | Counter(file=hide, show=False) | ProgressBar(file=hide, show=False)
     raise Exception("Invalid display type!")
 
 
@@ -362,12 +362,14 @@ def test_composite_bar_counter(no_tty):
         file=out,
         style=ProgressBarStyle.Bars,
         no_tty=no_tty,
+        show=False,
     ) | Counter(
         value=toks,
         message="Toks",
         speed_unit="tok/s",
         speed=1,
         file=out,
+        show=False,
     )
     bar.show()
     for i in range(505):

@@ -87,8 +87,8 @@ def progress_bar():
 
 
 def composite():
-    sents = ProgressBar(total=1010, message="Sents", speed=1)
-    toks = Counter(message="Toks", speed_unit="tok/s", speed=1)
+    sents = ProgressBar(total=1010, message="Sents", speed=1, show=False)
+    toks = Counter(message="Toks", speed_unit="tok/s", speed=1, show=False)
     bar = sents | toks
 
     bar.show()
@@ -98,9 +98,9 @@ def composite():
         toks += 1 + random.randrange(5)
     bar.done()
 
-    squares = Counter(message="Squares", speed=0.1)
-    cubes = Counter(message="Cubes", speed=0.1)
-    hypercubes = Counter(message="Hypercubes", speed=0.1)
+    squares = Counter(message="Squares", speed=0.1, show=False)
+    cubes = Counter(message="Cubes", speed=0.1, show=False)
+    hypercubes = Counter(message="Hypercubes", speed=0.1, show=False)
 
     counters = squares | cubes | hypercubes
 

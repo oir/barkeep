@@ -300,8 +300,11 @@ PYBIND11_MODULE(barkeep, m) {
                        std::string msg,
                        double interval,
                        std::variant<AnimationStyle, Strings> style,
-                       bool no_tty) {
-             return Animation_(file, msg, style, interval, no_tty);
+                       bool no_tty,
+                       bool show) {
+             auto a = std::make_unique<Animation_>(file, msg, style, interval, no_tty);
+             if (show) { a->show(); }
+             return a;
            }),
            R"docstr(
             Displays a simple animation with a message.
@@ -319,12 +322,15 @@ PYBIND11_MODULE(barkeep, m) {
                 Animation style. Defaults to AnimationStyle.Ellipsis.
             no_tty : bool, optional
                 If True, use no-tty mode (no \r, slower refresh). Defaults to False.
+            show : bool, optional
+                If True, show the animation immediately. Defaults to True.
            )docstr",
            "file"_a = py::none(),
            "message"_a = "",
            "interval"_a = 1.,
            "style"_a = AnimationStyle::Ellipsis,
            "no_tty"_a = false,
+           "show"_a = true,
            py::keep_alive<0, 1>()); // keep file alive while the animation is
                                     // alive);
 
@@ -368,7 +374,8 @@ PYBIND11_MODULE(barkeep, m) {
          std::string speed_unit,
          std::optional<std::string> fmt,
          bool no_tty,
-         DType dtype) -> std::unique_ptr<AsyncDisplay> {
+         DType dtype,
+         bool show) -> std::unique_ptr<AsyncDisplay> {
         std::unique_ptr<AsyncDisplay> rval;
 
         auto make_counter = [&](auto pv) {
@@ -381,6 +388,7 @@ PYBIND11_MODULE(barkeep, m) {
                                                  interval.value_or(0.),
                                                  no_tty);
           *c->work = value;
+          if (show) { c->show(); }
           return c;
         };
 
@@ -424,6 +432,8 @@ PYBIND11_MODULE(barkeep, m) {
             If True, use no-tty mode (no \r, slower refresh). Defaults to False.
         dtype : DType, optional
             Data type of the value. Defaults to DType.Int.
+        show : bool, optional
+            If True, show the counter immediately. Defaults to True.
        )docstr",
       "value"_a = 0,
       "file"_a = py::none(),
@@ -434,6 +444,7 @@ PYBIND11_MODULE(barkeep, m) {
       "fmt"_a = py::none(),
       "no_tty"_a = false,
       "dtype"_a = DType::Int,
+      "show"_a = true,
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
   auto bind_progress_bar = [&](auto& m, auto pv, const char* name) {
@@ -460,7 +471,8 @@ PYBIND11_MODULE(barkeep, m) {
          std::string speed_unit,
          std::optional<std::string> fmt,
          bool no_tty,
-         DType dtype) -> std::unique_ptr<AsyncDisplay> {
+         DType dtype,
+         bool show) -> std::unique_ptr<AsyncDisplay> {
         auto make_progress_bar = [&](auto pv) {
           using T = decltype(pv);
           auto bar = std::make_unique<ProgressBar_<T>>(file,
@@ -473,6 +485,7 @@ PYBIND11_MODULE(barkeep, m) {
                                                        interval.value_or(0.),
                                                        no_tty);
           *bar->work = value;
+          if (show) { bar->show(); }
           return bar;
         };
 
@@ -521,6 +534,8 @@ PYBIND11_MODULE(barkeep, m) {
             If True, use no-tty mode (no \r, slower refresh). Defaults to False.
         dtype : DType, optional
             Data type of the value. Defaults to DType.Int.
+        show : bool, optional
+            If True, show the progress bar immediately. Defaults to True.
        )docstr",
       "value"_a = 0,
       "total"_a = 100,
@@ -533,6 +548,7 @@ PYBIND11_MODULE(barkeep, m) {
       "fmt"_a = py::none(),
       "no_tty"_a = false,
       "dtype"_a = DType::Int,
+      "show"_a = true,
       py::keep_alive<0, 3>()); // keep file alive while the bar is alive
 
   py::class_<Composite_, AsyncDisplay>(m, "Composite");
