@@ -18,6 +18,7 @@
 | std::variant< ProgressBarStyle, [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > | **[style](api/Classes/structbarkeep_1_1_progress_bar_config.md#variable-style)**  |
 | std::variant< Duration, [double](api/Classes/classbarkeep_1_1_counter.md) > | **[interval](api/Classes/structbarkeep_1_1_progress_bar_config.md#variable-interval)** <br>interval in which the progress bar is refreshed  |
 | [bool](api/Classes/classbarkeep_1_1_counter.md) | **[no_tty](api/Classes/structbarkeep_1_1_progress_bar_config.md#variable-no_tty)** <br>no-tty mode if true (no \r, slower default refresh)  |
+| [bool](api/Classes/classbarkeep_1_1_counter.md) | **[show](api/Classes/structbarkeep_1_1_progress_bar_config.md#variable-show)** <br>show the progress bar immediately after construction  |
 
 
 </span>
@@ -102,6 +103,14 @@ bool no_tty = false;
 
 no-tty mode if true (no \r, slower default refresh) 
 
+### variable show
+
+```cpp
+bool show = true;
+```
+
+show the progress bar immediately after construction 
+
 -------------------------------
 
-Updated on 2024-02-19 at 09:47:42 -0500
+Updated on 2024-03-28 at 21:56:22 -0400
