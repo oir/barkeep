@@ -31,13 +31,13 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| enum [unsigned](api/Classes/classbarkeep_1_1_counter.md)[short](api/Classes/classbarkeep_1_1_counter.md) | **[AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { Ellipsis, Clock, Moon, Earth, Bar, Square}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
-| enum [unsigned](api/Classes/classbarkeep_1_1_counter.md)[short](api/Classes/classbarkeep_1_1_counter.md) | **[ProgressBarStyle](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { Bars, Blocks, Arrow, Pip}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
+| enum unsigned short | **[AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { Ellipsis, Clock, Moon, Earth, Bar, Square}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
+| enum unsigned short | **[ProgressBarStyle](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { Bars, Blocks, Arrow, Pip}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
 | using std::vector< std::string > | **[Strings](api/Namespaces/namespacebarkeep.md#using-strings)**  |
-| using std::vector< Strings > | **[StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
-| using std::chrono::duration< [double](api/Classes/classbarkeep_1_1_counter.md), std::ratio< 1 > > | **[Duration](api/Namespaces/namespacebarkeep.md#using-duration)**  |
-| template <typename T \> <br>using [typename](api/Classes/classbarkeep_1_1_counter.md)[AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< [T](api/Classes/classbarkeep_1_1_counter.md) >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
-| template <typename T \> <br>using [typename](api/Classes/classbarkeep_1_1_counter.md) std::conditional_t< std::is_integral_v< [T](api/Classes/classbarkeep_1_1_counter.md) >, std::make_signed< [T](api/Classes/classbarkeep_1_1_counter.md) >, std::common_type< [T](api/Classes/classbarkeep_1_1_counter.md) > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
+| using std::vector< [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > | **[StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
+| using std::chrono::duration< double, std::ratio< 1 > > | **[Duration](api/Namespaces/namespacebarkeep.md#using-duration)**  |
+| template <typename T \> <br>using typename [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< T >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
+| template <typename T \> <br>using typename std::conditional_t< std::is_integral_v< T >, std::make_signed< T >, std::common_type< T > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
 
 
 </span>
@@ -48,8 +48,8 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| Duration | **[as_duration](api/Namespaces/namespacebarkeep.md#function-as_duration)**(std::variant< Duration, [double](api/Classes/classbarkeep_1_1_counter.md) > interval) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[operator\|](api/Namespaces/namespacebarkeep.md#function-operator\|)**([const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, [const](api/Classes/classbarkeep_1_1_counter.md)[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right)<br>Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
+| [Duration](api/Namespaces/namespacebarkeep.md#using-duration) | **[as_duration](api/Namespaces/namespacebarkeep.md#function-as_duration)**(std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > interval) |
+| auto | **[operator\|](api/Namespaces/namespacebarkeep.md#function-operator\|)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right)<br>Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
 
 
 </span>
@@ -60,15 +60,15 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| [const](api/Classes/classbarkeep_1_1_counter.md) StringsList | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[red](api/Namespaces/namespacebarkeep.md#variable-red)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[green](api/Namespaces/namespacebarkeep.md#variable-green)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[yellow](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[blue](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[magenta](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[cyan](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::string | **[reset](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
-| [const](api/Classes/classbarkeep_1_1_counter.md) std::vector< [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > | **[progress_bar_parts_](api/Namespaces/namespacebarkeep.md#variable-progress_bar_parts_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
+| const [StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist) | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
+| const std::string | **[red](api/Namespaces/namespacebarkeep.md#variable-red)**  |
+| const std::string | **[green](api/Namespaces/namespacebarkeep.md#variable-green)**  |
+| const std::string | **[yellow](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
+| const std::string | **[blue](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
+| const std::string | **[magenta](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
+| const std::string | **[cyan](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
+| const std::string | **[reset](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
+| const std::vector< [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > | **[progress_bar_parts_](api/Namespaces/namespacebarkeep.md#variable-progress_bar_parts_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
 
 ## Types Documentation
 
@@ -155,8 +155,8 @@ Duration as_duration(
 
 ```cpp
 auto operator\|(
-    constAsyncDisplay & left,
-    constAsyncDisplay & right
+    const AsyncDisplay & left,
+    const AsyncDisplay & right
 )
 ```
 
@@ -261,4 +261,4 @@ Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1
 
 -------------------------------
 
-Updated on 2024-03-28 at 21:56:21 -0400
+Updated on 2024-03-28 at 22:58:08 -0400

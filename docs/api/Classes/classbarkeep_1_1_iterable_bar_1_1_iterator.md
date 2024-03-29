@@ -3,16 +3,19 @@
 
 
 
+
+`#include <barkeep.h>`
+
 ## Public Functions
 
 <span class="api-table">
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**([typename](api/Classes/classbarkeep_1_1_counter.md) Container::iterator it, ProgressType & idx) |
+| | **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**(typename Container::iterator it, [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) & idx) |
 | [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & | **[operator++](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator++)**() |
-| [bool](api/Classes/classbarkeep_1_1_counter.md) | **[operator!=](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator!=)**([const](api/Classes/classbarkeep_1_1_counter.md)[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & other) const |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) & | **[operator*](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator*)**() |
+| bool | **[operator!=](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator!=)**(const [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & other) const |
+| auto & | **[operator*](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator*)**() |
 
 
 </span>
@@ -40,7 +43,7 @@ inline Iterator & operator++()
 
 ```cpp
 inline bool operator!=(
-    constIterator & other
+    const Iterator & other
 ) const
 ```
 
@@ -54,4 +57,4 @@ inline auto & operator*()
 
 -------------------------------
 
-Updated on 2024-03-28 at 21:56:22 -0400
+Updated on 2024-03-28 at 22:58:08 -0400
