@@ -12,17 +12,17 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**(typename Container::iterator it, [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) & idx) |
-| [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & | **[operator++](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator++)**() |
-| bool | **[operator!=](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator!=)**(const [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & other) const |
-| auto & | **[operator*](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator*)**() |
+| <span class="codey"> </span>|  <span class="codey">  **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**(typename Container::iterator it, [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) & idx)</span> |
+| <span class="codey"> [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & </span>|  <span class="codey">  **[operator++](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator++)**()</span> |
+| <span class="codey"> bool </span>|  <span class="codey">  **[operator!=](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator!=)**(const [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & other) const</span> |
+| <span class="codey"> auto & </span>|  <span class="codey">  **[operator*](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator*)**()</span> |
 
 
 </span>
 
 ## Public Functions Documentation
 
-### function Iterator
+### function `Iterator`
 
 ```cpp
 inline Iterator(
@@ -32,14 +32,14 @@ inline Iterator(
 ```
 
 
-### function operator++
+### function `operator++`
 
 ```cpp
 inline Iterator & operator++()
 ```
 
 
-### function operator!=
+### function `operator!=`
 
 ```cpp
 inline bool operator!=(
@@ -48,7 +48,7 @@ inline bool operator!=(
 ```
 
 
-### function operator*
+### function `operator*`
 
 ```cpp
 inline auto & operator*()
@@ -57,4 +57,4 @@ inline auto & operator*()
 
 -------------------------------
 
-Updated on 2024-03-28 at 22:58:08 -0400
+Updated on 2024-03-29 at 22:06:17 -0400

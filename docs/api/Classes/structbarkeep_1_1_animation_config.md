@@ -12,19 +12,19 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| std::ostream * | **[out](api/Classes/structbarkeep_1_1_animation_config.md#variable-out)** <br>output stream  |
-| std::string | **[message](api/Classes/structbarkeep_1_1_animation_config.md#variable-message)** <br>message to display before the animation style as AnimationStyle or custom animation as a list of strings  |
-| std::variant< [AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle), [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > | **[style](api/Classes/structbarkeep_1_1_animation_config.md#variable-style)**  |
-| std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > | **[interval](api/Classes/structbarkeep_1_1_animation_config.md#variable-interval)** <br>interval in which the animation is refreshed  |
-| bool | **[no_tty](api/Classes/structbarkeep_1_1_animation_config.md#variable-no_tty)** <br>no-tty mode if true (no \r, slower default refresh)  |
-| bool | **[show](api/Classes/structbarkeep_1_1_animation_config.md#variable-show)** <br>show the animation immediately after construction  |
+| <span class="codey"> std::ostream * </span> | <span class="codey"> **[out](api/Classes/structbarkeep_1_1_animation_config.md#variable-out)** </span><br>output stream  |
+| <span class="codey"> std::string </span> | <span class="codey"> **[message](api/Classes/structbarkeep_1_1_animation_config.md#variable-message)** </span><br>message to display before the animation  |
+| <span class="codey"> std::variant< [AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle), [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > </span> | <span class="codey"> **[style](api/Classes/structbarkeep_1_1_animation_config.md#variable-style)** </span><br>style as AnimationStyle or custom animation as a list of strings  |
+| <span class="codey"> std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > </span> | <span class="codey"> **[interval](api/Classes/structbarkeep_1_1_animation_config.md#variable-interval)** </span><br>interval in which the animation is refreshed  |
+| <span class="codey"> bool </span> | <span class="codey"> **[no_tty](api/Classes/structbarkeep_1_1_animation_config.md#variable-no_tty)** </span><br>no-tty mode if true (no \r, slower default refresh)  |
+| <span class="codey"> bool </span> | <span class="codey"> **[show](api/Classes/structbarkeep_1_1_animation_config.md#variable-show)** </span><br>show the animation immediately after construction  |
 
 
 </span>
 
 ## Public Attributes Documentation
 
-### variable out
+### variable `out`
 
 ```cpp
 std::ostream * out = &std::cout;
@@ -32,22 +32,23 @@ std::ostream * out = &std::cout;
 
 output stream 
 
-### variable message
+### variable `message`
 
 ```cpp
 std::string message = "";
 ```
 
-message to display before the animation style as AnimationStyle or custom animation as a list of strings 
+message to display before the animation 
 
-### variable style
+### variable `style`
 
 ```cpp
 std::variant< AnimationStyle, Strings > style = Ellipsis;
 ```
 
+style as AnimationStyle or custom animation as a list of strings 
 
-### variable interval
+### variable `interval`
 
 ```cpp
 std::variant< Duration, double > interval = Duration{0.};
@@ -55,7 +56,7 @@ std::variant< Duration, double > interval = Duration{0.};
 
 interval in which the animation is refreshed 
 
-### variable no_tty
+### variable `no_tty`
 
 ```cpp
 bool no_tty = false;
@@ -63,7 +64,7 @@ bool no_tty = false;
 
 no-tty mode if true (no \r, slower default refresh) 
 
-### variable show
+### variable `show`
 
 ```cpp
 bool show = true;
@@ -73,4 +74,4 @@ show the animation immediately after construction
 
 -------------------------------
 
-Updated on 2024-03-28 at 22:58:08 -0400
+Updated on 2024-03-29 at 22:06:17 -0400

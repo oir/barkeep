@@ -12,7 +12,7 @@ Trait class to extract underlying value type from numerics and std::atomics of n
 
 |                | Name           |
 | -------------- | -------------- |
-| using T | **[value_type](api/Classes/structbarkeep_1_1_atomic_traits.md#using-value_type)**  |
+| <span class="codey">using T </span>| <span class="codey">**[value_type](api/Classes/structbarkeep_1_1_atomic_traits.md#using-value_type)** </span> |
 
 
 </span>
@@ -27,7 +27,7 @@ struct barkeep::AtomicTraits;
 Trait class to extract underlying value type from numerics and std::atomics of numerics. 
 ## Public Types Documentation
 
-### using value_type
+### using `value_type`
 
 ```cpp
 using barkeep::AtomicTraits< T >::value_type =  T;
@@ -36,4 +36,4 @@ using barkeep::AtomicTraits< T >::value_type =  T;
 
 -------------------------------
 
-Updated on 2024-03-28 at 22:58:08 -0400
+Updated on 2024-03-29 at 22:06:17 -0400
