@@ -35,7 +35,7 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**(Container & container, const [IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype) > & cfg ={})</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**(Container & container, const [IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype) > & cfg = {})</span> |
 | <span class="codey"> auto </span>|  <span class="codey">  **[begin](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin)**()</span> |
 | <span class="codey"> auto </span>|  <span class="codey">  **[end](api/Classes/classbarkeep_1_1_iterable_bar.md#function-end)**()</span> |
 
@@ -73,7 +73,7 @@ using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
 ```cpp
 inline IterableBar(
     Container & container,
-    const IterableBarConfig< ValueType > & cfg ={}
+    const IterableBarConfig< ValueType > & cfg = {}
 )
 ```
 
@@ -94,4 +94,4 @@ inline auto end()
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:06:17 -0400
+Updated on 2024-03-29 at 22:38:09 -0400

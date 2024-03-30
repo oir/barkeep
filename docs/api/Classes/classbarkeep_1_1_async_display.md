@@ -14,14 +14,14 @@ Inherited by [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md), 
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out =&std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval =[Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message ="", std::string format ="", bool no_tty =false)</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out = &std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval = [Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message = "", std::string format = "", bool no_tty = false)</span> |
 | <span class="codey"> </span>|  <span class="codey">  **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other)</span> |
 | <span class="codey"> </span>|  <span class="codey">  **[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other)</span> |
 | <span class="codey"> virtual </span>|  <span class="codey">  **[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**()</span> |
 | <span class="codey"> virtual void </span>|  <span class="codey">  **[show](api/Classes/classbarkeep_1_1_async_display.md#function-show)**()</span><br>Start the display. This starts writing the display in the output stream, and computing speed if applicable.  |
 | <span class="codey"> virtual void </span>|  <span class="codey">  **[done](api/Classes/classbarkeep_1_1_async_display.md#function-done)**()</span><br>End the display.  |
 | <span class="codey"> bool </span>|  <span class="codey">  **[running](api/Classes/classbarkeep_1_1_async_display.md#function-running)**() const</span> |
-| <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_async_display.md#function-clone)**() const =0</span> |
+| <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_async_display.md#function-clone)**() const = 0</span> |
 
 
 </span>
@@ -32,8 +32,8 @@ Inherited by [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md), 
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> virtual void </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**() =0</span><br>Render a display: animation, progress bar, etc.  |
-| <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const =0</span> |
+| <span class="codey"> virtual void </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**() = 0</span><br>Render a display: animation, progress bar, etc.  |
+| <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const = 0</span> |
 | <span class="codey"> void </span>| <span class="codey"> **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
 | <span class="codey"> void </span>| <span class="codey"> **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[start](api/Classes/classbarkeep_1_1_async_display.md#function-start)**()</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
@@ -79,11 +79,11 @@ Inherited by [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md), 
 
 ```cpp
 inline AsyncDisplay(
-    std::ostream * out =&std::cout,
-    Duration interval =Duration{0.},
-    std::string message ="",
-    std::string format ="",
-    bool no_tty =false
+    std::ostream * out = &std::cout,
+    Duration interval = Duration{0.},
+    std::string message = "",
+    std::string format = "",
+    bool no_tty = false
 )
 ```
 
@@ -289,4 +289,4 @@ friend class Composite(
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:06:17 -0400
+Updated on 2024-03-29 at 22:38:09 -0400

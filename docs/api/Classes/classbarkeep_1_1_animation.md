@@ -25,9 +25,9 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg ={})</span><br>Constructor.  |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [Animation](api/Classes/classbarkeep_1_1_animation.md) & other) =default</span> |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([Animation](api/Classes/classbarkeep_1_1_animation.md) && ) =default</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg = {})</span><br>Constructor.  |
+| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [Animation](api/Classes/classbarkeep_1_1_animation.md) & other) = default</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([Animation](api/Classes/classbarkeep_1_1_animation.md) && ) = default</span> |
 | <span class="codey"> </span>|  <span class="codey">  **[~Animation](api/Classes/classbarkeep_1_1_animation.md#function-~animation)**()</span> |
 | <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_animation.md#function-clone)**() const override</span> |
 
@@ -56,7 +56,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out =&std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval =[Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message ="", std::string format ="", bool no_tty =false)</span> |
+| <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out = &std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval = [Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message = "", std::string format = "", bool no_tty = false)</span> |
 | <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other)</span> |
 | <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other)</span> |
 | <span class="codey">virtual </span>| <span class="codey">**[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**()</span> |
@@ -128,7 +128,7 @@ using barkeep::Animation::Style =  AnimationStyle;
 
 ```cpp
 inline Animation(
-    const AnimationConfig & cfg ={}
+    const AnimationConfig & cfg = {}
 )
 ```
 
@@ -199,4 +199,4 @@ inline virtual Duration default_interval_() const override
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:06:17 -0400
+Updated on 2024-03-29 at 22:38:09 -0400

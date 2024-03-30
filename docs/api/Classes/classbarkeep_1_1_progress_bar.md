@@ -36,7 +36,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**(Progress * progress, const [ProgressBarConfig](api/Classes/structbarkeep_1_1_progress_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_progress_bar.md#using-valuetype) > & cfg ={})</span><br>Constructor.  |
+| <span class="codey"> </span>|  <span class="codey">  **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**(Progress * progress, const [ProgressBarConfig](api/Classes/structbarkeep_1_1_progress_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_progress_bar.md#using-valuetype) > & cfg = {})</span><br>Constructor.  |
 | <span class="codey"> </span>|  <span class="codey">  **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**([ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< Progress > && other)</span><br>move constructor  |
 | <span class="codey"> </span>|  <span class="codey">  **[ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-progressbar)**(const [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< Progress > & other)</span><br>copy constructor  |
 | <span class="codey"> </span>|  <span class="codey">  **[~ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md#function-~progressbar)**()</span> |
@@ -51,7 +51,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> void </span>| <span class="codey"> **[render_progress_bar_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_progress_bar_)**(std::ostream * out =nullptr)</span><br>Compute the shape of the progress bar based on progress and write to output stream.  |
+| <span class="codey"> void </span>| <span class="codey"> **[render_progress_bar_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_progress_bar_)**(std::ostream * out = nullptr)</span><br>Compute the shape of the progress bar based on progress and write to output stream.  |
 | <span class="codey"> void </span>| <span class="codey"> **[render_counts_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_counts_)**()</span><br>Write progress value with the total, e.g. 50/100, to output stream. Progress width is expanded (and right justified) to match width of total.  |
 | <span class="codey"> void </span>| <span class="codey"> **[render_percentage_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_percentage_)**()</span><br>Write the percent completed to output stream.  |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)**() override</span><br>Run all of the individual render methods to write everything to stream.  |
@@ -87,7 +87,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out =&std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval =[Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message ="", std::string format ="", bool no_tty =false)</span> |
+| <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(std::ostream * out = &std::cout, [Duration](api/Namespaces/namespacebarkeep.md#using-duration) interval = [Duration](api/Namespaces/namespacebarkeep.md#using-duration){0.}, std::string message = "", std::string format = "", bool no_tty = false)</span> |
 | <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & other)</span> |
 | <span class="codey"></span>| <span class="codey">**[AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-asyncdisplay)**([AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) && other)</span> |
 | <span class="codey">virtual </span>| <span class="codey">**[~AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md#function-~asyncdisplay)**()</span> |
@@ -176,7 +176,7 @@ using barkeep::ProgressBar< Progress >::ValueType =  value_t<Progress>;
 ```cpp
 inline ProgressBar(
     Progress * progress,
-    const ProgressBarConfig< ValueType > & cfg ={}
+    const ProgressBarConfig< ValueType > & cfg = {}
 )
 ```
 
@@ -231,7 +231,7 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 
 ```cpp
 inline void render_progress_bar_(
-    std::ostream * out =nullptr
+    std::ostream * out = nullptr
 )
 ```
 
@@ -331,4 +331,4 @@ static constexpr size_t width_ = 30;
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:06:17 -0400
+Updated on 2024-03-29 at 22:38:09 -0400
