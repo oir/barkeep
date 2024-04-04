@@ -72,56 +72,56 @@
 
 ## Types Documentation
 
-### enum AnimationStyle
+### enum <span class="codey">AnimationStyle</span>
 
 | Enumerator | Value | Description |
 | ---------- | ----- | ----------- |
-| Ellipsis | |   |
-| Clock | |   |
-| Moon | |   |
-| Earth | |   |
-| Bar | |   |
-| Square | |   |
+| <span class="codey">Ellipsis</span> | |   |
+| <span class="codey">Clock</span> | |   |
+| <span class="codey">Moon</span> | |   |
+| <span class="codey">Earth</span> | |   |
+| <span class="codey">Bar</span> | |   |
+| <span class="codey">Square</span> | |   |
 
 
 
 Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md). 
 
-### enum ProgressBarStyle
+### enum <span class="codey">ProgressBarStyle</span>
 
 | Enumerator | Value | Description |
 | ---------- | ----- | ----------- |
-| Bars | |   |
-| Blocks | |   |
-| Arrow | |   |
-| Pip | |   |
+| <span class="codey">Bars</span> | |   |
+| <span class="codey">Blocks</span> | |   |
+| <span class="codey">Arrow</span> | |   |
+| <span class="codey">Pip</span> | |   |
 
 
 
 Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). 
 
-### using Strings
+### using <span class="codey">Strings</span>
 
 ```cpp
 using barkeep::Strings =  std::vector<std::string>;
 ```
 
 
-### using StringsList
+### using <span class="codey">StringsList</span>
 
 ```cpp
 using barkeep::StringsList =  std::vector<Strings>;
 ```
 
 
-### using Duration
+### using <span class="codey">Duration</span>
 
 ```cpp
 using barkeep::Duration =  std::chrono::duration<double, std::ratio<1>>;
 ```
 
 
-### using value_t
+### using <span class="codey">value_t</span>
 
 ```cpp
 template <typename T >
@@ -129,7 +129,7 @@ using barkeep::value_t =  typename AtomicTraits<T>::value_type;
 ```
 
 
-### using signed_t
+### using <span class="codey">signed_t</span>
 
 ```cpp
 template <typename T >
@@ -142,7 +142,7 @@ using barkeep::signed_t =  typename std::conditional_t<std::is_integral_v<T>,
 
 ## Functions Documentation
 
-### function as_duration
+### function <span class="codey">as_duration</span>
 
 ```cpp
 Duration as_duration(
@@ -151,7 +151,7 @@ Duration as_duration(
 ```
 
 
-### function operator\|
+### function <span class="codey">operator\|</span>
 
 ```cpp
 auto operator\|(
@@ -165,7 +165,7 @@ Pipe operator can be used to combine two displays into a [Composite](api/Classes
 
 ## Attributes Documentation
 
-### variable animation_stills_
+### variable <span class="codey">animation_stills_</span>
 
 ```cpp
 static const StringsList animation_stills_ {
@@ -181,56 +181,56 @@ static const StringsList animation_stills_ {
 
 Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this. 
 
-### variable red
+### variable <span class="codey">red</span>
 
 ```cpp
 static const std::string red = "\033[31m";
 ```
 
 
-### variable green
+### variable <span class="codey">green</span>
 
 ```cpp
 static const std::string green = "\033[32m";
 ```
 
 
-### variable yellow
+### variable <span class="codey">yellow</span>
 
 ```cpp
 static const std::string yellow = "\033[33m";
 ```
 
 
-### variable blue
+### variable <span class="codey">blue</span>
 
 ```cpp
 static const std::string blue = "\033[34m";
 ```
 
 
-### variable magenta
+### variable <span class="codey">magenta</span>
 
 ```cpp
 static const std::string magenta = "\033[35m";
 ```
 
 
-### variable cyan
+### variable <span class="codey">cyan</span>
 
 ```cpp
 static const std::string cyan = "\033[36m";
 ```
 
 
-### variable reset
+### variable <span class="codey">reset</span>
 
 ```cpp
 static const std::string reset = "\033[0m";
 ```
 
 
-### variable progress_bar_parts_
+### variable <span class="codey">progress_bar_parts_</span>
 
 ```cpp
 static const std::vector< BarParts > progress_bar_parts_ {
@@ -261,4 +261,4 @@ Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1
 
 -------------------------------
 
-Updated on 2024-04-03 at 21:24:10 -0400
+Updated on 2024-04-03 at 22:01:16 -0400

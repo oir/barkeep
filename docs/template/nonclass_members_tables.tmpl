@@ -12,33 +12,6 @@
 
 {% endif -%}
 
-{% if exists("dirs") %}## Directories
-
-<span class="api-table">
-
-| Name           |
-| -------------- |
-{% for child in dirs -%}
-| **[{{child.title}}]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
-{%- endfor %}
-
-</span>
-
-{% endif -%}
-
-{% if exists("files") %}## Files
-
-<span class="api-table">
-
-| Name           |
-| -------------- |
-{% for child in files -%}
-| **[{{child.title}}]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
-{%- endfor %}
-
-</span>
-
-{% endif -%}
 
 {%- if exists("namespaces") %}## {% if language == "java" %}Packages{% else %}Namespaces{% endif %}
 
