@@ -2817,3 +2817,6 @@ MSCGEN_TOOL            =
 # command).
 
 MSCFILE_DIRS           =
+
+
+CLANG_ASSISTED_PARSING = YES

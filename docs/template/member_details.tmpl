@@ -22,9 +22,9 @@ template <{% for param in templateParams %}{{param.typePlain}} {{param.name}}{% 
 
 {% if const %} const{% endif -%}
 {% if override %} override{% endif -%}
-{% if default %} =default{% endif -%}
-{% if deleted %} =delete{% endif -%}
-{% if pureVirtual %} =0{% endif %}
+{% if default %} = default{% endif -%}
+{% if deleted %} = delete{% endif -%}
+{% if pureVirtual %} = 0{% endif %}
 ```{% endif -%}
 
 {% if kind == "enum" -%}

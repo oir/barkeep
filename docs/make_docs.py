@@ -13,6 +13,7 @@ os.mkdir("docs/api/")
 # generate doxygen xml
 subprocess.run(["doxygen", "docs/Doxyfile"], check=True)
 
+
 # convert doxygen xml to markdown
 subprocess.run(
     [
@@ -39,7 +40,9 @@ os.remove("docs/api/Classes/README.md")
 os.remove("docs/api/Namespaces/README.md")
 
 def content_fixes(content: str) -> str:
-    return content.replace("operator|", "operator\|")
+    content = content.replace("operator|", "operator\|")
+    return content
+  
 
 
 def merge_files(input_glob: str, output: str, increment_title_levels: bool = True):

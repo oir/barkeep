@@ -60,7 +60,7 @@
 |                | Name           |
 | -------------- | -------------- |
 {% for child in publicClasses -%}
-| {{child.kind}} | **[{{child.name}}]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
+| {{child.kind}} | **[ <span class="codey">{{child.name}}</span> ]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
 {% endfor %}
 
 </span>
@@ -73,72 +73,16 @@
 |                | Name           |
 | -------------- | -------------- |
 {% for child in publicTypes -%}
-| {% if existsIn(child, "templateParams") -%}
+| <span class="codey"> {% if existsIn(child, "templateParams") -%}
 template <{% for param in child.templateParams -%}
 {{param.typePlain}} {{param.name}}{% if existsIn(param, "defvalPlain") %} ={{param.defvalPlain}}{% endif -%}
 {% if not loop.is_last %},{% endif -%}
 {% endfor %}\> <br>{% endif -%}
-{{child.kind}}{% if child.kind == "enum" and child.strong %} class{% endif %}{% if existsIn(child, "type") %} {{child.type}} {% endif -%}| **[{{child.name}}]({{child.url}})** {% if child.kind == "enum" %}{ {% for enumvalue in child.enumvalues -%}
-{{enumvalue.name}}{% if existsIn(enumvalue, "initializer") %} {{enumvalue.initializer}}{% endif -%}
+{{child.kind}}{% if child.kind == "enum" and child.strong %} class{% endif %}{% if existsIn(child, "type") %} {{child.type}} {% endif -%}</span>| **[ <span class="codey"> {{child.name}}</span> ]({{child.url}})** {% if child.kind == "enum" %}{ {% for enumvalue in child.enumvalues -%}
+`{{enumvalue.name}}`{% if existsIn(enumvalue, "initializer") %} `{{enumvalue.initializer}}`{% endif -%}
 {% if not loop.is_last %}, {% endif %}{% endfor -%}
  }{% endif -%}
 {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
-{% endfor %}
-
-</span>
-
-{% endif -%}
-{%- if exists("publicSlots") %}## Slots
-
-<span class="api-table">
-
-|                | Name           |
-| -------------- | -------------- |
-{% for child in publicSlots -%}
-| {% if existsIn(child, "templateParams") -%}
-template <{% for param in child.templateParams -%}
-{{param.typePlain}} {{param.name}}{% if existsIn(param, "defvalPlain") %} ={{param.defvalPlain}}{% endif -%}
-{% if not loop.is_last %},{% endif -%}
-{% endfor %}\> <br>{% endif -%}
-{% if child.virtual %}virtual {% endif -%}
-{% if existsIn(child, "type") %}{{child.type}} {% endif -%}
-| **[{{child.name}}]({{child.url}})**({% for param in child.params -%}
-{{param.type}} {{param.name}}{% if existsIn(param, "defval") %} ={{param.defval}}{% endif -%}
-{% if not loop.is_last %}, {% endif -%}
-{% endfor %}){% if child.const %} const{% endif -%}
-{% if child.override %} override{% endif -%}
-{% if child.default %} =default{% endif -%}
-{% if child.deleted %} =delete{% endif -%}
-{% if child.pureVirtual %} =0{% endif -%}
- {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
-{% endfor %}
-
-</span>
-
-{% endif -%}
-{%- if exists("publicSignals") %}## Signals
-
-<span class="api-table">
-
-|                | Name           |
-| -------------- | -------------- |
-{% for child in publicSignals -%}
-| {% if existsIn(child, "templateParams") -%}
-template <{% for param in child.templateParams -%}
-{{param.typePlain}} {{param.name}}{% if existsIn(param, "defvalPlain") %} ={{param.defvalPlain}}{% endif -%}
-{% if not loop.is_last %},{% endif -%}
-{% endfor %}\> <br>{% endif -%}
-{% if child.virtual %}virtual {% endif -%}
-{% if existsIn(child, "type") %}{{child.type}} {% endif -%}
-| **[{{child.name}}]({{child.url}})**({% for param in child.params -%}
-{{param.type}} {{param.name}}{% if existsIn(param, "defval") %} ={{param.defval}}{% endif -%}
-{% if not loop.is_last %}, {% endif -%}
-{% endfor %}){% if child.const %} const{% endif -%}
-{% if child.override %} override{% endif -%}
-{% if child.default %} =default{% endif -%}
-{% if child.deleted %} =delete{% endif -%}
-{% if child.pureVirtual %} =0{% endif -%}
- {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
 {% endfor %}
 
 </span>
@@ -151,22 +95,22 @@ template <{% for param in child.templateParams -%}
 |                | Name           |
 | -------------- | -------------- |
 {% for child in publicFunctions -%}
-| {% if existsIn(child, "templateParams") -%}
+| <span class="codey"> {% if existsIn(child, "templateParams") -%}
 template <{% for param in child.templateParams -%}
 {{param.typePlain}} {{param.name}}{% if existsIn(param, "defvalPlain") %} ={{param.defvalPlain}}{% endif -%}
 {% if not loop.is_last %},{% endif -%}
 {% endfor %}\> <br>{% endif -%}
 {% if child.virtual %}virtual {% endif -%}
 {% if existsIn(child, "type") %}{{child.type}} {% endif -%}
-| **[{{child.name}}]({{child.url}})**({% for param in child.params -%}
+</span> | <span class="codey">**[{{child.name}}]({{child.url}})**({% for param in child.params -%}
 {{param.type}} {{param.name}}{% if existsIn(param, "defval") %} ={{param.defval}}{% endif -%}
 {% if not loop.is_last %}, {% endif -%}
 {% endfor %}){% if child.const %} const{% endif -%}
 {% if child.override %} override{% endif -%}
-{% if child.default %} =default{% endif -%}
-{% if child.deleted %} =delete{% endif -%}
-{% if child.pureVirtual %} =0{% endif -%}
- {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
+{% if child.default %} = default{% endif -%}
+{% if child.deleted %} = delete{% endif -%}
+{% if child.pureVirtual %} = 0{% endif -%}
+ </span>{% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
 {% endfor %}
 
 </span>
@@ -179,8 +123,8 @@ template <{% for param in child.templateParams -%}
 |                | Name           |
 | -------------- | -------------- |
 {% for child in publicAttributes -%}
-| {% if existsIn(child, "type") %}{{child.type}} {% endif -%}
-| **[{{child.name}}]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
+| <span class="codey">{% if existsIn(child, "type") %}{{child.type}} {% endif -%}
+</span>| **[<span class="codey">{{child.name}}</span>]({{child.url}})** {% if existsIn(child, "brief") %}<br>{{child.brief}}{% endif %} |
 {% endfor %}
 {% endif -%}
 {%- if exists("defines") %}## Defines

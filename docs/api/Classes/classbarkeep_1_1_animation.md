@@ -144,7 +144,7 @@ Constructor.
 ```cpp
 Animation(
     const Animation & other
-) =default
+) = default
 ```
 
 
@@ -153,7 +153,7 @@ Animation(
 ```cpp
 Animation(
     Animation && 
-) =default
+) = default
 ```
 
 
@@ -199,4 +199,4 @@ inline virtual Duration default_interval_() const override
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:38:09 -0400
+Updated on 2024-04-03 at 21:24:10 -0400

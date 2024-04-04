@@ -7,20 +7,20 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| class | **[barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md)** <br>Displays a simple animation with a message.  |
-| struct | **[barkeep::AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md)** <br>[Animation](api/Classes/classbarkeep_1_1_animation.md) parameters.  |
-| class | **[barkeep::AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md)** <br>Base class to handle all asynchronous displays.  |
-| struct | **[barkeep::AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)** <br>Trait class to extract underlying value type from numerics and std::atomics of numerics.  |
-| struct | **[barkeep::AtomicTraits< std::atomic< T > >](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md)**  |
-| struct | **[barkeep::BarParts](api/Classes/structbarkeep_1_1_bar_parts.md)**  |
-| class | **[barkeep::Composite](api/Classes/classbarkeep_1_1_composite.md)** <br>Creates a composite display out of two display that shows them side by side. For instance, you can combine two [Counter](api/Classes/classbarkeep_1_1_counter.md) objects to monitor two variables.  |
-| class | **[barkeep::Counter](api/Classes/classbarkeep_1_1_counter.md)** <br>Monitors and displays a single numeric variable.  |
-| struct | **[barkeep::CounterConfig](api/Classes/structbarkeep_1_1_counter_config.md)** <br>[Counter](api/Classes/classbarkeep_1_1_counter.md) parameters.  |
-| class | **[barkeep::IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md)** <br>A progress bar that can be used with range-based for loops, that automatically tracks the progress of the loop.  |
-| struct | **[barkeep::IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)**  |
-| class | **[barkeep::ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)** <br>Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed.  |
-| struct | **[barkeep::ProgressBarConfig](api/Classes/structbarkeep_1_1_progress_bar_config.md)**  |
-| class | **[barkeep::Speedometer](api/Classes/classbarkeep_1_1_speedometer.md)** <br>Helper class to measure and display speed of progress.  |
+| class | **[ <span class="codey">barkeep::Animation</span> ](api/Classes/classbarkeep_1_1_animation.md)** <br>Displays a simple animation with a message.  |
+| struct | **[ <span class="codey">barkeep::AnimationConfig</span> ](api/Classes/structbarkeep_1_1_animation_config.md)** <br>[Animation](api/Classes/classbarkeep_1_1_animation.md) parameters.  |
+| class | **[ <span class="codey">barkeep::AsyncDisplay</span> ](api/Classes/classbarkeep_1_1_async_display.md)** <br>Base class to handle all asynchronous displays.  |
+| struct | **[ <span class="codey">barkeep::AtomicTraits</span> ](api/Classes/structbarkeep_1_1_atomic_traits.md)** <br>Trait class to extract underlying value type from numerics and std::atomics of numerics.  |
+| struct | **[ <span class="codey">barkeep::AtomicTraits< std::atomic< T > ></span> ](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md)**  |
+| struct | **[ <span class="codey">barkeep::BarParts</span> ](api/Classes/structbarkeep_1_1_bar_parts.md)**  |
+| class | **[ <span class="codey">barkeep::Composite</span> ](api/Classes/classbarkeep_1_1_composite.md)** <br>Creates a composite display out of two display that shows them side by side. For instance, you can combine two [Counter](api/Classes/classbarkeep_1_1_counter.md) objects to monitor two variables.  |
+| class | **[ <span class="codey">barkeep::Counter</span> ](api/Classes/classbarkeep_1_1_counter.md)** <br>Monitors and displays a single numeric variable.  |
+| struct | **[ <span class="codey">barkeep::CounterConfig</span> ](api/Classes/structbarkeep_1_1_counter_config.md)** <br>[Counter](api/Classes/classbarkeep_1_1_counter.md) parameters.  |
+| class | **[ <span class="codey">barkeep::IterableBar</span> ](api/Classes/classbarkeep_1_1_iterable_bar.md)** <br>A progress bar that can be used with range-based for loops, that automatically tracks the progress of the loop.  |
+| struct | **[ <span class="codey">barkeep::IterableBarConfig</span> ](api/Classes/structbarkeep_1_1_iterable_bar_config.md)**  |
+| class | **[ <span class="codey">barkeep::ProgressBar</span> ](api/Classes/classbarkeep_1_1_progress_bar.md)** <br>Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed.  |
+| struct | **[ <span class="codey">barkeep::ProgressBarConfig</span> ](api/Classes/structbarkeep_1_1_progress_bar_config.md)**  |
+| class | **[ <span class="codey">barkeep::Speedometer</span> ](api/Classes/classbarkeep_1_1_speedometer.md)** <br>Helper class to measure and display speed of progress.  |
 
 
 </span>
@@ -31,13 +31,13 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| enum unsigned short | **[AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { Ellipsis, Clock, Moon, Earth, Bar, Square}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
-| enum unsigned short | **[ProgressBarStyle](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { Bars, Blocks, Arrow, Pip}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
-| using std::vector< std::string > | **[Strings](api/Namespaces/namespacebarkeep.md#using-strings)**  |
-| using std::vector< [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > | **[StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
-| using std::chrono::duration< double, std::ratio< 1 > > | **[Duration](api/Namespaces/namespacebarkeep.md#using-duration)**  |
-| template <typename T \> <br>using typename [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< T >::value_type | **[value_t](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
-| template <typename T \> <br>using typename std::conditional_t< std::is_integral_v< T >, std::make_signed< T >, std::common_type< T > >::type | **[signed_t](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
+| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> AnimationStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { `Ellipsis`, `Clock`, `Moon`, `Earth`, `Bar`, `Square`}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
+| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> ProgressBarStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { `Bars`, `Blocks`, `Arrow`, `Pip`}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
+| <span class="codey"> using std::vector< std::string > </span>| **[ <span class="codey"> Strings</span> ](api/Namespaces/namespacebarkeep.md#using-strings)**  |
+| <span class="codey"> using std::vector< [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > </span>| **[ <span class="codey"> StringsList</span> ](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
+| <span class="codey"> using std::chrono::duration< double, std::ratio< 1 > > </span>| **[ <span class="codey"> Duration</span> ](api/Namespaces/namespacebarkeep.md#using-duration)**  |
+| <span class="codey"> template <typename T \> <br>using typename [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)< T >::value_type </span>| **[ <span class="codey"> value_t</span> ](api/Namespaces/namespacebarkeep.md#using-value_t)**  |
+| <span class="codey"> template <typename T \> <br>using typename std::conditional_t< std::is_integral_v< T >, std::make_signed< T >, std::common_type< T > >::type </span>| **[ <span class="codey"> signed_t</span> ](api/Namespaces/namespacebarkeep.md#using-signed_t)**  |
 
 
 </span>
@@ -48,8 +48,8 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| [Duration](api/Namespaces/namespacebarkeep.md#using-duration) | **[as_duration](api/Namespaces/namespacebarkeep.md#function-as_duration)**(std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > interval) |
-| auto | **[operator\|](api/Namespaces/namespacebarkeep.md#function-operator\|)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right)<br>Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
+| <span class="codey"> [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span> | <span class="codey">**[as_duration](api/Namespaces/namespacebarkeep.md#function-as_duration)**(std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > interval)</span> |
+| <span class="codey"> auto </span> | <span class="codey">**[operator\|](api/Namespaces/namespacebarkeep.md#function-operator\|)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & left, const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & right)</span><br>Pipe operator can be used to combine two displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
 
 
 </span>
@@ -60,15 +60,15 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| const [StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist) | **[animation_stills_](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
-| const std::string | **[red](api/Namespaces/namespacebarkeep.md#variable-red)**  |
-| const std::string | **[green](api/Namespaces/namespacebarkeep.md#variable-green)**  |
-| const std::string | **[yellow](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
-| const std::string | **[blue](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
-| const std::string | **[magenta](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
-| const std::string | **[cyan](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
-| const std::string | **[reset](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
-| const std::vector< [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > | **[progress_bar_parts_](api/Namespaces/namespacebarkeep.md#variable-progress_bar_parts_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
+| <span class="codey">const [StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist) </span>| **[<span class="codey">animation_stills_</span>](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
+| <span class="codey">const std::string </span>| **[<span class="codey">red</span>](api/Namespaces/namespacebarkeep.md#variable-red)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">green</span>](api/Namespaces/namespacebarkeep.md#variable-green)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">yellow</span>](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">blue</span>](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">magenta</span>](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">cyan</span>](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
+| <span class="codey">const std::string </span>| **[<span class="codey">reset</span>](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
+| <span class="codey">const std::vector< [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > </span>| **[<span class="codey">progress_bar_parts_</span>](api/Namespaces/namespacebarkeep.md#variable-progress_bar_parts_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
 
 ## Types Documentation
 
@@ -261,4 +261,4 @@ Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:38:09 -0400
+Updated on 2024-04-03 at 21:24:10 -0400

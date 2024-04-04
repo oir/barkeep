@@ -139,7 +139,7 @@ inline bool running() const
 ### function `clone`
 
 ```cpp
-virtual std::unique_ptr< AsyncDisplay > clone() const =0
+virtual std::unique_ptr< AsyncDisplay > clone() const = 0
 ```
 
 
@@ -151,7 +151,7 @@ virtual std::unique_ptr< AsyncDisplay > clone() const =0
 ### function `render_`
 
 ```cpp
-virtual void render_() =0
+virtual void render_() = 0
 ```
 
 Render a display: animation, progress bar, etc. 
@@ -162,7 +162,7 @@ Render a display: animation, progress bar, etc.
 ### function `default_interval_`
 
 ```cpp
-virtual Duration default_interval_() const =0
+virtual Duration default_interval_() const = 0
 ```
 
 
@@ -289,4 +289,4 @@ friend class Composite(
 
 -------------------------------
 
-Updated on 2024-03-29 at 22:38:09 -0400
+Updated on 2024-04-03 at 21:24:10 -0400
