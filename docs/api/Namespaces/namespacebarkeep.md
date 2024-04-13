@@ -260,5 +260,3 @@ Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1
 
 
 -------------------------------
-
-Updated on 2024-04-07 at 21:49:42 -0400

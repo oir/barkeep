@@ -73,5 +73,3 @@ bool show = true;
 show the animation immediately after construction 
 
 -------------------------------
-
-Updated on 2024-04-07 at 21:49:42 -0400

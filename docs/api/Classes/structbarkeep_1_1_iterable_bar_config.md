@@ -98,5 +98,3 @@ bool no_tty = false;
 no-tty mode if true (no \r, slower default refresh) 
 
 -------------------------------
-
-Updated on 2024-04-07 at 21:49:42 -0400

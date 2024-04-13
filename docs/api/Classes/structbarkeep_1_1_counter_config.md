@@ -91,5 +91,3 @@ bool show = true;
 show the counter immediately after construction 
 
 -------------------------------
-
-Updated on 2024-04-07 at 21:49:42 -0400
