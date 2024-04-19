@@ -238,6 +238,7 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
           .format = "Computing {percent:6.2f}%) {bar} {value:2d}/{total}",
           .style = Bars,
           .interval = 0.001,
+          .show = false,
       });
 
   SECTION("Above") {
@@ -284,11 +285,13 @@ TEST_CASE("Composite bar-counter", "[composite]") {
               .format = "Sents {percent:6.2f}% {bar} {value:3d}/{total:3d}",
               .style = Bars,
               .interval = 0.01,
+              .show = false,
           }) |
       Counter(&toks,
               {.out = &out,
                .format = "Toks {value}  ({speed:.2f} tok/s)",
-               .speed = 1});
+               .speed = 1,
+               .show = false});
 
   bar.show();
   for (int i = 0; i < 505; i++) {

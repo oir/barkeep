@@ -17,7 +17,6 @@ def animation():
 
     for sty in styles:
         anim = Animation(message="Working", style=sty, interval=0.5)
-        anim.show()
         time.sleep(10)
         anim.done()
 
@@ -27,7 +26,6 @@ def counter():
 
     for speed in speeds:
         work = Counter(message="Doing stuff", speed=speed, speed_unit="tk/s")
-        work.show()
         for i in range(1010):
             time.sleep(0.013)
             work += 1
@@ -37,7 +35,6 @@ def counter():
         work = Counter(
             message="Doing stuff", speed=speed, speed_unit="tk/s", dtype=DType.Float
         )
-        work.show()
         for i in range(1010):
             time.sleep(0.013)
             work += 0.213
@@ -51,7 +48,6 @@ def counter():
             speed_unit="",
             dtype=DType.AtomicInt,
         )
-        work.show()
         while work > 0:
             time.sleep(0.013)
             work -= 1
@@ -71,7 +67,6 @@ def progress_bar():
                 speed_unit="tk/s",
                 style=sty,
             )
-            work.show()
             for i in range(1010):
                 time.sleep(0.013)
                 work += 1
@@ -79,7 +74,6 @@ def progress_bar():
 
     # Decreasing bar
     bar = ProgressBar(value=1010, total=1010, speed=1)
-    bar.show()
     for i in range(1010):
         time.sleep(0.013)
         bar -= 1
@@ -87,8 +81,8 @@ def progress_bar():
 
 
 def composite():
-    sents = ProgressBar(total=1010, message="Sents", speed=1)
-    toks = Counter(message="Toks", speed_unit="tok/s", speed=1)
+    sents = ProgressBar(total=1010, message="Sents", speed=1, show=False)
+    toks = Counter(message="Toks", speed_unit="tok/s", speed=1, show=False)
     bar = sents | toks
 
     bar.show()
@@ -98,9 +92,9 @@ def composite():
         toks += 1 + random.randrange(5)
     bar.done()
 
-    squares = Counter(message="Squares", speed=0.1)
-    cubes = Counter(message="Cubes", speed=0.1)
-    hypercubes = Counter(message="Hypercubes", speed=0.1)
+    squares = Counter(message="Squares", speed=0.1, show=False)
+    cubes = Counter(message="Cubes", speed=0.1, show=False)
+    hypercubes = Counter(message="Hypercubes", speed=0.1, show=False)
 
     counters = squares | cubes | hypercubes
 
@@ -119,7 +113,6 @@ def fmt():
         "Doing stuff {cyan}{value}{reset} {red}({speed:.1f} thing/s){reset}",
     ]:
         work = Counter(fmt=fmtstr, speed=0.1)
-        work.show()
         for i in range(1010):
             time.sleep(0.013)
             work += 1
@@ -134,7 +127,6 @@ def fmt():
             total=1010,
             speed=0.1,
         )
-        work.show()
         for i in range(1010):
             time.sleep(0.013)
             work += 1

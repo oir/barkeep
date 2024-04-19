@@ -3,6 +3,9 @@
 
 
 
+
+`#include <barkeep.h>`
+
 ## Public Attributes
 
 <span class="api-table">
@@ -11,8 +14,8 @@
 | -------------- | -------------- |
 | std::string | **[left](api/Classes/structbarkeep_1_1_bar_parts.md#variable-left)**  |
 | std::string | **[right](api/Classes/structbarkeep_1_1_bar_parts.md#variable-right)**  |
-| Strings | **[fill](api/Classes/structbarkeep_1_1_bar_parts.md#variable-fill)**  |
-| Strings | **[empty](api/Classes/structbarkeep_1_1_bar_parts.md#variable-empty)**  |
+| [Strings](api/Namespaces/namespacebarkeep.md#using-strings) | **[fill](api/Classes/structbarkeep_1_1_bar_parts.md#variable-fill)**  |
+| [Strings](api/Namespaces/namespacebarkeep.md#using-strings) | **[empty](api/Classes/structbarkeep_1_1_bar_parts.md#variable-empty)**  |
 | std::string | **[incomplete_left_modifier](api/Classes/structbarkeep_1_1_bar_parts.md#variable-incomplete_left_modifier)**  |
 | std::string | **[complete_left_modifier](api/Classes/structbarkeep_1_1_bar_parts.md#variable-complete_left_modifier)**  |
 | std::string | **[middle_modifier](api/Classes/structbarkeep_1_1_bar_parts.md#variable-middle_modifier)**  |
@@ -129,4 +132,4 @@ std::string speed_right_modifier = "";
 
 -------------------------------
 
-Updated on 2024-02-19 at 09:47:42 -0500
+Updated on 2024-03-28 at 22:58:08 -0400

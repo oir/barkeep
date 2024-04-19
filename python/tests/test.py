@@ -73,7 +73,6 @@ def test_animation(i: int, sty: AnimationStyle):
     out = io.StringIO()
 
     anim = Animation(message="Working", style=sty, interval=0.1, file=out)
-    anim.show()
     time.sleep(1)
     anim.done()
 
@@ -84,7 +83,6 @@ def test_custom_animation():
     out = io.StringIO()
 
     anim = Animation(message="Working", style=["a", "b", "c"], interval=0.1, file=out)
-    anim.show()
     time.sleep(1)
     anim.done()
 
@@ -109,7 +107,6 @@ def test_constant_counter(dtype, amount, discount, unit, no_tty):
         no_tty=no_tty,
         dtype=dtype,
     )
-    ctr.show()
     for i in range(101):
         time.sleep(0.00013)
         # no work
@@ -160,7 +157,6 @@ def test_counter(dtype, amount, discount, unit, no_tty):
         no_tty=no_tty,
         dtype=dtype,
     )
-    ctr.show()
 
     increment = 1 if dtype in [DType.Int, DType.AtomicInt] else 1.2
     py_dtype = int if dtype in [DType.Int, DType.AtomicInt] else float
@@ -197,7 +193,6 @@ def test_decreasing_counter(dtype, no_tty):
         no_tty=no_tty,
         dtype=dtype,
     )
-    ctr.show()
 
     for i in range(101):
         time.sleep(0.0013)
@@ -216,13 +211,17 @@ def test_decreasing_counter(dtype, no_tty):
 def factory_helper(display_type):
     hide = io.StringIO()
     if display_type == "animation":
-        return Animation(file=hide)
+        return Animation(file=hide, show=False)
     if display_type == "counter":
-        return Counter(file=hide)
+        return Counter(file=hide, show=False)
     if display_type == "progressbar":
-        return ProgressBar(file=hide)
+        return ProgressBar(file=hide, show=False)
     if display_type == "composite":
-        return Animation(file=hide) | Counter(file=hide) | ProgressBar(file=hide)
+        return (
+            Animation(file=hide, show=False)
+            | Counter(file=hide, show=False)
+            | ProgressBar(file=hide, show=False)
+        )
     raise Exception("Invalid display type!")
 
 
@@ -273,7 +272,6 @@ def test_progress_bar(dtype, sty, no_tty):
         style=sty,
         no_tty=no_tty,
     )
-    bar.show()
     for _ in range(50):
         time.sleep(0.0013)
         bar += 1
@@ -304,7 +302,6 @@ def test_custom_progress_bar(dtype, no_tty):
         style=BarParts(left="[", right="]", fill=[")"], empty=[" "]),
         no_tty=no_tty,
     )
-    bar.show()
     for _ in range(50):
         time.sleep(0.0013)
         bar += 1
@@ -336,7 +333,6 @@ def test_progress_bar_overflow(dtype, above, no_tty):
         style=ProgressBarStyle.Bars,
         no_tty=no_tty,
     )
-    bar.show()
     for i in range(50):
         time.sleep(0.0013)
         bar += 1 if above else -1
@@ -362,12 +358,14 @@ def test_composite_bar_counter(no_tty):
         file=out,
         style=ProgressBarStyle.Bars,
         no_tty=no_tty,
+        show=False,
     ) | Counter(
         value=toks,
         message="Toks",
         speed_unit="tok/s",
         speed=1,
         file=out,
+        show=False,
     )
     bar.show()
     for i in range(505):

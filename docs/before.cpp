@@ -39,7 +39,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
 
 
-
+  
   for (size_t i = 0; i < docs.size(); ++i) {
     std::cout << "Doc " << i << std::endl;
     process_document(docs[i], out,

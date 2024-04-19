@@ -14,9 +14,10 @@
 | -------------- | -------------- |
 | std::ostream * | **[out](api/Classes/structbarkeep_1_1_animation_config.md#variable-out)** <br>output stream  |
 | std::string | **[message](api/Classes/structbarkeep_1_1_animation_config.md#variable-message)** <br>message to display before the animation style as AnimationStyle or custom animation as a list of strings  |
-| std::variant< AnimationStyle, Strings > | **[style](api/Classes/structbarkeep_1_1_animation_config.md#variable-style)**  |
-| std::variant< Duration, [double](api/Classes/classbarkeep_1_1_counter.md) > | **[interval](api/Classes/structbarkeep_1_1_animation_config.md#variable-interval)** <br>interval in which the animation is refreshed  |
-| [bool](api/Classes/classbarkeep_1_1_counter.md) | **[no_tty](api/Classes/structbarkeep_1_1_animation_config.md#variable-no_tty)** <br>no-tty mode if true (no \r, slower default refresh)  |
+| std::variant< [AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle), [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > | **[style](api/Classes/structbarkeep_1_1_animation_config.md#variable-style)**  |
+| std::variant< [Duration](api/Namespaces/namespacebarkeep.md#using-duration), double > | **[interval](api/Classes/structbarkeep_1_1_animation_config.md#variable-interval)** <br>interval in which the animation is refreshed  |
+| bool | **[no_tty](api/Classes/structbarkeep_1_1_animation_config.md#variable-no_tty)** <br>no-tty mode if true (no \r, slower default refresh)  |
+| bool | **[show](api/Classes/structbarkeep_1_1_animation_config.md#variable-show)** <br>show the animation immediately after construction  |
 
 
 </span>
@@ -62,6 +63,14 @@ bool no_tty = false;
 
 no-tty mode if true (no \r, slower default refresh) 
 
+### variable show
+
+```cpp
+bool show = true;
+```
+
+show the animation immediately after construction 
+
 -------------------------------
 
-Updated on 2024-02-19 at 09:47:42 -0500
+Updated on 2024-03-28 at 22:58:08 -0400

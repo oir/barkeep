@@ -24,7 +24,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   namespace bk = barkeep;
   
   auto anim = bk::Animation({.message = "Working"});
-  anim.show();
   /* do work */ std::this_thread::sleep_for(10s);
   anim.done();
   ```
@@ -56,7 +55,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     .speed = 1.,
     .speed_unit = "line/s"
   });
-  c.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
@@ -80,7 +78,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     .speed = 1.,
     .speed_unit = "line/s",
   });
-  bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
@@ -105,7 +102,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     .speed_unit = "line/s",
     .style = bk::ProgressBarStyle::Pip,
   });
-  bar.show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
@@ -119,13 +115,61 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     <img src="docs/rec/bar-pip-light.svg" width="700">
   </picture>
 
+- Displaying can be deferred with `.show = false`, and explicitly invoked by calling
+  `show()`, instead of at construction time.
+  
+  Finishing the display can be done implicitly by the
+  destructor, instead of calling `done()` (this allows RAII-style use).
+  
+  The following are equivalent: 
+
+  ```cpp
+  int work{0};
+  auto bar = bk::ProgressBar(&work, {.total = 505});
+  for (int i = 0; i < 505; i++) {
+    std::this_thread::sleep_for(13ms);
+    work++;
+  }
+  bar.done();
+  ```
+
+  ```cpp
+  int work;
+  auto bar = bk::ProgressBar(&work, {.total = 505, .show = false});
+  work = 0;
+  bar.show();
+  for (int i = 0; i < 505; i++) {
+    std::this_thread::sleep_for(13ms);
+    work++;
+  }
+  bar.done();
+  ```
+
+  ```cpp
+  int work{0};
+  {
+    auto bar = bk::ProgressBar(&work, {.total = 505});
+    for (int i = 0; i < 505; i++) {
+      std::this_thread::sleep_for(13ms);
+      work++;
+    }
+  }
+  ```
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
   std::atomic<size_t> sents{0}, toks{0};
   auto bar =
-      bk::ProgressBar(&sents, {.total = 1010, .message = "Sents"}) |
-      bk::Counter(&toks, {.message = "Toks", .speed = 1., .speed_unit = "tok/s"});
+      bk::ProgressBar(&sents, {
+        .total = 1010, 
+        .message = "Sents",
+        .show = false}) |
+      bk::Counter(&toks, {
+        .message = "Toks", 
+        .speed = 1., 
+        .speed_unit = "tok/s",
+        .show = false});
   bar.show();
   for (int i = 0; i < 1010; i++) {
     // do work
@@ -135,6 +179,8 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   }
   bar.done();
   ```
+
+  (Observe the non-running initialization of components using `.show = false`, which is needed for composition.)
 
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/rec/composite-dark.svg" width="700">
@@ -153,7 +199,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     .interval = 1.,
     .no_tty = true,
   });
-  bar.show();
   for (int i = 0; i < 401; i++) {
     std::this_thread::sleep_for(13ms);
     sents++;
@@ -195,7 +240,6 @@ This option can be used to format the entire display using a `fmt`-like format s
       .format = "Picked up {value} flowers, at {speed:.1f} flo/s",
       .speed = 0.1
     });
-    c.show();
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
     c.done();
     ```
@@ -208,7 +252,6 @@ This option can be used to format the entire display using a `fmt`-like format s
       .format = "Picked up {0} flowers, at {1:.1f} flo/s",
       .speed = 0.1
     });
-    c.show();
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
     c.done();
     ```
@@ -229,7 +272,6 @@ This option can be used to format the entire display using a `fmt`-like format s
         .format = "Picking flowers {value:4d}/{total}  {bar}  ({speed:.1f} flo/s)",
         .speed = 0.1
     });
-    bar.show();
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
     bar.done();
     ```
@@ -243,7 +285,6 @@ This option can be used to format the entire display using a `fmt`-like format s
         .format = "Picking flowers {0:4d}/{3}  {1}  ({4:.1f} flo/s)",
         .speed = 0.1
     });
-    bar.show();
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
     bar.done();
     ```
@@ -270,7 +311,6 @@ Additionally, some basic ansi color sequences are predefined as identifiers whic
       .format = "Picking flowers {blue}{value:4d}/{total}  {green}{bar} "
                 "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
       .speed = 0.1});
-  bar.show();
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
   bar.done();
   ```
@@ -284,7 +324,6 @@ Additionally, some basic ansi color sequences are predefined as identifiers whic
       .format = "Picking flowers {8}{0:4d}/{3}  {6}{1} "
                 "{7}{2:3.0f}%{11}  ({4:.1f} flo/s)",
       .speed = 0.1});
-  bar.show();
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
   bar.done();
   ```

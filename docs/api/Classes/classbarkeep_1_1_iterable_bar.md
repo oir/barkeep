@@ -23,8 +23,8 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| using std::atomic< [size_t](api/Classes/classbarkeep_1_1_counter.md) > | **[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)**  |
-| using value_t< ProgressType > | **[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)**  |
+| using std::atomic< size_t > | **[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)**  |
+| using [value_t](api/Namespaces/namespacebarkeep.md#using-value_t)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > | **[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)**  |
 
 
 </span>
@@ -35,9 +35,9 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**([Container](api/Classes/classbarkeep_1_1_counter.md) & container, [const](api/Classes/classbarkeep_1_1_counter.md)[IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_counter.md) > & cfg ={}) |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[begin](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin)**() |
-| [auto](api/Classes/classbarkeep_1_1_counter.md) | **[end](api/Classes/classbarkeep_1_1_iterable_bar.md#function-end)**() |
+| | **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**(Container & container, const [IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype) > & cfg ={}) |
+| auto | **[begin](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin)**() |
+| auto | **[end](api/Classes/classbarkeep_1_1_iterable_bar.md#function-end)**() |
 
 
 </span>
@@ -45,7 +45,7 @@ A progress bar that can be used with range-based for loops, that automatically t
 ## Detailed Description
 
 ```cpp
-template <typenameContainer >
+template <typename Container >
 class barkeep::IterableBar;
 ```
 
@@ -73,7 +73,7 @@ using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
 ```cpp
 inline IterableBar(
     Container & container,
-    constIterableBarConfig< ValueType > & cfg ={}
+    const IterableBarConfig< ValueType > & cfg ={}
 )
 ```
 
@@ -94,4 +94,4 @@ inline auto end()
 
 -------------------------------
 
-Updated on 2024-02-19 at 09:47:42 -0500
+Updated on 2024-03-28 at 22:58:08 -0400

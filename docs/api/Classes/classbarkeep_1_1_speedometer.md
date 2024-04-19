@@ -12,10 +12,10 @@ Helper class to measure and display speed of progress.  [More...](#detailed-desc
 
 |                | Name           |
 | -------------- | -------------- |
-| [double](api/Classes/classbarkeep_1_1_counter.md) | **[speed](api/Classes/classbarkeep_1_1_speedometer.md#function-speed)**() |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream * out, [const](api/Classes/classbarkeep_1_1_counter.md) std::string & speed_unit)<br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
-| [void](api/Classes/classbarkeep_1_1_counter.md) | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**()<br>Start computing the speed based on the amount of change in progress.  |
-| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**([Progress](api/Classes/classbarkeep_1_1_counter.md) & progress, [double](api/Classes/classbarkeep_1_1_counter.md) discount)<br>Constructor.  |
+| double | **[speed](api/Classes/classbarkeep_1_1_speedometer.md#function-speed)**() |
+| void | **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream * out, const std::string & speed_unit)<br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
+| void | **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**()<br>Start computing the speed based on the amount of change in progress.  |
+| | **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**(Progress & progress, double discount)<br>Constructor.  |
 
 
 </span>
@@ -23,7 +23,7 @@ Helper class to measure and display speed of progress.  [More...](#detailed-desc
 ## Detailed Description
 
 ```cpp
-template <typenameProgress >
+template <typename Progress >
 class barkeep::Speedometer;
 ```
 
@@ -75,4 +75,4 @@ Constructor.
 
 -------------------------------
 
-Updated on 2024-02-19 at 09:47:42 -0500
+Updated on 2024-03-28 at 22:58:08 -0400
