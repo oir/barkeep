@@ -1,0 +1,49 @@
+{% if exists("publicTypes") %}## Public Types Documentation
+
+{% for child in publicTypes %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+{% if exists("protectedTypes") %}## Protected Types Documentation
+
+{% for child in protectedTypes %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+
+{% if exists("publicFunctions") %}## Public Functions Documentation
+
+{% for child in publicFunctions %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+{% if exists("protectedFunctions") %}## Protected Functions Documentation
+
+{% for child in protectedFunctions %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+{% if exists("publicAttributes") %}## Public Attributes Documentation
+
+{% for child in publicAttributes %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+{% if exists("protectedAttributes") %}## Protected Attributes Documentation
+
+{% for child in protectedAttributes %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}
+
+{% if exists("friends") %}## Friends
+
+{% for child in friends %}### {{child.kind}} `{{child.name}}`
+
+{{ render("member_details", child) }}
+{% endfor %}{% endif -%}

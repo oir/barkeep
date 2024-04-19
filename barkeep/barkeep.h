@@ -257,8 +257,10 @@ class AsyncDisplay {
 struct AnimationConfig {
   std::ostream* out = &std::cout; ///< output stream
   std::string message = "";       ///< message to display before the animation
+
   /// style as AnimationStyle or custom animation as a list of strings
   std::variant<AnimationStyle, Strings> style = Ellipsis;
+  
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -487,6 +489,7 @@ struct CounterConfig {
   std::optional<double> speed = std::nullopt;
 
   std::string speed_unit = "it/s"; ///< unit of speed text next to speed
+
   /// interval in which the counter is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -642,8 +645,10 @@ struct ProgressBarConfig {
   std::optional<double> speed = std::nullopt;
 
   std::string speed_unit = "it/s"; ///< unit of speed text next to speed
+
   /// progress bar style, or custom style as BarParts
   std::variant<ProgressBarStyle, BarParts> style = Blocks;
+  
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -919,6 +924,7 @@ struct IterableBarConfig {
 
   std::string speed_unit = "it/s"; ///< unit of speed text next to speed
   ProgressBarStyle style = Blocks; ///< style of progress bar
+
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)

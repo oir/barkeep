@@ -13,6 +13,7 @@ os.mkdir("docs/api/")
 # generate doxygen xml
 subprocess.run(["doxygen", "docs/Doxyfile"], check=True)
 
+
 # convert doxygen xml to markdown
 subprocess.run(
     [
@@ -34,38 +35,31 @@ shutil.rmtree("xml/")
 
 # make some additions to play nicely with docsify
 
-
-os.remove("docs/api/Classes/README.md")
-os.remove("docs/api/Namespaces/README.md")
+os.remove("docs/api/Namespaces/README.md") # remove the index file
 
 def content_fixes(content: str) -> str:
-    return content.replace("operator|", "operator\|")
+    content = content.replace("operator|", "operator\|") # TODO: avoid for code blocks
 
+    return content
+  
+# apply minor content fixes to each file
+for f in glob.glob("docs/api/Classes/*.md") + glob.glob("docs/api/Namespaces/*.md"):
+    fixed = content_fixes(open(f).read())
+    open(f, "w").write(fixed)
 
-def merge_files(input_glob: str, output: str, increment_title_levels: bool = True):
-    # concatenate individual class pages into one page
-    class_files = sorted(glob.glob(input_glob))
-    classes = [open(f).read() for f in class_files]
-    for i in range(len(classes) - 1):
-        classes[i] = re.sub(
-            r"^Updated on .+ at .+ .+$", "", classes[i], flags=re.MULTILINE
-        )
-    catted = content_fixes("\n\n".join(classes))
+# update sidebar with class list
+class_files = [f for f in sorted(glob.glob("docs/api/Classes/*.md")) if not f.endswith("README.md")]
 
-    # increase markdown title levels by one
-    if increment_title_levels:
-        catted = re.sub(r"^#", "##", catted, flags=re.MULTILINE)
+class_list_str = ""
+for fname in class_files:
+    content = open(fname).read()
+    m = re.match(r"# barkeep::(.+)", content)
+    class_name = m.group(1)
+    path = fname.removeprefix("docs/")
+    class_list_str += f"    * [{class_name}]({path})\n"
 
-    for f in class_files:
-       fixed = content_fixes(open(f).read())
-       open(f, "w").write(fixed)
-
-    open(output, "w").write(catted)
-
-
-merge_files("docs/api/Classes/*.md", "docs/api/Classes/README.md")
-merge_files(
-    "docs/api/Namespaces/*.md",
-    "docs/api/Namespaces/README.md",
-    increment_title_levels=False,
-)
+sidebar = "docs/_sidebar.md"
+content = open(sidebar).read()
+content = re.sub(r"<!-- api -->.*<!-- /api -->",
+                 f"<!-- api -->\n{class_list_str}<!-- /api -->", content, flags=re.DOTALL)
+open(sidebar, "w").write(content)

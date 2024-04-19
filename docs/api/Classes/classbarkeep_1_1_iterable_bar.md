@@ -23,8 +23,8 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| using std::atomic< size_t > | **[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)**  |
-| using [value_t](api/Namespaces/namespacebarkeep.md#using-value_t)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > | **[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)**  |
+| <span class="codey">using std::atomic< size_t > </span>| <span class="codey">**[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)** </span> |
+| <span class="codey">using [value_t](api/Namespaces/namespacebarkeep.md#using-value_t)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)** </span> |
 
 
 </span>
@@ -35,9 +35,9 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| | **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**(Container & container, const [IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype) > & cfg ={}) |
-| auto | **[begin](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin)**() |
-| auto | **[end](api/Classes/classbarkeep_1_1_iterable_bar.md#function-end)**() |
+| <span class="codey"> </span>|  <span class="codey">  **[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md#function-iterablebar)**(Container & container, const [IterableBarConfig](api/Classes/structbarkeep_1_1_iterable_bar_config.md)< [ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype) > & cfg = {})</span> |
+| <span class="codey"> auto </span>|  <span class="codey">  **[begin](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin)**()</span> |
+| <span class="codey"> auto </span>|  <span class="codey">  **[end](api/Classes/classbarkeep_1_1_iterable_bar.md#function-end)**()</span> |
 
 
 </span>
@@ -52,14 +52,14 @@ class barkeep::IterableBar;
 A progress bar that can be used with range-based for loops, that automatically tracks the progress of the loop. 
 ## Public Types Documentation
 
-### using ProgressType
+### using `ProgressType`
 
 ```cpp
 using barkeep::IterableBar< Container >::ProgressType =  std::atomic<size_t>;
 ```
 
 
-### using ValueType
+### using `ValueType`
 
 ```cpp
 using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
@@ -68,24 +68,24 @@ using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
 
 ## Public Functions Documentation
 
-### function IterableBar
+### function `IterableBar`
 
 ```cpp
 inline IterableBar(
     Container & container,
-    const IterableBarConfig< ValueType > & cfg ={}
+    const IterableBarConfig< ValueType > & cfg = {}
 )
 ```
 
 
-### function begin
+### function `begin`
 
 ```cpp
 inline auto begin()
 ```
 
 
-### function end
+### function `end`
 
 ```cpp
 inline auto end()
@@ -93,5 +93,3 @@ inline auto end()
 
 
 -------------------------------
-
-Updated on 2024-03-28 at 22:58:08 -0400
