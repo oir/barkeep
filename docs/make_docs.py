@@ -38,9 +38,21 @@ shutil.rmtree("xml/")
 os.remove("docs/api/Namespaces/README.md") # remove the index file
 
 def content_fixes(content: str) -> str:
-    content = content.replace("operator|", "operator\|") # TODO: avoid for code blocks
+    def fix_non_code(s: str) -> str:
+        s = s.replace("operator|", "operator\|")
+        return s
 
-    return content
+    def fix_match(m: re.Match[str]) -> str:
+        assert not (m.group(1) and m.group(2)), "both code and non-code matched!"
+        if m.group(1):
+            return m.group(1)
+        else:
+            return fix_non_code(m.group(2))
+
+    # apply markdown escape fixes to parts that are not code blocks
+    fixed = re.sub(r"(?s)(```.*?```)|(.*?)(?=```|$)", fix_match, content)
+    assert len(fixed.split("\n")) == len(content.split("\n")), "line count changed after fix!"
+    return fixed
   
 # apply minor content fixes to each file
 for f in glob.glob("docs/api/Classes/*.md") + glob.glob("docs/api/Namespaces/*.md"):
@@ -60,6 +72,8 @@ for fname in class_files:
 
 sidebar = "docs/_sidebar.md"
 content = open(sidebar).read()
+
+# automatic content goes in between <!-- api --> and <!-- /api -->
 content = re.sub(r"<!-- api -->.*<!-- /api -->",
                  f"<!-- api -->\n{class_list_str}<!-- /api -->", content, flags=re.DOTALL)
 open(sidebar, "w").write(content)
