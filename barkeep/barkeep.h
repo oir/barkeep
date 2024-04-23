@@ -18,7 +18,7 @@
 #include <variant>
 #include <vector>
 
-#define BARKEEP_VERSION "0.1.0"
+#define BARKEEP_VERSION "0.1.1"
 
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
 #include <fmt/format.h>
