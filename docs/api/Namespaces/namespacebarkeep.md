@@ -154,7 +154,7 @@ Duration as_duration(
 ### function <span class="codey">operator\|</span>
 
 ```cpp
-auto operator\|(
+auto operator|(
     const AsyncDisplay & left,
     const AsyncDisplay & right
 )
