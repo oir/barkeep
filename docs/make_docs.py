@@ -35,7 +35,8 @@ shutil.rmtree("xml/")
 
 # make some additions to play nicely with docsify
 
-os.remove("docs/api/Namespaces/README.md") # remove the index file
+os.remove("docs/api/Namespaces/README.md")  # remove the index file
+
 
 def content_fixes(content: str) -> str:
     def fix_non_code(s: str) -> str:
@@ -51,16 +52,21 @@ def content_fixes(content: str) -> str:
 
     # apply markdown escape fixes to parts that are not code blocks
     fixed = re.sub(r"(?s)(```.*?```)|(.*?)(?=```|$)", fix_match, content)
-    assert len(fixed.split("\n")) == len(content.split("\n")), "line count changed after fix!"
+    assert len(fixed.split("\n")) == len(
+        content.split("\n")
+    ), "line count changed after fix!"
     return fixed
-  
+
+
 # apply minor content fixes to each file
 for f in glob.glob("docs/api/Classes/*.md") + glob.glob("docs/api/Namespaces/*.md"):
     fixed = content_fixes(open(f).read())
     open(f, "w").write(fixed)
 
 # update sidebar with class list
-class_files = [f for f in sorted(glob.glob("docs/api/Classes/*.md")) if not f.endswith("README.md")]
+class_files = [
+    f for f in sorted(glob.glob("docs/api/Classes/*.md")) if not f.endswith("README.md")
+]
 
 class_list_str = ""
 for fname in class_files:
@@ -74,6 +80,10 @@ sidebar = "docs/_sidebar.md"
 content = open(sidebar).read()
 
 # automatic content goes in between <!-- api --> and <!-- /api -->
-content = re.sub(r"<!-- api -->.*<!-- /api -->",
-                 f"<!-- api -->\n{class_list_str}<!-- /api -->", content, flags=re.DOTALL)
+content = re.sub(
+    r"<!-- api -->.*<!-- /api -->",
+    f"<!-- api -->\n{class_list_str}<!-- /api -->",
+    content,
+    flags=re.DOTALL,
+)
 open(sidebar, "w").write(content)
