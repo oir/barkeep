@@ -11,7 +11,7 @@ on:
 jobs:
   build-wheels:
     name: Build py${{ matrix.version }} wheels for ${{ matrix.platform[1] }} ${{ matrix.platform[2] }}
-    timeout-minutes: 20
+    timeout-minutes: 40
     runs-on: ${{ matrix.platform[0] }}
     strategy:
       matrix:
