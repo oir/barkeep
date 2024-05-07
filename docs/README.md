@@ -11,18 +11,20 @@ Use it by including `barkeep.h` in your project.
 __barkeep__ strives to be [non-intrusive](#Non-intrusive-design).
 __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
+<div class="badges">
 
-<img style="vertical-align:middle" src="img/C++.svg" height="22"> 
+<icon prefix="C++"></icon>
 <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:middle" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
 <a><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code>#include &lt;barkeep/barkeep.h&gt;</code>
 <br/>
-<img style="vertical-align:middle" src="img/python.svg" height="22">
+<icon prefix="python"></icon>
 <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
 <a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:middle" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
 <code>pip install barkeep</code>
 
+</div>
 
 ---
 
@@ -417,7 +419,7 @@ See `demo-fmtlib.cpp` or `demo-stdfmt.cpp` for more examples.
 - Display runs on a concurrent, separate thread, doing concurrent reads on your progress variable.
   See [this section above](#caveat) for what that might imply.
 - The examples above use C++20's designated initializers.
-  If you prefer to use an older C++ version, you can simply initialize the config classes (e.g. `ProgressBarConfig`) the regular way.
+  If you prefer to use an older C++ version, you can simply initialize the config classes (e.g. `ProgressBarConfig`) the regular way to pass options into display classes (e.g. `ProgressBar`).
 
 ## Building
 
@@ -540,6 +542,6 @@ Meson has its own subproject staging logic, thus cloning the submodules is not n
 
 ## Similar projects
 
-- [indicators](https://github.com/p-ranav/indicators)
-- [progressbar](https://github.com/gipert/progressbar)
-- [tqdm](https://github.com/tqdm/tqdm)
+- <icon prefix="C++"></icon> [indicators](https://github.com/p-ranav/indicators)
+- <icon prefix="C++"></icon> [progressbar](https://github.com/gipert/progressbar)
+- <icon prefix="python"></icon> [tqdm](https://github.com/tqdm/tqdm)
