@@ -1,8 +1,5 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="20" role="img" aria-label="#include &lt;barkeep/barkeep.h&gt;" ml-update="aware">
-  <defs>
-    <style type="text/css">@import url(http://fonts.googleapis.com/css?family=Fira+Mono);</style>
-  </defs>
   <title>#include &lt;barkeep/barkeep.h&gt;</title>
   <linearGradient id="s" x2="0" y2="100%">
     <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
@@ -15,7 +12,7 @@
     <rect width="200" height="20" fill="#555"/>
     <rect width="200" height="20" fill="url(#s)"/>
   </g>
-  <g fill="#fff" text-anchor="middle" font-family="Fira Mono" text-rendering="geometricPrecision" font-size="110">
+  <g fill="#fff" text-anchor="middle" font-family="SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace" text-rendering="geometricPrecision" font-size="110">
     <text aria-hidden="true" x="1000" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)">
     #include &lt;barkeep/barkeep.h&gt;
     </text>
