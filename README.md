@@ -19,7 +19,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 </picture>
 <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:bottom" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
-<a href=""><img style="vertical-align:bottom" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
+<a href=""><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code style="vertical-align:middle">#include &lt;barkeep/barkeep.h&gt;</code>
 test text
 </div>
