@@ -21,6 +21,10 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
 <a href=""><img src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code>#include &lt;barkeep/barkeep.h&gt;</code>
+<svg width="200" height="50" xmlns="http://www.w3.org/2000/svg">
+  <rect x="10" y="10" rx="10" ry="10" width="180" height="30" style="fill:#eee;stroke:black;stroke-width:1;opacity:0.5" />
+  <text x="100" y="30" font-family="Verdana" font-size="20" text-anchor="middle">#include &lt;barkeep/barkeep.h&gt;</text>
+</svg>
 </div>
 <img style="vertical-align:bottom" src="docs/img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a> <a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a> <code>pip install barkeep</code>
 
