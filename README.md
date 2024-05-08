@@ -13,9 +13,9 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 
 <div style="display: flex; align-items: center;">
 <picture>
-  <source style="vertical-align:middle" media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="22">
-  <source style="vertical-align:middle" media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
-  <img style="vertical-align:middle" src="docs/img/C++-dark.svg" height="22"> 
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="22">
+  <source media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
+  <img src="docs/img/C++-dark.svg" height="22"> 
 </picture>
 <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
 <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
