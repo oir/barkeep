@@ -349,6 +349,11 @@ See `demo-fmtlib.cpp` or `demo-stdfmt.cpp` for more examples.
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
+- Display runs on a concurrent, separate thread, doing concurrent reads on your progress variable.
+  See [this section above](#caveat) for what that might imply.
+- The examples above use C++20's designated initializers.
+  If you prefer to use an older C++ version, you can simply initialize the config classes (e.g. `ProgressBarConfig`) the regular way to pass options into display classes (e.g. `ProgressBar`).
+
 
 ## Building
 

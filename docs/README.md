@@ -459,7 +459,7 @@ If you don't want to deal with even a Makefile, you can simply invoke the compil
 
 ?> Detail: Github submodules are staged in folders that end with a `_` to avoid clashing with Meson's subproject downloading.
 
-_Python bindings are slightly more involved, therefore a proper build system is recommended -- see section on Meson below._
+_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
 
 
 ### Minimal tooling: Make
@@ -481,7 +481,7 @@ make all
 ./test-fmtlib.out
 ```
 
-_Python bindings are slightly more involved, therefore a proper build system is recommended -- see section on Meson below._
+_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
 
 ### Build system: Meson
 
