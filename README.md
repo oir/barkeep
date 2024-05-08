@@ -11,7 +11,7 @@ Use it by including `barkeep.h` in your project.
 __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README?id=non-intrusive-design).
 **barkeep** also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
-<div>
+<div style="display: flex; align-items: center;">
 <picture>
   <source style="vertical-align:middle" media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="22">
   <source style="vertical-align:middle" media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
@@ -22,7 +22,6 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 <a href=""><img style="vertical-align:bottom" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code>#include &lt;barkeep/barkeep.h&gt;</code>
 </div>
-<br/>
 <img style="vertical-align:bottom" src="docs/img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a> <a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a> <code>pip install barkeep</code>
 
 ---
