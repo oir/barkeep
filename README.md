@@ -17,11 +17,10 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   <source style="vertical-align:middle" media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
   <img style="vertical-align:middle" src="docs/img/C++-dark.svg" height="22"> 
 </picture>
-<a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
-<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:bottom" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
-<a href=""><img style="vertical-align:middle" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
-<code style="vertical-align:middle">#include &lt;barkeep/barkeep.h&gt;</code>
-test text
+<a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
+<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
+<a href=""><img src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
+<code>#include &lt;barkeep/barkeep.h&gt;</code>
 </div>
 <img style="vertical-align:bottom" src="docs/img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a> <a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a> <code>pip install barkeep</code>
 
