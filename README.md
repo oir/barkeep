@@ -22,7 +22,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 <a href=""><img src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
 <code>#include &lt;barkeep/barkeep.h&gt;</code>
 <svg width="200" height="50" xmlns="http://www.w3.org/2000/svg">
-  <rect x="10" y="10" rx="10" ry="10" width="180" height="30" style="fill:#eee;stroke:black;stroke-width:1;opacity:0.5" />
+  <rect x="10" y="10" rx="10" ry="10" width="180" height="30" style="fill:#636e7b66" />
   <text x="100" y="30" font-family="Verdana" font-size="20" text-anchor="middle">#include &lt;barkeep/barkeep.h&gt;</text>
 </svg>
 </div>
