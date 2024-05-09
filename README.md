@@ -494,9 +494,9 @@ Meson has its own subproject staging logic, thus cloning the submodules is not n
 ## Similar projects
 
 - <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="22">
-  <source media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
-  <img src="docs/img/C++-dark.svg" height="22"> 
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="16">
+  <source media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="16">
+  <img src="docs/img/C++-dark.svg" height="16"> 
   </picture>
   <a href="https://github.com/p-ranav/indicators">indicators</a>
 -  [progressbar](https://github.com/gipert/progressbar)
