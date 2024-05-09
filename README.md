@@ -11,9 +11,28 @@ Use it by including `barkeep.h` in your project.
 __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README?id=non-intrusive-design).
 **barkeep** also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
-<img style="vertical-align:bottom" src="docs/img/C++.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a> <a href="https://coveralls.io/github/oir/barkeep?branch=main"><img style="vertical-align:bottom" src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a> <a><img style="vertical-align:bottom" src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a> <code>#include &lt;barkeep/barkeep.h&gt;</code>
-<br/>
-<img style="vertical-align:bottom" src="docs/img/python.svg" height="22"> <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:bottom" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a> <a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a> <code>pip install barkeep</code>
+<div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/C++-light.svg" height="22">
+  <source media="(prefers-color-scheme: light)" srcset="docs/img/C++-dark.svg" height="22">
+  <img src="docs/img/C++-dark.svg" height="22"> 
+</picture>
+<a href="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-test.yml/badge.svg" alt="Build status"></a>
+<a href="https://coveralls.io/github/oir/barkeep?branch=main"><img src="https://coveralls.io/repos/github/oir/barkeep/badge.svg?branch=main" alt="Coverage status"></a>
+<a href=""><img src="https://img.shields.io/badge/std-c++20-blue.svg" alt="c++20"></a>
+<a href=""><img src="docs/img/C++-include.svg"></a>
+</div>
+<div>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/python-light.svg" height="22">
+  <source media="(prefers-color-scheme: light)" srcset="docs/img/python-dark.svg" height="22">
+  <img src="docs/img/python-dark.svg" height="22"> 
+</picture>
+<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
+<a href="https://pypi.python.org/pypi/barkeep"><img src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
+<a href=""><img src="docs/img/pip-install.svg"></a>
+</div>
+
 
 ---
 
@@ -349,10 +368,131 @@ See `demo-fmtlib.cpp` or `demo-stdfmt.cpp` for more examples.
 
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
+- Display runs on a concurrent, separate thread, doing concurrent reads on your progress variable.
+  See [this section](https://oir.github.io/barkeep/#/?id=caveat) for what that might imply.
+- The examples above use C++20's designated initializers.
+  If you prefer to use an older C++ version, you can simply initialize the config classes (e.g. `ProgressBarConfig`) the regular way to pass options into display classes (e.g. `ProgressBar`).
+
 
 ## Building
 
+**barkeep** is header only, so you can simply include the header in your C++ project.
+Still, this section details how to build the demos, tests and python bindings and can be used for reference.
+
+### No tooling
+
+If you don't want to deal with even a Makefile, you can simply invoke the compiler on the corresponding `.cpp` files.
+
+- First clone with submodules:
+  ```bash
+  git clone --recursive https://github.com/oir/barkeep
+  cd barkeep
+  ```
+  Or if you already cloned without the `recursive` option, you can init the submodules:
+  ```bash
+  git clone https://github.com/oir/barkeep
+  cd barkeep
+  git submodule update --init
+  ```
+- Then, build & run the demo like:
+  ```bash
+  g++ -std=c++20 -I./ tests/demo.cpp -o demo.out
+  ./demo.out
+  ```
+  (You can replace `g++` with your choice of compiler like `clang`.)
+- Or, build the tests like:
+  ```bash
+  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ tests/test.cpp -o test.out
+  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ tests/test-stdfmt.cpp -o test-stdfmt.out
+  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ -I./subprojects/fmt_/include/ tests/test-fmtlib.cpp -o test-fmtlib.out
+  ./test.out
+  ./test-stdfmt.out
+  ./test-fmtlib.out
+  ```
+
+> Detail: Github submodules are staged in folders that end with a `_` to avoid clashing with Meson's subproject downloading.
+
+_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
+
+
+### Minimal tooling: Make
+
+If you don't want to deal with a complex build system, but also don't want to invoke raw compiler commands, you can use `make`.
+
+Clone the repo with submodules as in the [previous section](#no-tooling) and `cd` into it.
+
+Build demo and tests:
+```bash
+make all
 ```
-make demo
-./demo
+
+...and run:
+```bash
+./demo.out
+./test.out
+./test-stdfmt.out
+./test-fmtlib.out
 ```
+
+_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
+
+### Build system: Meson
+
+Meson has its own subproject staging logic, thus cloning the submodules is not needed.
+
+- Get [Meson](https://mesonbuild.com/Getting-meson.html) and [ninja](https://ninja-build.org/), e.g.:
+  ```bash
+  pip install meson
+  sudo apt install ninja-build  # could be a different cmd for your OS
+  ```
+- Configure (from the root repo directory):
+  ```bash
+  meson setup build
+  ```
+- Then the target `tests` can be used to build all demos and tests:
+  ```bash
+  meson compile -C build tests
+  ./build/tests/test.out
+  ./build/tests/test-stdfmt.out
+  ./build/tests/test-fmtlib.out
+  ./build/tests/demo.out
+  ./build/tests/demo-stdfmt.out
+  ./build/tests/demo-fmtlib.out
+  ```
+
+- If you have python dev dependencies available, all python binding targets are collected under the `python` target.
+  The output of `configure` command will list those, e.g.:
+  ```
+  Message: Python targets:
+  Message:   barkeep.cpython-39-darwin
+  Message:   barkeep.cpython-310-darwin
+  Message:   barkeep.cpython-311-darwin
+  Message:   barkeep.cpython-312-darwin
+  ```
+  ```bash
+  meson compile -C build python
+  ```
+
+  Then you can run python tests or demos, e.g.:
+  ```bash
+  PYTHONPATH=build/python/ python3.11 -m pytest -s python/tests/test.py
+  PYTHONPATH=build/python/ python3.11 python/tests/demo.py
+  ```
+
+
+  > By default, python bindings assume `std::atomic<double>` support.
+  > This requires availability of supporting compilers, e.g. g++-13 instead of Clang 15.0.0. Such compilers can be specified during `configure` step:
+  > ```bash
+  > CXX=g++-13 meson setup build
+  > ```
+  > Alternatively, you can disable atomic float support by providing the appropriate compile flag if you don't have a supporting compiler:
+  > ```bash
+  > CXXFLAGS="-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" meson setup build
+  > ```
+
+
+## Similar projects
+
+- [indicators](https://github.com/p-ranav/indicators)
+- [progressbar](https://github.com/gipert/progressbar)
+- [tqdm](https://github.com/tqdm/tqdm)
