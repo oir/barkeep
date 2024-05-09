@@ -28,12 +28,8 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   <source media="(prefers-color-scheme: light)" srcset="docs/img/python-dark.svg" height="22">
   <img src="docs/img/python-dark.svg" height="22"> 
 </picture>
-<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg">
-<img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status">
-</a>
-<a href="https://pypi.python.org/pypi/barkeep">
-<img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi">
-</a>
+<a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
+<a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:bottom" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
 <a href=""><img src="docs/img/pip-install.svg"></a>
 </div>
 
