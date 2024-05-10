@@ -175,6 +175,26 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   }
   ```
 
+- Automatically iterate over a container with a progress bar display
+  (instead of monitoring an explicit progress variable):
+  
+  ```cpp
+    std::vector<float> v(300, 0);
+    std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
+    float sum = 0;
+    for (auto x : bk::IterableBar(v, {.message = "Summing", .interval = .02})) {
+      std::this_thread::sleep_for(1.s/x);
+      sum += x;
+    }
+    std::cout << "Sum: " << sum << std::endl;
+  ```
+  
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/iter-bar-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/iter-bar-light.svg" width="700">
+    <img src="docs/rec/iter-bar-light.svg" width="700">
+  </picture>
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
