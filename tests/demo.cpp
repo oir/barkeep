@@ -185,12 +185,12 @@ int main(int /*argc*/, char** /*argv*/) {
   }
 
   { // Iterable automatic progress bar
-  
+
     std::vector<float> v(300, 0);
     std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
     float sum = 0;
     for (auto x : bk::IterableBar(v, {.message = "Summing", .interval = .02})) {
-      std::this_thread::sleep_for(1.s/x);
+      std::this_thread::sleep_for(1.s / x);
       sum += x;
     }
     std::cout << "Sum: " << sum << std::endl;
