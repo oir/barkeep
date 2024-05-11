@@ -182,13 +182,48 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     }
     std::cout << "Sum: " << sum << std::endl;
   ```
-  
+
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="rec/iter-bar-dark.svg" width="700">
     <source media="(prefers-color-scheme: light)" srcset="rec/iter-bar-light.svg" width="700">
     <img src="rec/iter-bar-light.svg" width="700">
   </picture>
 
+  <blockquote class="warn">
+  <details>
+  <summary>
+  Detail: IterableBar starts the display not at the time of construction, ...  
+  </summary>
+  
+  ... but at the time of the first call to `begin()`.
+  Thus, it is possible to set it up prior to loop execution.
+ 
+  Similarly, it ends the display not at the time of destruction, but at the
+  first increment of the iterator past the end. Thus, even if the object stays
+  alive after the loop, the display will be stopped.
+
+  Therefore, you could initialize it earlier than the loop execution, and destroy
+  it late afterwards:
+
+  ```cpp
+  std::vector<float> v(300, 0);
+  std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
+  float sum = 0;
+  bk::IterableBar bar(v, {.message = "Summing", .interval = .02});
+  // <-- At this point, display is not yet shown.
+  //     Thus, more work can be done here.
+  for (auto x : bar) { // <-- Display starts showing.
+    std::this_thread::sleep_for(1.s/x);
+    sum += x;
+  }
+  // <-- Display stops here even if `bar` object is still alive.
+  //     Thus, more work can be done here.
+  std::cout << "Sum: " << sum << std::endl;
+  ```
+
+  </details>
+  </blockquote>
+  
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
