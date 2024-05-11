@@ -5,8 +5,8 @@
 
 #include <atomic>
 #include <cassert>
-#include <cmath>
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <iomanip>
 #include <iostream>
@@ -260,7 +260,7 @@ struct AnimationConfig {
 
   /// style as AnimationStyle or custom animation as a list of strings
   std::variant<AnimationStyle, Strings> style = Ellipsis;
-  
+
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -357,7 +357,7 @@ class Composite : public AsyncDisplay {
     left_->done();
     right_->done();
     right_->out_ = left_->out_;
-    //show();
+    // show();
   }
 
   /// Copy constructor clones child displays.
@@ -553,13 +553,13 @@ class Counter : public AsyncDisplay {
           format_,
           std::make_format_args(progress,
                                 speedom_ ? speedom_->speed() : std::nan(""),
-                                red, // 2
-                                green, // 3
-                                yellow, // 4
-                                blue, // 5
+                                red,     // 2
+                                green,   // 3
+                                yellow,  // 4
+                                blue,    // 5
                                 magenta, // 6
-                                cyan, // 7
-                                reset) // 8
+                                cyan,    // 7
+                                reset)   // 8
 
       );
       return;
@@ -621,7 +621,7 @@ class Counter : public AsyncDisplay {
         speedom_(std::move(other.speedom_)),
         speed_unit_(other.speed_unit_) {
     if (other.running()) { show(); }
-        }
+  }
 
   ~Counter() { done(); }
 
@@ -648,7 +648,7 @@ struct ProgressBarConfig {
 
   /// progress bar style, or custom style as BarParts
   std::variant<ProgressBarStyle, BarParts> style = Blocks;
-  
+
   /// interval in which the progress bar is refreshed
   std::variant<Duration, double> interval = Duration{0.};
   bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
@@ -797,26 +797,26 @@ class ProgressBar : public AsyncDisplay {
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
       value_t<Progress> progress = *progress_;
-      
+
       std::stringstream bar_ss;
       render_progress_bar_(&bar_ss);
-      
+
       double percent = progress * 100. / total_;
-      
-      *out_ << std::vformat(
-          format_,
-          std::make_format_args(progress, // 0
-                                bar_ss.str(), // 1
-                                percent, // 2
-                                total_, // 3
-                                speedom_ ? speedom_->speed() : std::nan(""), // 4
-                                red, // 5
-                                green, // 6
-                                yellow, // 7 
-                                blue, // 8
-                                magenta, // 9
-                                cyan, // 10
-                                reset)); // 11
+
+      *out_ << std::vformat(format_,
+                            std::make_format_args(progress,     // 0
+                                                  bar_ss.str(), // 1
+                                                  percent,      // 2
+                                                  total_,       // 3
+                                                  speedom_ ? speedom_->speed()
+                                                           : std::nan(""), // 4
+                                                  red,                     // 5
+                                                  green,                   // 6
+                                                  yellow,                  // 7
+                                                  blue,                    // 8
+                                                  magenta,                 // 9
+                                                  cyan,                    // 10
+                                                  reset));                 // 11
       return;
     }
 #endif
@@ -885,7 +885,7 @@ class ProgressBar : public AsyncDisplay {
         total_(other.total_),
         bar_parts_(std::move(other.bar_parts_)) {
     if (other.running()) { show(); }
-        }
+  }
 
   /// copy constructor
   ProgressBar(const ProgressBar<Progress>& other)
@@ -934,9 +934,9 @@ struct IterableBarConfig {
 /// automatically tracks the progress of the loop.
 ///
 /// IterableBar starts the display not at the time of construction, but at the
-/// time of the first call to begin(). Thus, it is possible to set it up prior to
-/// loop execution.
-/// 
+/// time of the first call to begin(). Thus, it is possible to set it up prior
+/// to loop execution.
+///
 /// Similarly, it ends the display not at the time of destruction, but at the
 /// first increment of the iterator past the end. Thus, even if the object stays
 /// alive after the loop, the display will be stopped.
@@ -993,14 +993,16 @@ class IterableBar {
                                          cfg.style,
                                          cfg.interval,
                                          cfg.no_tty,
-                                         /*show=*/ false})) {}
+                                         /*show=*/false})) {}
 
   auto begin() {
     bar_->show();
     return Iterator(container_.begin(), container_.end(), *idx_, bar_);
   }
 
-  auto end() { return Iterator(container_.end(), container_.end(), *idx_, bar_); }
+  auto end() {
+    return Iterator(container_.end(), container_.end(), *idx_, bar_);
+  }
 };
 
 } // namespace barkeep
