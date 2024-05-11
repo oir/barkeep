@@ -932,30 +932,44 @@ struct IterableBarConfig {
 
 /// A progress bar that can be used with range-based for loops, that
 /// automatically tracks the progress of the loop.
+///
+/// IterableBar starts the display not at the time of construction, but at the
+/// time of the first call to begin(). Thus, it is possible to set it up prior to
+/// loop execution.
+/// 
+/// Similarly, it ends the display not at the time of destruction, but at the
+/// first increment of the iterator past the end. Thus, even if the object stays
+/// alive after the loop, the display will be stopped.
 template <typename Container>
 class IterableBar {
  public:
   using ProgressType = std::atomic<size_t>;
   using ValueType = value_t<ProgressType>;
+  using Bar = ProgressBar<ProgressType>;
 
  private:
   Container& container_;
   std::shared_ptr<ProgressType> idx_;
-  std::shared_ptr<ProgressBar<ProgressType>> bar_;
+  std::shared_ptr<Bar> bar_;
 
  public:
   class Iterator {
    private:
-    typename Container::iterator it_;
+    typename Container::iterator it_, end_;
     ProgressType& idx_;
+    std::shared_ptr<Bar> bar_;
 
    public:
-    Iterator(typename Container::iterator it, ProgressType& idx)
-        : it_(it), idx_(idx) {}
+    Iterator(typename Container::iterator it,
+             typename Container::iterator end,
+             ProgressType& idx,
+             std::shared_ptr<Bar> bar)
+        : it_(it), end_(end), idx_(idx), bar_(std::move(bar)) {}
 
     Iterator& operator++() {
       it_++;
       idx_++;
+      if (it_ == end_) { bar_->done(); }
       return *this;
     }
 
@@ -968,7 +982,7 @@ class IterableBar {
               const IterableBarConfig<ValueType>& cfg = {})
       : container_(container),
         idx_(std::make_shared<ProgressType>(0)),
-        bar_(std::make_shared<ProgressBar<ProgressType>>(
+        bar_(std::make_shared<Bar>(
             &*idx_,
             ProgressBarConfig<ValueType>{cfg.out,
                                          container.size(),
@@ -978,14 +992,15 @@ class IterableBar {
                                          cfg.speed_unit,
                                          cfg.style,
                                          cfg.interval,
-                                         cfg.no_tty})) {}
+                                         cfg.no_tty,
+                                         /*show=*/ false})) {}
 
   auto begin() {
     bar_->show();
-    return Iterator(container_.begin(), *idx_);
+    return Iterator(container_.begin(), container_.end(), *idx_, bar_);
   }
 
-  auto end() { return Iterator(container_.end(), *idx_); }
+  auto end() { return Iterator(container_.end(), container_.end(), *idx_, bar_); }
 };
 
 } // namespace barkeep
