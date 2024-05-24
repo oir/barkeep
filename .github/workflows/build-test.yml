@@ -19,6 +19,7 @@ jobs:
           sudo apt-get install lcov
           g++-13 --version
           gcov-13 --version
+          lcov --version
       - run: |
           CXX=g++-13 make -j3
           ./test.out
