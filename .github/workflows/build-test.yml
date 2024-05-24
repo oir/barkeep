@@ -9,7 +9,7 @@ jobs:
   build-and-test-for-cpp-make:
     name: "Build and test for C++ with make"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +42,7 @@ jobs:
   build-and-test-for-cpp-meson:
     name: "Build and test for C++ with meson"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +62,7 @@ jobs:
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
