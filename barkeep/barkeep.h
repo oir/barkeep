@@ -409,7 +409,7 @@ class Speedometer {
 
   using ValueType = value_t<Progress>;
   using SignedType = signed_t<ValueType>;
-  using Clock = std::chrono::system_clock;
+  using Clock = std::chrono::steady_clock;
   using Time = std::chrono::time_point<Clock>;
 
   double progress_increment_sum_ = 0; // (weighted) sum of progress increments
