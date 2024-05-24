@@ -800,12 +800,13 @@ class ProgressBar : public AsyncDisplay {
 
       std::stringstream bar_ss;
       render_progress_bar_(&bar_ss);
+      std::string bar = bar_ss.str();
 
       double percent = progress * 100. / total_;
 
       *out_ << std::vformat(format_,
                             std::make_format_args(progress,     // 0
-                                                  bar_ss.str(), // 1
+                                                  bar,          // 1
                                                   percent,      // 2
                                                   total_,       // 3
                                                   speedom_ ? speedom_->speed()
