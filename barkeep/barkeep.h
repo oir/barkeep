@@ -549,10 +549,11 @@ class Counter : public AsyncDisplay {
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
       value_t<Progress> progress = *progress_;
+      auto speed = speedom_ ? speedom_->speed() : std::nan("");
       *out_ << std::vformat(
           format_,
           std::make_format_args(progress,
-                                speedom_ ? speedom_->speed() : std::nan(""),
+                                speed,   // 1
                                 red,     // 2
                                 green,   // 3
                                 yellow,  // 4
@@ -803,14 +804,14 @@ class ProgressBar : public AsyncDisplay {
       std::string bar = bar_ss.str();
 
       double percent = progress * 100. / total_;
+      auto speed = speedom_ ? speedom_->speed() : std::nan("");
 
       *out_ << std::vformat(format_,
                             std::make_format_args(progress,     // 0
                                                   bar,          // 1
                                                   percent,      // 2
                                                   total_,       // 3
-                                                  speedom_ ? speedom_->speed()
-                                                           : std::nan(""), // 4
+                                                  speed, // 4
                                                   red,                     // 5
                                                   green,                   // 6
                                                   yellow,                  // 7
