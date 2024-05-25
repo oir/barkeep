@@ -16,6 +16,7 @@ jobs:
           submodules: true
       - name: "Install tooling"
         run: |
+          sudo apt-get install lcov
           g++-13 --version
           gcov-13 --version
           lcov --version
@@ -24,7 +25,7 @@ jobs:
           ./test.out
           ./test-fmtlib.out
           ./test-stdfmt.out
-          lcov -c -d . -o cov.info --gcov-tool gcov-13 && \
+          lcov -c -d . -o cov.info --gcov-tool gcov-13 --ignore-errors mismatch && \
           lcov --gcov-tool gcov-13 \
                --remove cov.info '/usr/local/include*' \
                                  '/usr/include*' \
