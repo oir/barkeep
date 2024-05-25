@@ -9,7 +9,7 @@ jobs:
   build-and-test-for-cpp-make:
     name: "Build and test for C++ with make"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,14 +19,15 @@ jobs:
           sudo apt-get install lcov
           g++-13 --version
           gcov-13 --version
+          lcov --version
       - run: |
           CXX=g++-13 make -j3
           ./test.out
           ./test-fmtlib.out
           ./test-stdfmt.out
-          lcov -c -d . -o cov.info --gcov-tool gcov-13 && \
+          lcov -c -d . -o cov.info --gcov-tool gcov-13 --ignore-errors mismatch && \
           lcov --gcov-tool gcov-13 \
-               --remove cov.info '/usr/local/include*' \
+               --remove cov.info \
                                  '/usr/include*' \
                                  '*/subprojects/*' \
                                  '*/test.cpp*' \
@@ -42,11 +43,14 @@ jobs:
   build-and-test-for-cpp-meson:
     name: "Build and test for C++ with meson"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: false
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9' 
       - name: "Install tooling"
         run: |
           g++-13 --version
@@ -62,7 +66,7 @@ jobs:
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
