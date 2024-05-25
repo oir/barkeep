@@ -52,7 +52,8 @@ jobs:
         run: |
           g++-13 --version
           gcov-13 --version
-          sudo apt install python3-meson python3-pytest ninja-build
+          pip install meson pytest
+          sudo apt install ninja-build
       - run: |
           CXX=g++-13 meson setup build --buildtype=release --warnlevel=3
           meson compile -C build tests
