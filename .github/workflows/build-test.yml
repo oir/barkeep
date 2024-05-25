@@ -16,7 +16,6 @@ jobs:
           submodules: true
       - name: "Install tooling"
         run: |
-          sudo apt-get install lcov
           g++-13 --version
           gcov-13 --version
           lcov --version
