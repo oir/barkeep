@@ -550,17 +550,16 @@ class Counter : public AsyncDisplay {
     if (not format_.empty()) {
       value_t<Progress> progress = *progress_;
       auto speed = speedom_ ? speedom_->speed() : std::nan("");
-      *out_ << std::vformat(
-          format_,
-          std::make_format_args(progress,
-                                speed,   // 1
-                                red,     // 2
-                                green,   // 3
-                                yellow,  // 4
-                                blue,    // 5
-                                magenta, // 6
-                                cyan,    // 7
-                                reset)   // 8
+      *out_ << std::vformat(format_,
+                            std::make_format_args(progress,
+                                                  speed,   // 1
+                                                  red,     // 2
+                                                  green,   // 3
+                                                  yellow,  // 4
+                                                  blue,    // 5
+                                                  magenta, // 6
+                                                  cyan,    // 7
+                                                  reset)   // 8
 
       );
       return;
@@ -807,18 +806,18 @@ class ProgressBar : public AsyncDisplay {
       auto speed = speedom_ ? speedom_->speed() : std::nan("");
 
       *out_ << std::vformat(format_,
-                            std::make_format_args(progress,     // 0
-                                                  bar,          // 1
-                                                  percent,      // 2
-                                                  total_,       // 3
-                                                  speed, // 4
-                                                  red,                     // 5
-                                                  green,                   // 6
-                                                  yellow,                  // 7
-                                                  blue,                    // 8
-                                                  magenta,                 // 9
-                                                  cyan,                    // 10
-                                                  reset));                 // 11
+                            std::make_format_args(progress, // 0
+                                                  bar,      // 1
+                                                  percent,  // 2
+                                                  total_,   // 3
+                                                  speed,    // 4
+                                                  red,      // 5
+                                                  green,    // 6
+                                                  yellow,   // 7
+                                                  blue,     // 8
+                                                  magenta,  // 9
+                                                  cyan,     // 10
+                                                  reset));  // 11
       return;
     }
 #endif
