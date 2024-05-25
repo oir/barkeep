@@ -27,7 +27,7 @@ jobs:
           ./test-stdfmt.out
           lcov -c -d . -o cov.info --gcov-tool gcov-13 --ignore-errors mismatch && \
           lcov --gcov-tool gcov-13 \
-               --remove cov.info '/usr/local/include*' \
+               --remove cov.info \
                                  '/usr/include*' \
                                  '*/subprojects/*' \
                                  '*/test.cpp*' \
