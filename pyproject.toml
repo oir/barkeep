@@ -29,7 +29,7 @@ test-command = "pytest --no-atomic-float {project}/python/tests/test.py"
 
 [[tool.cibuildwheel.overrides]]
 select = "*-macosx_arm64*" # TODO: use g++ when cross compiling
-environment = { CXX = "$(brew --prefix llvm@15)/bin/clang", CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
+environment = { CXX = "$(brew --prefix llvm@15)/bin/clang++", CXXFLAGS = "-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" }
 test-command = "pytest --no-atomic-float {project}/python/tests/test.py"
 
 [[tool.cibuildwheel.overrides]]
