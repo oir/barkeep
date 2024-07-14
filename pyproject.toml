@@ -34,4 +34,4 @@ test-command = "pytest --no-atomic-float {project}/python/tests/test.py"
 
 [[tool.cibuildwheel.overrides]]
 select = "*-macosx_x86_64*"
-environment = { CXX = "g++-14" }
+environment = { CXX = "g++-14", CXXFLAGS = "-ld_classic" }
