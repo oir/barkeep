@@ -26,8 +26,8 @@ jobs:
           - [ubuntu-20.04, musllinux, aarch64]
           - [ubuntu-20.04, musllinux, ppc64le]
           - [ubuntu-20.04, musllinux, s390x]
-          - [macos-13, macosx, x86_64]
-          - [macos-14, macosx, arm64]
+          - [macos-13, macosx, x86_64] # macOS 13 is x86
+          - [macos-14, macosx, arm64] # macOS 14 is ARM
         version: [39, 310, 311, 312]
     steps:
       - uses: actions/checkout@v4

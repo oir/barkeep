@@ -58,7 +58,7 @@ const static StringsList animation_stills_{
 };
 
 /// Kind of bar being displayed for ProgressBar.
-enum ProgressBarStyle : unsigned short { Bars, Blocks, Arrow, Pip };
+enum ProgressBarStyle : unsigned short { Bars, Blocks, Pip };
 
 struct BarParts {
   std::string left;
@@ -95,7 +95,6 @@ const static std::string reset = "\033[0m";
 const static std::vector<BarParts> progress_bar_parts_{
     {"|", "|", {"|"}, {" "}},
     {"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, {" "}},
-    {"|", "|", {">", "="}, {" "}},
     {"",
      "",
      {"╸", "━"},
@@ -131,7 +130,7 @@ class AsyncDisplay {
 
  protected:
   /// Render a display: animation, progress bar, etc.
-  virtual void render_() = 0;
+  virtual void render_(const std::string& end = " ") = 0;
 
   virtual Duration default_interval_() const = 0;
 
@@ -282,9 +281,9 @@ class Animation : public AsyncDisplay {
   Strings stills_;
 
  protected:
-  void render_() override {
+  void render_(const std::string& end = " ") override {
     render_message_();
-    *out_ << stills_[frame_] << " ";
+    *out_ << stills_[frame_] << end;
     frame_ = (frame_ + 1) % stills_.size();
   }
 
@@ -326,46 +325,57 @@ class Animation : public AsyncDisplay {
 /// For instance, you can combine two Counter objects to monitor two variables.
 class Composite : public AsyncDisplay {
  protected:
-  std::unique_ptr<AsyncDisplay> left_, right_;
+  std::string delim_ = " ";
+  std::vector<std::unique_ptr<AsyncDisplay>> displays_;
 
-  void render_() override {
-    left_->render_();
-    *out_ << " ";
-    right_->render_();
+  void render_(const std::string& end = " ") override {
+    for (auto it = displays_.begin(); it != displays_.end(); it++) {
+      if (it != displays_.begin()) { *out_ << delim_; }
+      (*it)->render_((it != displays_.end() - 1) ? "" : end);
+    }
   }
 
   Duration default_interval_() const override {
-    // TODO: maybe make this the min of the two?
-    return left_->default_interval_();
+    // TODO: maybe make this the min of all?
+    return displays_.front()->default_interval_();
   }
 
   void start() override {
-    left_->start();
-    right_->start();
+    for (auto& display : displays_) { display->start(); }
   }
 
  public:
-  Composite(std::unique_ptr<AsyncDisplay> left,
-            std::unique_ptr<AsyncDisplay> right)
-      : AsyncDisplay(left->out_,
-                     left->interval_,
-                     left->message_,
+  /// Variadic constructor to combine multiple displays into a Composite.
+  template <typename... Displays>
+  Composite(const AsyncDisplay& head, const Displays&... tail)
+      : AsyncDisplay(head.out_,
+                     head.interval_,
                      "",
-                     left->no_tty_ or right->no_tty_),
-        left_(std::move(left)),
-        right_(std::move(right)) {
-    left_->done();
-    right_->done();
-    right_->out_ = left_->out_;
+                     "",
+                     head.no_tty_ or (... or tail.no_tty_)) {
+    displays_.emplace_back(head.clone());
+    (displays_.emplace_back(tail.clone()), ...);
+    for (auto& display : displays_) {
+      display->done();
+      display->out_ = displays_.front()->out_;
+    }
     // show();
   }
 
+  /// Constructor to combine multiple displays into a Composite with a
+  /// delimiter.
+  template <typename... Displays>
+  Composite(std::string delim, const Displays&... displays)
+      : Composite(displays...) {
+    delim_ = std::move(delim);
+  }
+
   /// Copy constructor clones child displays.
-  Composite(const Composite& other)
-      : AsyncDisplay(other),
-        left_(other.left_->clone()),
-        right_(other.right_->clone()) {
-    right_->out_ = left_->out_;
+  Composite(const Composite& other) : AsyncDisplay(other) {
+    for (const auto& display : other.displays_) {
+      displays_.push_back(display->clone());
+      displays_.back()->out_ = displays_.front()->out_;
+    }
     if (other.running()) { show(); }
   }
   ~Composite() { done(); }
@@ -377,7 +387,7 @@ class Composite : public AsyncDisplay {
 
 /// Pipe operator can be used to combine two displays into a Composite.
 auto operator|(const AsyncDisplay& left, const AsyncDisplay& right) {
-  return Composite(left.clone(), right.clone());
+  return Composite(left, right);
 }
 
 /// Trait class to extract underlying value type from numerics and
@@ -439,16 +449,19 @@ class Speedometer {
 
   /// Write speed to given output stream. Speed is a double (written with
   /// precision 2), possibly followed by a unit of speed.
-  void render_speed(std::ostream* out, const std::string& speed_unit) {
+  void render_speed(std::ostream* out,
+                    const std::string& speed_unit,
+                    const std::string& end = " ") {
     std::stringstream ss; // use local stream to avoid disturbing `out` with
                           // std::fixed and std::setprecision
     double speed = this->speed();
     ss << std::fixed << std::setprecision(2) << "(" << speed;
     if (speed_unit.empty()) {
-      ss << ") ";
+      ss << ")";
     } else {
-      ss << " " << speed_unit << ") ";
+      ss << " " << speed_unit << ")";
     }
+    ss << end;
 
     auto s = ss.str();
     *out << s;
@@ -508,14 +521,14 @@ class Counter : public AsyncDisplay {
 
  protected:
   /// Write the value of progress to the output stream
-  void render_counts_() {
+  void render_counts_(const std::string& end = " ") {
     ss_ << *progress_;
-    *out_ << ss_.str() << " ";
+    *out_ << ss_.str() << end;
     ss_.str("");
   }
 
   /// Write the value of progress with the message to the output stream
-  void render_() override {
+  void render_(const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -566,8 +579,8 @@ class Counter : public AsyncDisplay {
     }
 #endif
     render_message_();
-    render_counts_();
-    if (speedom_) { speedom_->render_speed(out_, speed_unit_); }
+    render_counts_(speedom_ ? " " : end);
+    if (speedom_) { speedom_->render_speed(out_, speed_unit_, end); }
   }
 
   /// Default interval in which the display is refreshed, if interval() is not
@@ -728,7 +741,7 @@ class ProgressBar : public AsyncDisplay {
 
   /// Write progress value with the total, e.g. 50/100, to output stream.
   /// Progress width is expanded (and right justified) to match width of total.
-  void render_counts_() {
+  void render_counts_(const std::string& end = " ") {
     std::stringstream ss, totals;
     if (std::is_floating_point_v<Progress>) {
       ss << std::fixed << std::setprecision(2);
@@ -737,21 +750,21 @@ class ProgressBar : public AsyncDisplay {
     totals << total_;
     auto width = static_cast<std::streamsize>(totals.str().size());
     ss.width(width);
-    ss << std::right << *progress_ << "/" << total_ << " ";
+    ss << std::right << *progress_ << "/" << total_ << end;
     *out_ << ss.str();
   }
 
   /// Write the percent completed to output stream
-  void render_percentage_() {
+  void render_percentage_(const std::string& end = " ") {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss.width(6);
-    ss << std::right << *progress_ * 100. / total_ << "% ";
+    ss << std::right << *progress_ * 100. / total_ << "%" << end;
     *out_ << ss.str();
   }
 
   /// Run all of the individual render methods to write everything to stream
-  void render_() override {
+  void render_(const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -831,12 +844,12 @@ class ProgressBar : public AsyncDisplay {
     *out_ << " ";
 
     *out_ << bar_parts_.value_left_modifier;
-    render_counts_();
+    render_counts_(speedom_ ? " " : end);
     *out_ << bar_parts_.value_right_modifier;
 
     if (speedom_) {
       *out_ << bar_parts_.speed_left_modifier;
-      speedom_->render_speed(out_, speed_unit_);
+      speedom_->render_speed(out_, speed_unit_, end);
       *out_ << bar_parts_.speed_right_modifier;
     }
   }
