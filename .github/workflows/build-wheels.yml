@@ -26,7 +26,7 @@ jobs:
           - [ubuntu-20.04, musllinux, aarch64]
           - [ubuntu-20.04, musllinux, ppc64le]
           - [ubuntu-20.04, musllinux, s390x]
-          - [macos-14, macosx, x86_64]
+          - [macos-13, macosx, x86_64]
           - [macos-14, macosx, arm64]
         version: [39, 310, 311, 312]
     steps:
