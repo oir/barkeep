@@ -295,6 +295,78 @@ Demo three_counters_delim(
       counters.done();
     });
 
+Demo three_counters_lines(
+    "three_counters_lines",
+    "Composite display of three counters with newline delimiter",
+    []() {
+      std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
+      // clang-format off
+      auto counters = bk::Composite("\n",
+                                    bk::Counter(&squares, {
+                                        .message = "Squares",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }),
+                                    bk::Counter(&cubes, {
+                                        .message = "Cubes",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }),
+                                    bk::Counter(&hypercubes, {
+                                        .message = "Hypercubes",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }));
+      // clang-format on
+      counters.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        squares += (1 + size_t(rand()) % 5);
+        cubes += (1 + size_t(rand()) % 10);
+        hypercubes += (1 + size_t(rand()) % 20);
+      }
+      counters.done();
+    });
+
+Demo three_bars(
+    "three_bars",
+    "Composite display of three newline-delimited progress bars",
+    []() {
+      std::atomic<size_t> linear{0}, quad{0}, cubic{0};
+      // clang-format off
+      auto bars = bk::Composite("\n",
+                                bk::ProgressBar(&linear, {
+                                    .total = 100,
+                                    .message = "Linear   ",
+                                    .speed = 0,
+                                    .style = bk::Pip,
+                                    .show = false,
+                                }),
+                                bk::ProgressBar(&quad, {
+                                    .total = 5050,
+                                    .message = "Quadratic",
+                                    .speed = 0,
+                                    .style = bk::Pip,
+                                    .show = false,
+                                }),
+                                bk::ProgressBar(&cubic, {
+                                    .total = 171700,
+                                    .message = "Cubic    ",
+                                    .speed = 0,
+                                    .style = bk::Pip,
+                                    .show = false,
+                                }));
+      // clang-format on
+      bars.show();
+      for (int i = 0; i < 100; i++) {
+        std::this_thread::sleep_for(130ms);
+        linear++;
+        quad += linear;
+        cubic += quad;
+      }
+      bars.done();
+    });
+
 Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
   std::vector<float> v(300, 0);
   std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
