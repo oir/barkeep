@@ -56,7 +56,7 @@ def counter():
 
 def progress_bar():
     speeds = [None, 0, 0.1, 1]
-    styles = [ProgressBarStyle.Bars, ProgressBarStyle.Arrow, ProgressBarStyle.Blocks]
+    styles = [ProgressBarStyle.Bars, ProgressBarStyle.Blocks]
 
     for speed in speeds:
         for sty in styles:
