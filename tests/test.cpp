@@ -392,7 +392,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   TestType progress{0};
 
   bool no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  auto sty = GENERATE(Bars, Blocks, Pip);
 
   auto bar = ProgressBar(&progress,
                          {
@@ -464,7 +464,7 @@ TEST_CASE("Iterable bar", "[bar]") {
   int dummy_sum = 0;
 
   auto no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  auto sty = GENERATE(Bars, Blocks, Pip);
 
   // TODO: is misalignment below a clang-format issue?
   for (auto& thing : IterableBar(things,
@@ -499,7 +499,7 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   using ValueType = value_t<TestType>;
 
   bool no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  auto sty = GENERATE(Bars, Blocks, Pip);
   auto default_speed_unit = GENERATE(true, false);
 
   auto cfg = default_speed_unit ? ProgressBarConfig<ValueType>{
@@ -562,7 +562,7 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   bool no_tty = GENERATE(true, false);
   auto default_speed_unit = GENERATE(true, false);
 
-  auto sty = GENERATE(Bars, Blocks, Arrow, Pip);
+  auto sty = GENERATE(Bars, Blocks, Pip);
 
   if (default_speed_unit) {
     for (auto& thing : IterableBar(things,
@@ -705,7 +705,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
 
   for (auto& part : parts) {
     CHECK(part.substr(0, 6) == "Sents ");
-    CHECK(part.substr(54, 7) == "  Toks ");
+    CHECK(part.substr(54, 6) == " Toks ");
     auto part_ = rstrip(part); // Right-hand side can have >=1 spaces
     CHECK(part_.substr(part_.size() - 7, 7) == " tok/s)");
 
@@ -720,7 +720,7 @@ TEST_CASE("Composite bar-counter", "[composite]") {
     }
 
     { // check counter correctness
-      auto count_part = part.substr(61, part.size());
+      auto count_part = part.substr(60, part.size());
       auto i = count_part.find_first_of(' ');
       long count = std::stol(count_part.substr(0, i));
       CHECK(count >= last_count);

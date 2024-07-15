@@ -256,7 +256,7 @@ def test_invalid_speed_discount(Display, discount):
 
 @pytest.mark.parametrize("dtype", dtypes, indirect=True)
 @pytest.mark.parametrize(
-    "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks, ProgressBarStyle.Arrow]
+    "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks]
 )
 @pytest.mark.parametrize("no_tty", [True, False])
 def test_progress_bar(dtype, sty, no_tty):
@@ -380,7 +380,7 @@ def test_composite_bar_counter(no_tty):
 
     for part in parts:
         assert part.startswith("Sents ")
-        assert part[54:61] == "  Toks "
+        assert part[54:60] == " Toks "
         part = part.rstrip()
         assert part[-7:] == " tok/s)"
 
@@ -398,7 +398,7 @@ def test_composite_bar_counter(no_tty):
             i += 1
 
         # check counter correctness
-        count_part = part[61:]
+        count_part = part[60:]
         i = count_part.find(" ")
         count = int(count_part[:i])
         assert count >= last_count

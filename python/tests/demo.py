@@ -56,7 +56,7 @@ def counter():
 
 def progress_bar():
     speeds = [None, 0, 0.1, 1]
-    styles = [ProgressBarStyle.Bars, ProgressBarStyle.Arrow, ProgressBarStyle.Blocks]
+    styles = [ProgressBarStyle.Bars, ProgressBarStyle.Blocks]
 
     for speed in speeds:
         for sty in styles:
@@ -152,11 +152,15 @@ if __name__ == "__main__":
         nargs="*",
     )
 
+    # cosmetic
+    reset = "\033[0m"
+    bold = "\033[1m"
+    dim = "\033[2m"
+
     args = parser.parse_args()
     demos_to_run = args.demo or demos.keys()
     for i, demo in enumerate(demos_to_run):
         if i > 0:
-            print()
-        print(f"Running {demo}...")
+            print(dim + "─" * 80 + reset)
+        print(f"{dim}Running{reset} {bold}{demo}{reset}{dim}...{reset}")
         demos[demo]()
-        print(f"Finished {demo}.")

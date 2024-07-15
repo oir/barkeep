@@ -204,7 +204,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
                              .format = "Computing {percent:6.2f}%) {bar} " +
                                        value_fmt + "/{total}",
                              .speed = 0.9,
-                             .style = GENERATE(Bars, Blocks, Arrow),
+                             .style = GENERATE(Bars, Blocks),
                              .interval = 0.001s,
                              .no_tty = no_tty,
                          });

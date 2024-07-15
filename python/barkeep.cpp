@@ -249,7 +249,6 @@ PYBIND11_MODULE(barkeep, m) {
   py::enum_<ProgressBarStyle>(m, "ProgressBarStyle")
       .value("Bars", ProgressBarStyle::Bars)
       .value("Blocks", ProgressBarStyle::Blocks)
-      .value("Arrow", ProgressBarStyle::Arrow)
       .export_values();
 
   py::enum_<DType>(m, "DType")
@@ -562,6 +561,6 @@ PYBIND11_MODULE(barkeep, m) {
       other.done();
       throw std::runtime_error("Cannot combine running AsyncDisplay objects!");
     }
-    return Composite_(self.clone(), other.clone());
+    return Composite_(self, other);
   });
 }

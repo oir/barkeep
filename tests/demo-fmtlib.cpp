@@ -32,7 +32,7 @@ int main(int /*argc*/, char** /*argv*/) {
     for (
         std::string fmtstr : {
             "Picking flowers {value:4d}/1010  {bar}  ({speed:.1f} flo/s)",
-            "Picking flowers {blue}{value:4d}/1010  {green}{bar} {yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
+            "Picking flowers {blue}{value:4d}/1010  {green}{bar}  {yellow}{percent:3.0f}%{reset} ({speed:.1f} flo/s)",
         }) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(

@@ -1,12 +1,72 @@
 #include <atomic>
 #include <iostream>
 #include <numeric>
+#include <unordered_map>
+
 #include <barkeep/barkeep.h>
 
-int main(int /*argc*/, char** /*argv*/) {
-  using namespace std::chrono_literals;
-  namespace bk = barkeep;
+using namespace std::chrono_literals;
+namespace bk = barkeep;
 
+// cosmetic
+const static std::string reset = "\033[0m";
+const static std::string bold = "\033[1m";
+const static std::string dim = "\033[2m";
+
+std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
+
+class Demo {
+ private:
+  std::string name;       // unique name for CLI option
+  std::string help;       // a title or a sentence about the demo
+  void (*func)();         // body of the demo
+  std::string brief = ""; // Extra info in addition to help
+
+  static std::vector<std::string> all_demo_names;
+  static std::unordered_map<std::string, Demo*> all_demos;
+
+ public:
+  Demo(std::string name, std::string help, void (*func)())
+      : name(name), help(help), func(func) {
+    all_demo_names.push_back(name);
+    all_demos[name] = this;
+  }
+
+  Demo(std::string name, std::string help, std::string brief, void (*func)())
+      : name(name), help(help), func(func), brief(brief) {
+    all_demo_names.push_back(name);
+    all_demos[name] = this;
+  }
+
+  void run() {
+    std::cout << bold << help << reset << "\n";
+    if (not brief.empty()) { std::cout << dim << brief << reset << "\n"; }
+    func();
+  }
+
+  static void run_all(std::vector<std::string> names = {}) {
+    bool first = true;
+    for (auto name : names.empty() ? all_demo_names : names) {
+      if (not first) {
+        std::cout << dim << "────────────────────────────────────────" << reset
+                  << "\n";
+      }
+      if (all_demos.find(name) == all_demos.end()) {
+        std::cout << "Demo not found: " << name << "\n";
+      } else {
+        all_demos[name]->run();
+      }
+      first = false;
+    }
+  }
+};
+
+std::vector<std::string> Demo::all_demo_names;
+std::unordered_map<std::string, Demo*> Demo::all_demos;
+
+// ----------------- Demos -----------------
+
+Demo animations("animations", "Animations", []() {
   for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
     auto anim =
         bk::Animation({.message = "Working", .style = sty, .interval = 0.5s});
@@ -14,15 +74,16 @@ int main(int /*argc*/, char** /*argv*/) {
     std::this_thread::sleep_for(10s);
     anim.done();
   }
+});
 
-  { // Custom animation stills
-    std::vector<std::string> stills{"⠋", "⠙", "⠸", "⠴", "⠦", "⠇"};
-    auto anim = bk::Animation(
-        {.message = "Working", .style = stills, .interval = 0.5s});
-    std::this_thread::sleep_for(10s);
-  }
+Demo custom_animations("custom_animations", "Custom animation stills", []() {
+  std::vector<std::string> stills{"⠋", "⠙", "⠸", "⠴", "⠦", "⠇"};
+  auto anim =
+      bk::Animation({.message = "Working", .style = stills, .interval = 0.5s});
+  std::this_thread::sleep_for(10s);
+});
 
-  std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
+Demo int_counter("int_counter", "Integral counter", []() {
   for (auto speed : speeds) {
     std::atomic<size_t> work{0};
     auto c = bk::Counter(&work,
@@ -38,7 +99,9 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     c.done();
   }
+});
 
+Demo float_counter("float_counter", "Floating point counter", []() {
   for (auto speed : speeds) {
     float work{0};
     auto c = bk::Counter(&work,
@@ -54,7 +117,9 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     c.done();
   }
+});
 
+Demo decreasing_counter("decreasing_counter", "Decreasing counter", []() {
   for (auto speed : speeds) {
     unsigned long long work{677};
     auto c = bk::Counter(&work,
@@ -70,9 +135,11 @@ int main(int /*argc*/, char** /*argv*/) {
     }
     // Let destructor do the c.done() this time
   }
+});
 
+Demo bars("bars", "Progress bars", []() {
   for (auto speed : speeds) {
-    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Arrow}) {
+    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars}) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work,
                                  {
@@ -90,158 +157,211 @@ int main(int /*argc*/, char** /*argv*/) {
       bar.done();
     }
   }
+});
 
-  { // Custom bar style
-    std::atomic<size_t> work{0};
-    bk::BarParts sty{"[", "]", {"/"}, {" "}};
-    auto bar = bk::ProgressBar(&work,
-                               {
-                                   .total = 1010,
-                                   .message = "Doing stuff",
-                                   .speed = 0.1,
-                                   .speed_unit = "tk/s",
-                                   .style = sty,
-                               });
-    bar.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(7ms);
-      work++;
-    }
-    bar.done();
+Demo custom_bar("custom_bar", "Custom bar style", []() {
+  std::atomic<size_t> work{0};
+  bk::BarParts sty{"[", "]", {"/"}, {" "}};
+  auto bar = bk::ProgressBar(&work,
+                             {
+                                 .total = 1010,
+                                 .message = "Doing stuff",
+                                 .speed = 0.1,
+                                 .speed_unit = "tk/s",
+                                 .style = sty,
+                             });
+  bar.show();
+  for (int i = 0; i < 1010; i++) {
+    std::this_thread::sleep_for(7ms);
+    work++;
   }
+  bar.done();
+});
 
-  { // Decreasing progress
-    unsigned long work{1010};
-    auto bar = bk::ProgressBar(&work,
-                               {
-                                   .total = 1010,
-                                   .speed = 1.,
-                               });
-    bar.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(7ms);
-      work--;
-    }
-    bar.done();
+Demo decreasing_progress_bar( // ...
+    "decreasing_progress_bar",
+    "Decreasing progress bar",
+    []() {
+      unsigned long work{1010};
+      auto bar = bk::ProgressBar(&work,
+                                 {
+                                     .total = 1010,
+                                     .speed = 1.,
+                                 });
+      bar.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(7ms);
+        work--;
+      }
+      bar.done();
+    });
+
+Demo bar_and_counter(
+    "bar_and_counter",
+    "Composite display of a ProgressBar and Counter",
+    "We want to measure"
+    " completion in terms of #sentences but we are also interested in speed"
+    " in terms of tokens per second.",
+    []() {
+      std::atomic<size_t> sents{0}, toks{0};
+      // TODO: clang-format makes this very ugly
+      auto bar = bk::ProgressBar(&sents,
+                                 {
+                                     .total = 1010,
+                                     .message = "Sents",
+                                     .speed = 1,
+                                     .show = false,
+                                 }) |
+                 bk::Counter(&toks,
+                             {
+                                 .message = "Toks",
+                                 .speed = 1,
+                                 .speed_unit = "tok/s",
+                                 .show = false,
+                             });
+      bar.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        sents++;
+        toks += (1 + size_t(rand()) % 5);
+      }
+      bar.done();
+    });
+
+Demo three_counters( // ...
+    "three_counters",
+    "Composite display of three counters",
+    []() {
+      std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
+      // TODO: clang-format makes this very ugly
+      auto counters = bk::Counter(&squares,
+                                  {
+                                      .message = "Squares",
+                                      .speed = 0.1,
+                                      .show = false,
+                                  }) |
+                      bk::Counter(&cubes,
+                                  {
+                                      .message = "Cubes",
+                                      .speed = 0.1,
+                                      .show = false,
+                                  }) |
+                      bk::Counter(&hypercubes,
+                                  {
+                                      .message = "Hypercubes",
+                                      .speed = 0.1,
+                                      .show = false,
+                                  });
+      counters.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        squares += (1 + size_t(rand()) % 5);
+        cubes += (1 + size_t(rand()) % 10);
+        hypercubes += (1 + size_t(rand()) % 20);
+      }
+      counters.done();
+    });
+
+Demo three_counters_delim(
+    "three_counters_delim",
+    "Composite display of three counters with custom delimiter",
+    []() {
+      std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
+      // clang-format off
+      auto counters = bk::Composite(" | ",
+                                    bk::Counter(&squares, {
+                                        .message = "Squares",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }),
+                                    bk::Counter(&cubes, {
+                                        .message = "Cubes",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }),
+                                    bk::Counter(&hypercubes, {
+                                        .message = "Hypercubes",
+                                        .speed = 0.1,
+                                        .show = false,
+                                    }));
+      // clang-format on
+      counters.show();
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(13ms);
+        squares += (1 + size_t(rand()) % 5);
+        cubes += (1 + size_t(rand()) % 10);
+        hypercubes += (1 + size_t(rand()) % 20);
+      }
+      counters.done();
+    });
+
+Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
+  std::vector<float> v(300, 0);
+  std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
+  float sum = 0;
+  for (auto x : bk::IterableBar(v, {.message = "Summing", .interval = .02})) {
+    std::this_thread::sleep_for(1.s / x);
+    sum += x;
   }
+  std::cout << "Sum: " << sum << std::endl;
+});
 
-  { // Composite display of a ProgressBar and Counter. We want to measure
-    // completion in terms of #sentences but we are also interested in speed
-    // in terms of tokens per second.'
-    std::atomic<size_t> sents{0}, toks{0};
-    // TODO: clang-format makes this very ugly
-    auto bar = bk::ProgressBar(&sents,
-                               {
-                                   .total = 1010,
-                                   .message = "Sents",
-                                   .speed = 1,
-                                   .show = false,
-                               }) |
-               bk::Counter(&toks,
-                           {
-                               .message = "Toks",
-                               .speed = 1,
-                               .speed_unit = "tok/s",
-                               .show = false,
-                           });
-    bar.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(13ms);
-      sents++;
-      toks += (1 + size_t(rand()) % 5);
-    }
-    bar.done();
-  }
+Demo bar_no_tty(
+    "bar_no_tty",
+    "Progress bar with no-tty mode",
+    "⚠️ Warning: To illustrate infrequent writes with the default options, no-tty"
+    " demos take long (several minutes)... 😅",
+    []() {
+      std::atomic<size_t> sents{0}, toks{0};
+      auto bar = bk::ProgressBar(&sents,
+                                 {
+                                     .total = 20100,
+                                     .message = "Sents",
+                                     .speed = 1,
+                                     .no_tty = true,
+                                 });
+      bar.show();
+      for (int i = 0; i < 20100; i++) {
+        std::this_thread::sleep_for(13ms);
+        sents++;
+        toks += (1 + size_t(rand()) % 5);
+      }
+      bar.done();
+    });
 
-  { // Composite display of three counters
-    std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
-    // TODO: clang-format makes this very ugly
-    auto counters = bk::Counter(&squares,
-                                {
-                                    .message = "Squares",
-                                    .speed = 0.1,
-                                    .show = false,
-                                }) |
-                    bk::Counter(&cubes,
-                                {
-                                    .message = "Cubes",
-                                    .speed = 0.1,
-                                    .show = false,
-                                }) |
-                    bk::Counter(&hypercubes,
-                                {
-                                    .message = "Hypercubes",
-                                    .speed = 0.1,
-                                    .show = false,
-                                });
-    counters.show();
-    for (int i = 0; i < 1010; i++) {
-      std::this_thread::sleep_for(13ms);
-      squares += (1 + size_t(rand()) % 5);
-      cubes += (1 + size_t(rand()) % 10);
-      hypercubes += (1 + size_t(rand()) % 20);
-    }
-    counters.done();
-  }
+Demo bar_counter_no_tty(
+    "bar_counter_no_tty",
+    "Composite display of a ProgressBar and Counter with no-tty mode",
+    "⚠️ Warning: To illustrate infrequent writes with the default options, no-tty"
+    " demos take long (several minutes)... 😅",
+    []() {
+      std::atomic<size_t> sents{0}, toks{0};
+      auto bar = bk::ProgressBar(&sents,
+                                 {
+                                     .total = 20100,
+                                     .message = "Sents",
+                                     .no_tty = true,
+                                     .show = false,
+                                 }) |
+                 bk::Counter(&toks,
+                             {
+                                 .message = "Toks",
+                                 .speed = 1,
+                                 .speed_unit = "tok/s",
+                                 .no_tty = true,
+                                 .show = false,
+                             });
+      bar.show();
+      for (int i = 0; i < 20100; i++) {
+        std::this_thread::sleep_for(13ms);
+        sents++;
+        toks += (1 + size_t(rand()) % 5);
+      }
+      bar.done();
+    });
 
-  { // Iterable automatic progress bar
-    std::vector<float> v(300, 0);
-    std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
-    float sum = 0;
-    for (auto x : bk::IterableBar(v, {.message = "Summing", .interval = .02})) {
-      std::this_thread::sleep_for(1.s / x);
-      sum += x;
-    }
-    std::cout << "Sum: " << sum << std::endl;
-  }
-
-  std::cout << "\nWarning: To illustrate infrequent writes, no-tty"
-               " demos take long (several minutes)... 😅"
-            << std::endl;
-
-  { // Progress bar with no-tty mode
-    std::atomic<size_t> sents{0}, toks{0};
-    auto bar = bk::ProgressBar(&sents,
-                               {
-                                   .total = 20100,
-                                   .message = "Sents",
-                                   .speed = 1,
-                                   .no_tty = true,
-                               });
-    bar.show();
-    for (int i = 0; i < 20100; i++) {
-      std::this_thread::sleep_for(13ms);
-      sents++;
-      toks += (1 + size_t(rand()) % 5);
-    }
-    bar.done();
-  }
-
-  { // Composite display of a ProgressBar and Counter with no-tty mode
-    std::atomic<size_t> sents{0}, toks{0};
-    auto bar = bk::ProgressBar(&sents,
-                               {
-                                   .total = 20100,
-                                   .message = "Sents",
-                                   .no_tty = true,
-                                   .show = false,
-                               }) |
-               bk::Counter(&toks,
-                           {
-                               .message = "Toks",
-                               .speed = 1,
-                               .speed_unit = "tok/s",
-                               .no_tty = true,
-                               .show = false,
-                           });
-    bar.show();
-    for (int i = 0; i < 20100; i++) {
-      std::this_thread::sleep_for(13ms);
-      sents++;
-      toks += (1 + size_t(rand()) % 5);
-    }
-    bar.done();
-  }
+int main(int argc, char** argv) {
+  Demo::run_all(std::vector<std::string>(argv + 1, argv + argc));
 
   return 0;
 }
