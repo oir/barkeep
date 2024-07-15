@@ -34,6 +34,7 @@ int main(int /*argc*/, char** /*argv*/) {
         std::string fmtstr : {
             "Picking flowers {0:4d}/1010  {1}  ({4:.1f} flo/s)",
             "Picking flowers {8}{0:4d}/1010  {6}{1}  {7}{2:3.0f}%{11} ({4:.1f} flo/s)",
+            "Picking flowers\n{8}{0:4d}/1010\n{6}{1}\n{7}{2:3.0f}%{11}\n({4:.1f} flo/s)",
         }) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work, {.total = 1010, .format = fmtstr, .speed = speed});

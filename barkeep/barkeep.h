@@ -121,6 +121,7 @@ class AsyncDisplay {
   std::condition_variable completion_;
   std::mutex completion_m_;
   std::atomic<bool> complete_ = false;
+  long last_num_newlines_ = 0;
 
   // configuration
   Duration interval_{0.0};
@@ -130,22 +131,33 @@ class AsyncDisplay {
 
  protected:
   /// Render a display: animation, progress bar, etc.
-  virtual void render_(const std::string& end = " ") = 0;
+  /// @return Number of \n characters in the display.
+  virtual long render_(const std::string& end = " ") = 0;
 
   virtual Duration default_interval_() const = 0;
 
   /// Display everything (message, maybe with animation, progress bar, etc).
   void display_() {
-    if (not no_tty_) { *out_ << "\r\033[K"; } // CR, clear line
-    render_();
+    static const auto clear_line = "\033[K";
+    static const auto cursor_up = "\033[A";
+
+    if (not no_tty_) {
+      *out_ << "\r" << clear_line;
+      for (long i = 0; i < last_num_newlines_; i++) {
+        *out_ << cursor_up << clear_line;
+      }
+    }
+    last_num_newlines_ = render_();
     if (no_tty_) { *out_ << "\n"; }
     *out_ << std::flush;
   }
 
  protected:
   /// Display the message to output stream.
-  void render_message_() const {
+  /// @return Number of \n characters in the message.
+  long render_message_() const {
     if (not message_.empty()) { *out_ << message_ << " "; }
+    return std::count(message_.begin(), message_.end(), '\n');
   }
 
   /// Start the display but do not show.
@@ -281,10 +293,11 @@ class Animation : public AsyncDisplay {
   Strings stills_;
 
  protected:
-  void render_(const std::string& end = " ") override {
-    render_message_();
+  long render_(const std::string& end = " ") override {
+    long nls = render_message_();
     *out_ << stills_[frame_] << end;
     frame_ = (frame_ + 1) % stills_.size();
+    return nls; // assuming no newlines in stills
   }
 
   Duration default_interval_() const override {
@@ -328,11 +341,17 @@ class Composite : public AsyncDisplay {
   std::string delim_ = " ";
   std::vector<std::unique_ptr<AsyncDisplay>> displays_;
 
-  void render_(const std::string& end = " ") override {
+  long render_(const std::string& end = " ") override {
+    long nls = render_message_();
     for (auto it = displays_.begin(); it != displays_.end(); it++) {
-      if (it != displays_.begin()) { *out_ << delim_; }
+      if (it != displays_.begin()) {
+        *out_ << delim_;
+        nls += std::count(delim_.begin(), delim_.end(), '\n');
+      }
       (*it)->render_((it != displays_.end() - 1) ? "" : end);
     }
+    nls += std::count(end.begin(), end.end(), '\n');
+    return nls;
   }
 
   Duration default_interval_() const override {
@@ -528,7 +547,7 @@ class Counter : public AsyncDisplay {
   }
 
   /// Write the value of progress with the message to the output stream
-  void render_(const std::string& end = " ") override {
+  long render_(const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -557,7 +576,7 @@ class Counter : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return;
+      return std::count(format_.begin(), format_.end(), '\n');
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -575,12 +594,14 @@ class Counter : public AsyncDisplay {
                                                   reset)   // 8
 
       );
-      return;
+      return std::count(format_.begin(), format_.end(), '\n');
     }
 #endif
-    render_message_();
+    long nls = render_message_();
     render_counts_(speedom_ ? " " : end);
     if (speedom_) { speedom_->render_speed(out_, speed_unit_, end); }
+    nls += std::count(end.begin(), end.end(), '\n');
+    return nls;
   }
 
   /// Default interval in which the display is refreshed, if interval() is not
@@ -764,7 +785,7 @@ class ProgressBar : public AsyncDisplay {
   }
 
   /// Run all of the individual render methods to write everything to stream
-  void render_(const std::string& end = " ") override {
+  long render_(const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -805,7 +826,7 @@ class ProgressBar : public AsyncDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return;
+      return std::count(format_.begin(), format_.end(), '\n');
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -831,10 +852,10 @@ class ProgressBar : public AsyncDisplay {
                                                   magenta,  // 9
                                                   cyan,     // 10
                                                   reset));  // 11
-      return;
+      return std::count(format_.begin(), format_.end(), '\n');
     }
 #endif
-    render_message_();
+    long nls = render_message_();
 
     *out_ << bar_parts_.percent_left_modifier;
     render_percentage_();
@@ -852,6 +873,11 @@ class ProgressBar : public AsyncDisplay {
       speedom_->render_speed(out_, speed_unit_, end);
       *out_ << bar_parts_.speed_right_modifier;
     }
+
+    nls += std::count(end.begin(), end.end(), '\n');
+
+    // assumes no newlines in bar parts
+    return nls;
   }
 
   Duration default_interval_() const override {
