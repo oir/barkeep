@@ -42,23 +42,34 @@ enum AnimationStyle : unsigned short {
   Moon,
   Earth,
   Bar,
-  Square,
+  UnicodeBar,
+  Bounce,
 };
 
 /// Definitions of various stills for Animation. AnimationStyle indexes into
 /// this.
-const static StringsList animation_stills_{
-    {".  ", ".. ", "..."},
-    {"🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
-     "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"},
-    {"🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"},
-    {"🌎", "🌍", "🌏"},
-    {"-", "/", "|", "\\"},
-    {"▖", "▘", "▝", "▗"},
-};
-
-/// Kind of bar being displayed for ProgressBar.
-enum ProgressBarStyle : unsigned short { Bars, Blocks, Pip };
+const static std::vector<std::pair<Strings, double>> animation_stills_{
+    {{".  ", ".. ", "..."}, 0.5},
+    {{"🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
+      "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"},
+     0.5},
+    {{"🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"}, 0.5},
+    {{"🌎", "🌍", "🌏"}, 0.5},
+    {{"-", "/", "|", "\\"}, 0.5},
+    {{"╶─╴", " ╱ ", " │ ", " ╲ "}, 0.5},
+    {{
+         "●                  ", "●                  ", "●                  ",
+         "●                  ", " ●                 ", "  ●                ",
+         "   ●               ", "     ●             ", "       ●           ",
+         "         ●         ", "           ●       ", "             ●     ",
+         "               ●   ", "                ●  ", "                 ● ",
+         "                  ●", "                  ●", "                  ●",
+         "                  ●", "                 ● ", "                ●  ",
+         "               ●   ", "             ●     ", "           ●       ",
+         "         ●         ", "       ●           ", "     ●             ",
+         "   ●               ", "  ●                ", " ●                 ",
+     },
+     0.05}};
 
 struct BarParts {
   std::string left;
@@ -82,13 +93,16 @@ struct BarParts {
   std::string speed_right_modifier = "";
 };
 
-const static std::string red = "\033[31m";
-const static std::string green = "\033[32m";
-const static std::string yellow = "\033[33m";
-const static std::string blue = "\033[34m";
-const static std::string magenta = "\033[35m";
-const static std::string cyan = "\033[36m";
-const static std::string reset = "\033[0m";
+const static auto red = "\033[31m";
+const static auto green = "\033[32m";
+const static auto yellow = "\033[33m";
+const static auto blue = "\033[34m";
+const static auto magenta = "\033[35m";
+const static auto cyan = "\033[36m";
+const static auto reset = "\033[0m";
+
+/// Kind of bar being displayed for ProgressBar.
+enum ProgressBarStyle : unsigned short { Bars, Blocks, Pip, Line };
 
 /// Definitions of various partial bars for ProgressBar.
 /// ProgressBarStyle indexes into this.
@@ -109,6 +123,7 @@ const static std::vector<BarParts> progress_bar_parts_{
      reset,
      red,
      reset},
+    {"", "", {"╾", "━"}, {"─"}},
 };
 
 /// Base class to handle all asynchronous displays.
@@ -291,6 +306,7 @@ class Animation : public AsyncDisplay {
  private:
   unsigned short frame_ = 0;
   Strings stills_;
+  Duration def_interval_{0.5};
 
  protected:
   long render_(const std::string& end = " ") override {
@@ -301,7 +317,7 @@ class Animation : public AsyncDisplay {
   }
 
   Duration default_interval_() const override {
-    return no_tty_ ? Duration{60.} : Duration{.5};
+    return no_tty_ ? Duration{60.} : def_interval_;
   }
 
  public:
@@ -319,7 +335,12 @@ class Animation : public AsyncDisplay {
       stills_ = std::get<Strings>(cfg.style);
     } else {
       stills_ = animation_stills_[static_cast<unsigned short>(
-          std::get<AnimationStyle>(cfg.style))];
+                                      std::get<AnimationStyle>(cfg.style))]
+                    .first;
+      def_interval_ =
+          Duration(animation_stills_[static_cast<unsigned short>(
+                                         std::get<AnimationStyle>(cfg.style))]
+                       .second);
     }
 
     if (cfg.show) { show(); }
