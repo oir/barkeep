@@ -334,13 +334,11 @@ class Animation : public AsyncDisplay {
     if (std::holds_alternative<Strings>(cfg.style)) {
       stills_ = std::get<Strings>(cfg.style);
     } else {
-      stills_ = animation_stills_[static_cast<unsigned short>(
-                                      std::get<AnimationStyle>(cfg.style))]
-                    .first;
-      def_interval_ =
-          Duration(animation_stills_[static_cast<unsigned short>(
-                                         std::get<AnimationStyle>(cfg.style))]
-                       .second);
+      auto idx =
+          static_cast<unsigned short>(std::get<AnimationStyle>(cfg.style));
+      auto& stills_pair = animation_stills_[idx];
+      stills_ = stills_pair.first;
+      def_interval_ = Duration(stills_pair.second);
     }
 
     if (cfg.show) { show(); }
