@@ -243,7 +243,7 @@ PYBIND11_MODULE(barkeep, m) {
       .value("Moon", AnimationStyle::Moon)
       .value("Earth", AnimationStyle::Earth)
       .value("Bar", AnimationStyle::Bar)
-      .value("Square", AnimationStyle::Square)
+      .value("Bounce", AnimationStyle::Bounce)
       .export_values();
 
   py::enum_<ProgressBarStyle>(m, "ProgressBarStyle")

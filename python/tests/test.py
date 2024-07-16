@@ -55,7 +55,7 @@ animation_styles = [
     AnimationStyle.Moon,
     AnimationStyle.Earth,
     AnimationStyle.Bar,
-    AnimationStyle.Square,
+    AnimationStyle.Bounce,
 ]
 animation_stills = [
     [".  ", ".. ", "..."],
@@ -64,7 +64,18 @@ animation_stills = [
     ["🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"],
     ["🌎", "🌍", "🌏"],
     ["-", "/", "|", "\\"],
-    ["▖", "▘", "▝", "▗"],
+    [
+         "●                  ", "●                  ", "●                  ",
+         "●                  ", " ●                 ", "  ●                ",
+         "   ●               ", "     ●             ", "       ●           ",
+         "         ●         ", "           ●       ", "             ●     ",
+         "               ●   ", "                ●  ", "                 ● ",
+         "                  ●", "                  ●", "                  ●",
+         "                  ●", "                 ● ", "                ●  ",
+         "               ●   ", "             ●     ", "           ●       ",
+         "         ●         ", "       ●           ", "     ●             ",
+         "   ●               ", "  ●                ", " ●                 ",
+    ]
 ]  # fmt: skip
 
 
@@ -255,9 +266,7 @@ def test_invalid_speed_discount(Display, discount):
 
 
 @pytest.mark.parametrize("dtype", dtypes, indirect=True)
-@pytest.mark.parametrize(
-    "sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks]
-)
+@pytest.mark.parametrize("sty", [ProgressBarStyle.Bars, ProgressBarStyle.Blocks])
 @pytest.mark.parametrize("no_tty", [True, False])
 def test_progress_bar(dtype, sty, no_tty):
     out = io.StringIO()

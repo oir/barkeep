@@ -67,9 +67,8 @@ std::unordered_map<std::string, Demo*> Demo::all_demos;
 // ----------------- Demos -----------------
 
 Demo animations("animations", "Animations", []() {
-  for (auto sty : {bk::Ellipsis, bk::Bar, bk::Moon}) {
-    auto anim =
-        bk::Animation({.message = "Working", .style = sty, .interval = 0.5s});
+  for (auto sty : {bk::Ellipsis, bk::Bounce, bk::Bar, bk::Moon}) {
+    auto anim = bk::Animation({.message = "Working", .style = sty});
     anim.show();
     std::this_thread::sleep_for(10s);
     anim.done();
@@ -139,7 +138,7 @@ Demo decreasing_counter("decreasing_counter", "Decreasing counter", []() {
 
 Demo bars("bars", "Progress bars", []() {
   for (auto speed : speeds) {
-    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars}) {
+    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Line}) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work,
                                  {

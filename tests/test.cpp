@@ -75,7 +75,7 @@ TEST_CASE("Animation default", "[anim]") {
 TEST_CASE("Animation", "[anim]") {
   std::stringstream out;
 
-  auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Square);
+  auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Bounce);
   auto no_tty = GENERATE(true, false);
   auto interval = GENERATE(as<std::variant<Duration, double>>(), 100ms, 0.1);
 
@@ -91,7 +91,7 @@ TEST_CASE("Animation", "[anim]") {
   anim.done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
-  check_anim(parts, "Working", animation_stills_[size_t(sty)]);
+  check_anim(parts, "Working", animation_stills_[size_t(sty)].first);
 }
 
 TEST_CASE("Animation custom", "[anim]") {
