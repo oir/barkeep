@@ -265,16 +265,10 @@ class AsyncDisplay {
     join();
   }
 
+  /// Return true if the display is running.
   bool running() const { return displayer_ != nullptr; }
 
   virtual std::unique_ptr<AsyncDisplay> clone() const = 0;
-
- protected:
-  void ensure_not_running() const {
-    if (running()) {
-      throw std::runtime_error("Cannot modify a running display");
-    }
-  }
 
   friend class Composite;
 };
