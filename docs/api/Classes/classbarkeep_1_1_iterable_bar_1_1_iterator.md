@@ -12,7 +12,7 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**(typename Container::iterator it, [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) & idx)</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-iterator)**(typename Container::iterator it, typename Container::iterator end, [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) & idx, std::shared_ptr< [Bar](api/Classes/classbarkeep_1_1_iterable_bar.md#using-bar) > bar)</span> |
 | <span class="codey"> [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & </span>|  <span class="codey">  **[operator++](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator++)**()</span> |
 | <span class="codey"> bool </span>|  <span class="codey">  **[operator!=](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator!=)**(const [Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md) & other) const</span> |
 | <span class="codey"> auto & </span>|  <span class="codey">  **[operator*](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md#function-operator*)**()</span> |
@@ -27,7 +27,9 @@
 ```cpp
 inline Iterator(
     typename Container::iterator it,
-    ProgressType & idx
+    typename Container::iterator end,
+    ProgressType & idx,
+    std::shared_ptr< Bar > bar
 )
 ```
 

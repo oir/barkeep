@@ -25,6 +25,7 @@ A progress bar that can be used with range-based for loops, that automatically t
 | -------------- | -------------- |
 | <span class="codey">using std::atomic< size_t > </span>| <span class="codey">**[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)** </span> |
 | <span class="codey">using [value_t](api/Namespaces/namespacebarkeep.md#using-value_t)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)** </span> |
+| <span class="codey">using [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[Bar](api/Classes/classbarkeep_1_1_iterable_bar.md#using-bar)** </span> |
 
 
 </span>
@@ -50,6 +51,11 @@ class barkeep::IterableBar;
 ```
 
 A progress bar that can be used with range-based for loops, that automatically tracks the progress of the loop. 
+
+[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md) starts the display not at the time of construction, but at the time of the first call to [begin()](api/Classes/classbarkeep_1_1_iterable_bar.md#function-begin). Thus, it is possible to set it up prior to loop execution.
+
+Similarly, it ends the display not at the time of destruction, but at the first increment of the iterator past the end. Thus, even if the object stays alive after the loop, the display will be stopped. 
+
 ## Public Types Documentation
 
 ### using `ProgressType`
@@ -63,6 +69,13 @@ using barkeep::IterableBar< Container >::ProgressType =  std::atomic<size_t>;
 
 ```cpp
 using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
+```
+
+
+### using `Bar`
+
+```cpp
+using barkeep::IterableBar< Container >::Bar =  ProgressBar<ProgressType>;
 ```
 
 

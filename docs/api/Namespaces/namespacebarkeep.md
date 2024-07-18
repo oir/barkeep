@@ -31,8 +31,8 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> AnimationStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { `Ellipsis`, `Clock`, `Moon`, `Earth`, `Bar`, `Square`}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
-| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> ProgressBarStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { `Bars`, `Blocks`, `Arrow`, `Pip`}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
+| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> AnimationStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { `Ellipsis`, `Clock`, `Moon`, `Earth`, `Bar`, `UnicodeBar`, `Bounce`}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
+| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> ProgressBarStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { `Bars`, `Blocks`, `Pip`, `Line`}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
 | <span class="codey"> using std::vector< std::string > </span>| **[ <span class="codey"> Strings</span> ](api/Namespaces/namespacebarkeep.md#using-strings)**  |
 | <span class="codey"> using std::vector< [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > </span>| **[ <span class="codey"> StringsList</span> ](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
 | <span class="codey"> using std::chrono::duration< double, std::ratio< 1 > > </span>| **[ <span class="codey"> Duration</span> ](api/Namespaces/namespacebarkeep.md#using-duration)**  |
@@ -60,14 +60,14 @@
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey">const [StringsList](api/Namespaces/namespacebarkeep.md#using-stringslist) </span>| **[<span class="codey">animation_stills_</span>](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
-| <span class="codey">const std::string </span>| **[<span class="codey">red</span>](api/Namespaces/namespacebarkeep.md#variable-red)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">green</span>](api/Namespaces/namespacebarkeep.md#variable-green)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">yellow</span>](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">blue</span>](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">magenta</span>](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">cyan</span>](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
-| <span class="codey">const std::string </span>| **[<span class="codey">reset</span>](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
+| <span class="codey">const std::vector< std::pair< [Strings](api/Namespaces/namespacebarkeep.md#using-strings), double > > </span>| **[<span class="codey">animation_stills_</span>](api/Namespaces/namespacebarkeep.md#variable-animation_stills_)** <br>Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this.  |
+| <span class="codey">const auto </span>| **[<span class="codey">red</span>](api/Namespaces/namespacebarkeep.md#variable-red)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">green</span>](api/Namespaces/namespacebarkeep.md#variable-green)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">yellow</span>](api/Namespaces/namespacebarkeep.md#variable-yellow)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">blue</span>](api/Namespaces/namespacebarkeep.md#variable-blue)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">magenta</span>](api/Namespaces/namespacebarkeep.md#variable-magenta)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">cyan</span>](api/Namespaces/namespacebarkeep.md#variable-cyan)**  |
+| <span class="codey">const auto </span>| **[<span class="codey">reset</span>](api/Namespaces/namespacebarkeep.md#variable-reset)**  |
 | <span class="codey">const std::vector< [BarParts](api/Classes/structbarkeep_1_1_bar_parts.md) > </span>| **[<span class="codey">progress_bar_parts_</span>](api/Namespaces/namespacebarkeep.md#variable-progress_bar_parts_)** <br>Definitions of various partial bars for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md). ProgressBarStyle indexes into this.  |
 
 ## Types Documentation
@@ -81,7 +81,8 @@
 | <span class="codey">Moon</span> | |   |
 | <span class="codey">Earth</span> | |   |
 | <span class="codey">Bar</span> | |   |
-| <span class="codey">Square</span> | |   |
+| <span class="codey">UnicodeBar</span> | |   |
+| <span class="codey">Bounce</span> | |   |
 
 
 
@@ -93,8 +94,8 @@ Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_a
 | ---------- | ----- | ----------- |
 | <span class="codey">Bars</span> | |   |
 | <span class="codey">Blocks</span> | |   |
-| <span class="codey">Arrow</span> | |   |
 | <span class="codey">Pip</span> | |   |
+| <span class="codey">Line</span> | |   |
 
 
 
@@ -168,15 +169,28 @@ Pipe operator can be used to combine two displays into a [Composite](api/Classes
 ### variable <span class="codey">animation_stills_</span>
 
 ```cpp
-static const StringsList animation_stills_ {
-    {".  ", ".. ", "..."},
-    {"🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
-     "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"},
-    {"🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"},
-    {"🌎", "🌍", "🌏"},
-    {"-", "/", "|", "\\"},
-    {"▖", "▘", "▝", "▗"},
-};
+static const std::vector< std::pair< Strings, double > > animation_stills_ {
+    {{".  ", ".. ", "..."}, 0.5},
+    {{"🕐", "🕜", "🕑", "🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡",
+      "🕖", "🕢", "🕗", "🕣", "🕘", "🕤", "🕙", "🕥", "🕚", "🕦", "🕛", "🕧"},
+     0.5},
+    {{"🌕", "🌖", "🌗", "🌘", "🌑", "🌒", "🌓", "🌔"}, 0.5},
+    {{"🌎", "🌍", "🌏"}, 0.5},
+    {{"-", "/", "|", "\\"}, 0.5},
+    {{"╶─╴", " ╱ ", " │ ", " ╲ "}, 0.5},
+    {{
+         "●                  ", "●                  ", "●                  ",
+         "●                  ", " ●                 ", "  ●                ",
+         "   ●               ", "     ●             ", "       ●           ",
+         "         ●         ", "           ●       ", "             ●     ",
+         "               ●   ", "                ●  ", "                 ● ",
+         "                  ●", "                  ●", "                  ●",
+         "                  ●", "                 ● ", "                ●  ",
+         "               ●   ", "             ●     ", "           ●       ",
+         "         ●         ", "       ●           ", "     ●             ",
+         "   ●               ", "  ●                ", " ●                 ",
+     },
+     0.05}};
 ```
 
 Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_animation.md). AnimationStyle indexes into this. 
@@ -184,49 +198,49 @@ Definitions of various stills for [Animation](api/Classes/classbarkeep_1_1_anima
 ### variable <span class="codey">red</span>
 
 ```cpp
-static const std::string red = "\033[31m";
+static const auto red = "\033[31m";
 ```
 
 
 ### variable <span class="codey">green</span>
 
 ```cpp
-static const std::string green = "\033[32m";
+static const auto green = "\033[32m";
 ```
 
 
 ### variable <span class="codey">yellow</span>
 
 ```cpp
-static const std::string yellow = "\033[33m";
+static const auto yellow = "\033[33m";
 ```
 
 
 ### variable <span class="codey">blue</span>
 
 ```cpp
-static const std::string blue = "\033[34m";
+static const auto blue = "\033[34m";
 ```
 
 
 ### variable <span class="codey">magenta</span>
 
 ```cpp
-static const std::string magenta = "\033[35m";
+static const auto magenta = "\033[35m";
 ```
 
 
 ### variable <span class="codey">cyan</span>
 
 ```cpp
-static const std::string cyan = "\033[36m";
+static const auto cyan = "\033[36m";
 ```
 
 
 ### variable <span class="codey">reset</span>
 
 ```cpp
-static const std::string reset = "\033[0m";
+static const auto reset = "\033[0m";
 ```
 
 
@@ -236,7 +250,6 @@ static const std::string reset = "\033[0m";
 static const std::vector< BarParts > progress_bar_parts_ {
     {"|", "|", {"|"}, {" "}},
     {"|", "|", {"▏", "▎", "▍", "▌", "▋", "▊", "▉", "█"}, {" "}},
-    {"|", "|", {">", "="}, {" "}},
     {"",
      "",
      {"╸", "━"},
@@ -251,6 +264,7 @@ static const std::vector< BarParts > progress_bar_parts_ {
      reset,
      red,
      reset},
+    {"", "", {"╾", "━"}, {"─"}},
 };
 ```
 
