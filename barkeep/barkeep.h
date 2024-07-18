@@ -146,7 +146,7 @@ class AsyncDisplay {
 
  protected:
   /// Render a display: animation, progress bar, etc.
-  /// @return Number of \n characters in the display.
+  /// @return Number of `\n` characters in the display.
   virtual long render_(const std::string& end = " ") = 0;
 
   virtual Duration default_interval_() const = 0;
@@ -169,7 +169,7 @@ class AsyncDisplay {
 
  protected:
   /// Display the message to output stream.
-  /// @return Number of \n characters in the message.
+  /// @return Number of `\n` characters in the message.
   long render_message_() const {
     if (not message_.empty()) { *out_ << message_ << " "; }
     return std::count(message_.begin(), message_.end(), '\n');

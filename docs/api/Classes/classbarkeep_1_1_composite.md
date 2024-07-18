@@ -14,7 +14,8 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**(std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > left, std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > right)</span> |
+| <span class="codey"> template <typename... Displays\> <br></span>|  <span class="codey">  **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**(const [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) & head, const Displays &... tail)</span><br>Variadic constructor to combine multiple displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md).  |
+| <span class="codey"> template <typename... Displays\> <br></span>|  <span class="codey">  **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**(std::string delim, const Displays &... displays)</span><br>Constructor to combine multiple displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md) with a delimiter.  |
 | <span class="codey"> </span>|  <span class="codey">  **[Composite](api/Classes/classbarkeep_1_1_composite.md#function-composite)**(const [Composite](api/Classes/classbarkeep_1_1_composite.md) & other)</span><br>Copy constructor clones child displays.  |
 | <span class="codey"> </span>|  <span class="codey">  **[~Composite](api/Classes/classbarkeep_1_1_composite.md#function-~composite)**()</span> |
 | <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_composite.md#function-clone)**() const override</span> |
@@ -28,7 +29,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> virtual void </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_composite.md#function-render_)**() override</span><br>Render a display: animation, progress bar, etc.  |
+| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_composite.md#function-render_)**(const std::string & end = " ") override</span><br>Render a display: animation, progress bar, etc.  |
 | <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_composite.md#function-default_interval_)**() const override</span> |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[start](api/Classes/classbarkeep_1_1_composite.md#function-start)**() override</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
 
@@ -41,8 +42,8 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span> | <span class="codey"> **[left_](api/Classes/classbarkeep_1_1_composite.md#variable-left_)**</span>  |
-| <span class="codey"> std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span> | <span class="codey"> **[right_](api/Classes/classbarkeep_1_1_composite.md#variable-right_)**</span>  |
+| <span class="codey"> std::string </span> | <span class="codey"> **[delim_](api/Classes/classbarkeep_1_1_composite.md#variable-delim_)**</span>  |
+| <span class="codey"> std::vector< std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > > </span> | <span class="codey"> **[displays_](api/Classes/classbarkeep_1_1_composite.md#variable-displays_)**</span>  |
 
 
 </span>
@@ -75,7 +76,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 |                | Name           |
 | -------------- | -------------- |
 | <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
-| <span class="codey">void </span>| <span class="codey">**[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
+| <span class="codey">long </span>| <span class="codey">**[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey">virtual void </span>| <span class="codey">**[join](api/Classes/classbarkeep_1_1_async_display.md#function-join)**()</span><br>Join the display thread. Protected because python bindings need to override to handle GIL.  |
 | <span class="codey">void </span>| <span class="codey">**[ensure_not_running](api/Classes/classbarkeep_1_1_async_display.md#function-ensure_not_running)**() const</span> |
 
@@ -93,6 +94,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 | <span class="codey">std::condition_variable </span>| <span class="codey">**[completion_](api/Classes/classbarkeep_1_1_async_display.md#variable-completion_)** </span> |
 | <span class="codey">std::mutex </span>| <span class="codey">**[completion_m_](api/Classes/classbarkeep_1_1_async_display.md#variable-completion_m_)** </span> |
 | <span class="codey">std::atomic< bool > </span>| <span class="codey">**[complete_](api/Classes/classbarkeep_1_1_async_display.md#variable-complete_)** </span> |
+| <span class="codey">long </span>| <span class="codey">**[last_num_newlines_](api/Classes/classbarkeep_1_1_async_display.md#variable-last_num_newlines_)** </span> |
 | <span class="codey">[Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey">**[interval_](api/Classes/classbarkeep_1_1_async_display.md#variable-interval_)** </span> |
 | <span class="codey">std::string </span>| <span class="codey">**[message_](api/Classes/classbarkeep_1_1_async_display.md#variable-message_)** </span> |
 | <span class="codey">std::string </span>| <span class="codey">**[format_](api/Classes/classbarkeep_1_1_async_display.md#variable-format_)** </span> |
@@ -107,12 +109,26 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 ### function `Composite`
 
 ```cpp
+template <typename... Displays>
 inline Composite(
-    std::unique_ptr< AsyncDisplay > left,
-    std::unique_ptr< AsyncDisplay > right
+    const AsyncDisplay & head,
+    const Displays &... tail
 )
 ```
 
+Variadic constructor to combine multiple displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md). 
+
+### function `Composite`
+
+```cpp
+template <typename... Displays>
+inline Composite(
+    std::string delim,
+    const Displays &... displays
+)
+```
+
+Constructor to combine multiple displays into a [Composite](api/Classes/classbarkeep_1_1_composite.md) with a delimiter. 
 
 ### function `Composite`
 
@@ -146,10 +162,14 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 ### function `render_`
 
 ```cpp
-inline virtual void render_() override
+inline virtual long render_(
+    const std::string & end = " "
+) override
 ```
 
 Render a display: animation, progress bar, etc. 
+
+**Return**: Number of `\n` characters in the display. 
 
 **Reimplements**: [`barkeep::AsyncDisplay::render_`](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
 
@@ -177,17 +197,17 @@ Start the display but do not show. This typically means start measuring speed if
 
 ## Protected Attributes Documentation
 
-### variable `left_`
+### variable `delim_`
 
 ```cpp
-std::unique_ptr< AsyncDisplay > left_;
+std::string delim_ = " ";
 ```
 
 
-### variable `right_`
+### variable `displays_`
 
 ```cpp
-std::unique_ptr< AsyncDisplay > right_;
+std::vector< std::unique_ptr< AsyncDisplay > > displays_;
 ```
 
 
