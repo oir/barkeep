@@ -392,7 +392,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   TestType progress{0};
 
   bool no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Pip);
+  auto sty = GENERATE(Bars, Blocks, Rich);
 
   auto bar = ProgressBar(&progress,
                          {
@@ -464,7 +464,7 @@ TEST_CASE("Iterable bar", "[bar]") {
   int dummy_sum = 0;
 
   auto no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Pip);
+  auto sty = GENERATE(Bars, Blocks, Rich);
 
   // TODO: is misalignment below a clang-format issue?
   for (auto& thing : IterableBar(things,
@@ -499,7 +499,7 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   using ValueType = value_t<TestType>;
 
   bool no_tty = GENERATE(true, false);
-  auto sty = GENERATE(Bars, Blocks, Pip);
+  auto sty = GENERATE(Bars, Blocks, Rich);
   auto default_speed_unit = GENERATE(true, false);
 
   auto cfg = default_speed_unit ? ProgressBarConfig<ValueType>{
@@ -562,7 +562,7 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
   bool no_tty = GENERATE(true, false);
   auto default_speed_unit = GENERATE(true, false);
 
-  auto sty = GENERATE(Bars, Blocks, Pip);
+  auto sty = GENERATE(Bars, Blocks, Rich);
 
   if (default_speed_unit) {
     for (auto& thing : IterableBar(things,

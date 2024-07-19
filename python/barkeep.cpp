@@ -249,6 +249,8 @@ PYBIND11_MODULE(barkeep, m) {
   py::enum_<ProgressBarStyle>(m, "ProgressBarStyle")
       .value("Bars", ProgressBarStyle::Bars)
       .value("Blocks", ProgressBarStyle::Blocks)
+      .value("Rich", ProgressBarStyle::Rich)
+      .value("Line", ProgressBarStyle::Line)
       .export_values();
 
   py::enum_<DType>(m, "DType")
