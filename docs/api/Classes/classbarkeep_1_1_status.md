@@ -1,25 +1,12 @@
-# barkeep::Animation
+# barkeep::Status
 
 
-Displays a simple animation with a message. 
+[Status](api/Classes/classbarkeep_1_1_status.md) is an [Animation](api/Classes/classbarkeep_1_1_animation.md) where it is possible to update the message while the animation is running. 
 
 
 `#include <barkeep.h>`
 
-Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_display.md)
-
-Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
-
-## Public Types
-
-<span class="api-table">
-
-|                | Name           |
-| -------------- | -------------- |
-| <span class="codey">using [AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle) </span>| <span class="codey">**[Style](api/Classes/classbarkeep_1_1_animation.md#using-style)** </span> |
-
-
-</span>
+Inherits from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md), [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_display.md)
 
 ## Public Functions
 
@@ -27,11 +14,12 @@ Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg = {})</span><br>Constructor.  |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [Animation](api/Classes/classbarkeep_1_1_animation.md) & other) = default</span> |
-| <span class="codey"> </span>|  <span class="codey">  **[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([Animation](api/Classes/classbarkeep_1_1_animation.md) && ) = default</span> |
-| <span class="codey"> </span>|  <span class="codey">  **[~Animation](api/Classes/classbarkeep_1_1_animation.md#function-~animation)**()</span> |
-| <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_animation.md#function-clone)**() const override</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Status](api/Classes/classbarkeep_1_1_status.md#function-status)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg = {})</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Status](api/Classes/classbarkeep_1_1_status.md#function-status)**(const [Status](api/Classes/classbarkeep_1_1_status.md) & other)</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[Status](api/Classes/classbarkeep_1_1_status.md#function-status)**([Status](api/Classes/classbarkeep_1_1_status.md) && other)</span> |
+| <span class="codey"> </span>|  <span class="codey">  **[~Status](api/Classes/classbarkeep_1_1_status.md#function-~status)**()</span> |
+| <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_status.md#function-clone)**() const override</span> |
+| <span class="codey"> void </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status.md#function-message)**(const std::string & message)</span><br>Update the displayed message. This is thread-safe between the display thread and the calling thread.  |
 
 
 </span>
@@ -42,8 +30,7 @@ Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_animation.md#function-render_)**(const std::string & end = " ") override</span><br>Render a display: animation, progress bar, etc.  |
-| <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_animation.md#function-default_interval_)**() const override</span> |
+| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_status.md#function-render_)**(const std::string & end = " ") override</span><br>Render a display: animation, progress bar, etc.  |
 
 
 </span>
@@ -54,14 +41,60 @@ Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> unsigned short </span> | <span class="codey"> **[frame_](api/Classes/classbarkeep_1_1_animation.md#variable-frame_)**</span>  |
-| <span class="codey"> [Strings](api/Namespaces/namespacebarkeep.md#using-strings) </span> | <span class="codey"> **[stills_](api/Classes/classbarkeep_1_1_animation.md#variable-stills_)**</span>  |
-| <span class="codey"> [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span> | <span class="codey"> **[def_interval_](api/Classes/classbarkeep_1_1_animation.md#variable-def_interval_)**</span>  |
+| <span class="codey"> std::mutex </span> | <span class="codey"> **[message_mutex_](api/Classes/classbarkeep_1_1_status.md#variable-message_mutex_)**</span>  |
 
 
 </span>
 
 ## Additional inherited members
+
+**Public Types inherited from [barkeep::Animation](api/Classes/classbarkeep_1_1_animation.md)**
+
+<span class="api-table">
+
+|                | Name           |
+| -------------- | -------------- |
+| using [AnimationStyle](api/Namespaces/namespacebarkeep.md#enum-animationstyle) | **[Style](api/Classes/classbarkeep_1_1_animation.md#using-style)**  |
+
+</span>
+
+**Public Functions inherited from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md)**
+
+<span class="api-table">
+
+|                | Name           |
+| -------------- | -------------- |
+| <span class="codey"></span>| <span class="codey">**[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg = {})</span><br>Constructor.  |
+| <span class="codey"></span>| <span class="codey">**[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**(const [Animation](api/Classes/classbarkeep_1_1_animation.md) & other) = default</span> |
+| <span class="codey"></span>| <span class="codey">**[Animation](api/Classes/classbarkeep_1_1_animation.md#function-animation)**([Animation](api/Classes/classbarkeep_1_1_animation.md) && ) = default</span> |
+| <span class="codey"></span>| <span class="codey">**[~Animation](api/Classes/classbarkeep_1_1_animation.md#function-~animation)**()</span> |
+
+
+</span>
+
+**Protected Functions inherited from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md)**
+
+<span class="api-table">
+
+|                | Name           |
+| -------------- | -------------- |
+| <span class="codey">virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey">**[default_interval_](api/Classes/classbarkeep_1_1_animation.md#function-default_interval_)**() const override</span> |
+
+
+</span>
+
+**Protected Attributes inherited from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md)**
+
+<span class="api-table">
+
+|                | Name           |
+| -------------- | -------------- |
+| <span class="codey">unsigned short </span>| <span class="codey">**[frame_](api/Classes/classbarkeep_1_1_animation.md#variable-frame_)** </span> |
+| <span class="codey">[Strings](api/Namespaces/namespacebarkeep.md#using-strings) </span>| <span class="codey">**[stills_](api/Classes/classbarkeep_1_1_animation.md#variable-stills_)** </span> |
+| <span class="codey">[Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey">**[def_interval_](api/Classes/classbarkeep_1_1_animation.md#variable-def_interval_)** </span> |
+
+
+</span>
 
 </span>
 
@@ -88,6 +121,7 @@ Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
 
 |                | Name           |
 | -------------- | -------------- |
+| <span class="codey">virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey">**[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const = 0</span> |
 | <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
 | <span class="codey">long </span>| <span class="codey">**[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey">virtual void </span>| <span class="codey">**[start](api/Classes/classbarkeep_1_1_async_display.md#function-start)**()</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
@@ -128,54 +162,39 @@ Inherited by [`barkeep::Status`](api/Classes/classbarkeep_1_1_status.md)
 </span>
 
 
-## Public Types Documentation
-
-### using `Style`
-
-```cpp
-using barkeep::Animation::Style =  AnimationStyle;
-```
-
-
 ## Public Functions Documentation
 
-### function `Animation`
+### function `Status`
 
 ```cpp
-inline Animation(
+inline Status(
     const AnimationConfig & cfg = {}
 )
 ```
 
-Constructor. 
 
-**Parameters**: 
-
-  * **cfg** [Animation](api/Classes/classbarkeep_1_1_animation.md) parameters 
-
-
-### function `Animation`
+### function `Status`
 
 ```cpp
-Animation(
-    const Animation & other
-) = default
+inline Status(
+    const Status & other
+)
 ```
 
 
-### function `Animation`
+### function `Status`
 
 ```cpp
-Animation(
-    Animation && 
-) = default
+inline Status(
+    Status && other
+)
 ```
 
 
-### function `~Animation`
+### function `~Status`
 
 ```cpp
-inline ~Animation()
+inline ~Status()
 ```
 
 
@@ -186,11 +205,18 @@ inline virtual std::unique_ptr< AsyncDisplay > clone() const override
 ```
 
 
-**Reimplements**: [`barkeep::AsyncDisplay::clone`](api/Classes/classbarkeep_1_1_async_display.md#function-clone)
+**Reimplements**: [`barkeep::Animation::clone`](api/Classes/classbarkeep_1_1_animation.md#function-clone)
 
 
-**Reimplemented by**: [`barkeep::Status::clone`](api/Classes/classbarkeep_1_1_status.md#function-clone)
+### function `message`
 
+```cpp
+inline void message(
+    const std::string & message
+)
+```
+
+Update the displayed message. This is thread-safe between the display thread and the calling thread. 
 
 ## Protected Functions Documentation
 
@@ -206,42 +232,15 @@ Render a display: animation, progress bar, etc.
 
 **Return**: Number of `\n` characters in the display. 
 
-**Reimplements**: [`barkeep::AsyncDisplay::render_`](api/Classes/classbarkeep_1_1_async_display.md#function-render_)
-
-
-**Reimplemented by**: [`barkeep::Status::render_`](api/Classes/classbarkeep_1_1_status.md#function-render_)
-
-
-### function `default_interval_`
-
-```cpp
-inline virtual Duration default_interval_() const override
-```
-
-
-**Reimplements**: [`barkeep::AsyncDisplay::default_interval_`](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)
+**Reimplements**: [`barkeep::Animation::render_`](api/Classes/classbarkeep_1_1_animation.md#function-render_)
 
 
 ## Protected Attributes Documentation
 
-### variable `frame_`
+### variable `message_mutex_`
 
 ```cpp
-unsigned short frame_ = 0;
-```
-
-
-### variable `stills_`
-
-```cpp
-Strings stills_;
-```
-
-
-### variable `def_interval_`
-
-```cpp
-Duration def_interval_ {0.5};
+std::mutex message_mutex_;
 ```
 
 

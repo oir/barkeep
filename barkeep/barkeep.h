@@ -381,6 +381,8 @@ class Status : public Animation {
     return std::make_unique<Status>(*this);
   }
 
+  /// Update the displayed message.
+  /// This is thread-safe between the display thread and the calling thread.
   void message(const std::string& message) {
     std::lock_guard<std::mutex> lock(message_mutex_);
     message_ = message;

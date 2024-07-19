@@ -144,7 +144,7 @@ virtual std::unique_ptr< AsyncDisplay > clone() const = 0
 ```
 
 
-**Reimplemented by**: [`barkeep::Animation::clone`](api/Classes/classbarkeep_1_1_animation.md#function-clone), [`barkeep::Composite::clone`](api/Classes/classbarkeep_1_1_composite.md#function-clone), [`barkeep::Counter::clone`](api/Classes/classbarkeep_1_1_counter.md#function-clone), [`barkeep::ProgressBar::clone`](api/Classes/classbarkeep_1_1_progress_bar.md#function-clone)
+**Reimplemented by**: [`barkeep::Animation::clone`](api/Classes/classbarkeep_1_1_animation.md#function-clone), [`barkeep::Status::clone`](api/Classes/classbarkeep_1_1_status.md#function-clone), [`barkeep::Composite::clone`](api/Classes/classbarkeep_1_1_composite.md#function-clone), [`barkeep::Counter::clone`](api/Classes/classbarkeep_1_1_counter.md#function-clone), [`barkeep::ProgressBar::clone`](api/Classes/classbarkeep_1_1_progress_bar.md#function-clone)
 
 
 ## Protected Functions Documentation
@@ -161,7 +161,7 @@ Render a display: animation, progress bar, etc.
 
 **Return**: Number of `\n` characters in the display. 
 
-**Reimplemented by**: [`barkeep::Animation::render_`](api/Classes/classbarkeep_1_1_animation.md#function-render_), [`barkeep::Composite::render_`](api/Classes/classbarkeep_1_1_composite.md#function-render_), [`barkeep::Counter::render_`](api/Classes/classbarkeep_1_1_counter.md#function-render_), [`barkeep::ProgressBar::render_`](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)
+**Reimplemented by**: [`barkeep::Animation::render_`](api/Classes/classbarkeep_1_1_animation.md#function-render_), [`barkeep::Status::render_`](api/Classes/classbarkeep_1_1_status.md#function-render_), [`barkeep::Composite::render_`](api/Classes/classbarkeep_1_1_composite.md#function-render_), [`barkeep::Counter::render_`](api/Classes/classbarkeep_1_1_counter.md#function-render_), [`barkeep::ProgressBar::render_`](api/Classes/classbarkeep_1_1_progress_bar.md#function-render_)
 
 
 ### function `default_interval_`

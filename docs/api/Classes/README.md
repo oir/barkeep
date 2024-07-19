@@ -18,6 +18,7 @@
     * **class [<span class="codey">ProgressBar</span>](api/Classes/classbarkeep_1_1_progress_bar.md)** <br>Displays a progress bar, by comparing the progress value being monitored to a given total value. Optionally reports speed. 
     * **struct [<span class="codey">ProgressBarConfig</span>](api/Classes/structbarkeep_1_1_progress_bar_config.md)** 
     * **class [<span class="codey">Speedometer</span>](api/Classes/classbarkeep_1_1_speedometer.md)** <br>Helper class to measure and display speed of progress. 
+    * **class [<span class="codey">Status</span>](api/Classes/classbarkeep_1_1_status.md)** <br>[Status](api/Classes/classbarkeep_1_1_status.md) is an [Animation](api/Classes/classbarkeep_1_1_animation.md) where it is possible to update the message while the animation is running. 
 
 
 
