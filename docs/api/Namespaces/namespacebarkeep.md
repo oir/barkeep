@@ -32,7 +32,7 @@
 |                | Name           |
 | -------------- | -------------- |
 | <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> AnimationStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-animationstyle)** { `Ellipsis`, `Clock`, `Moon`, `Earth`, `Bar`, `UnicodeBar`, `Bounce`}<br>Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_animation.md).  |
-| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> ProgressBarStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { `Bars`, `Blocks`, `Pip`, `Line`}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
+| <span class="codey"> enum unsigned short </span>| **[ <span class="codey"> ProgressBarStyle</span> ](api/Namespaces/namespacebarkeep.md#enum-progressbarstyle)** { `Bars`, `Blocks`, `Rich`, `Line`}<br>Kind of bar being displayed for [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md).  |
 | <span class="codey"> using std::vector< std::string > </span>| **[ <span class="codey"> Strings</span> ](api/Namespaces/namespacebarkeep.md#using-strings)**  |
 | <span class="codey"> using std::vector< [Strings](api/Namespaces/namespacebarkeep.md#using-strings) > </span>| **[ <span class="codey"> StringsList</span> ](api/Namespaces/namespacebarkeep.md#using-stringslist)**  |
 | <span class="codey"> using std::chrono::duration< double, std::ratio< 1 > > </span>| **[ <span class="codey"> Duration</span> ](api/Namespaces/namespacebarkeep.md#using-duration)**  |
@@ -92,10 +92,10 @@ Kind of animation being displayed for [Animation](api/Classes/classbarkeep_1_1_a
 
 | Enumerator | Value | Description |
 | ---------- | ----- | ----------- |
-| <span class="codey">Bars</span> | |   |
-| <span class="codey">Blocks</span> | |   |
-| <span class="codey">Pip</span> | |   |
-| <span class="codey">Line</span> | |   |
+| <span class="codey">Bars</span> | | Simple ascii pipes.   |
+| <span class="codey">Blocks</span> | | Unicode blocks with fine granularity fill.   |
+| <span class="codey">Rich</span> | | A style inspired by Rich library, also used by pip.   |
+| <span class="codey">Line</span> | | Minimalist unicode line inspired by Rich style.   |
 
 
 

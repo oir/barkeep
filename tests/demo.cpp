@@ -138,7 +138,7 @@ Demo decreasing_counter("decreasing_counter", "Decreasing counter", []() {
 
 Demo bars("bars", "Progress bars", []() {
   for (auto speed : speeds) {
-    for (auto sty : {bk::Pip, bk::Blocks, bk::Bars, bk::Line}) {
+    for (auto sty : {bk::Rich, bk::Blocks, bk::Bars, bk::Line}) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work,
                                  {
@@ -338,21 +338,21 @@ Demo three_bars(
                                     .total = 100,
                                     .message = "Linear   ",
                                     .speed = 0,
-                                    .style = bk::Pip,
+                                    .style = bk::Rich,
                                     .show = false,
                                 }),
                                 bk::ProgressBar(&quad, {
                                     .total = 5050,
                                     .message = "Quadratic",
                                     .speed = 0,
-                                    .style = bk::Pip,
+                                    .style = bk::Rich,
                                     .show = false,
                                 }),
                                 bk::ProgressBar(&cubic, {
                                     .total = 171700,
                                     .message = "Cubic    ",
                                     .speed = 0,
-                                    .style = bk::Pip,
+                                    .style = bk::Rich,
                                     .show = false,
                                 }));
       // clang-format on

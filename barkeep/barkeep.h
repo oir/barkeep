@@ -102,7 +102,12 @@ const static auto cyan = "\033[36m";
 const static auto reset = "\033[0m";
 
 /// Kind of bar being displayed for ProgressBar.
-enum ProgressBarStyle : unsigned short { Bars, Blocks, Pip, Line };
+enum ProgressBarStyle : unsigned short {
+  Bars,   ///< Simple ascii pipes
+  Blocks, ///< Unicode blocks with fine granularity fill
+  Rich,   ///< A style inspired by Rich library, also used by pip
+  Line,   ///< Minimalist unicode line inspired by Rich style
+};
 
 /// Definitions of various partial bars for ProgressBar.
 /// ProgressBarStyle indexes into this.
