@@ -327,12 +327,11 @@ Demo three_counters_lines(
       counters.done();
     });
 
-Demo three_bars(
-    "three_bars",
-    "Composite display of three newline-delimited progress bars",
-    []() {
-      std::atomic<size_t> linear{0}, quad{0}, cubic{0};
-      // clang-format off
+Demo three_bars("three_bars",
+                "Composite display of three newline-delimited progress bars",
+                []() {
+                  std::atomic<size_t> linear{0}, quad{0}, cubic{0};
+                  // clang-format off
       auto bars = bk::Composite("\n",
                                 bk::ProgressBar(&linear, {
                                     .total = 100,
@@ -355,16 +354,16 @@ Demo three_bars(
                                     .style = bk::Rich,
                                     .show = false,
                                 }));
-      // clang-format on
-      bars.show();
-      for (int i = 0; i < 100; i++) {
-        std::this_thread::sleep_for(130ms);
-        linear++;
-        quad += linear;
-        cubic += quad;
-      }
-      bars.done();
-    });
+                  // clang-format on
+                  bars.show();
+                  for (int i = 0; i < 100; i++) {
+                    std::this_thread::sleep_for(130ms);
+                    linear++;
+                    quad += linear;
+                    cubic += quad;
+                  }
+                  bars.done();
+                });
 
 Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
   std::vector<float> v(300, 0);
@@ -430,6 +429,17 @@ Demo bar_counter_no_tty(
       }
       bar.done();
     });
+
+Demo status("status", "Status display", []() {
+  auto s = bk::Status({.message = "Working"});
+  std::this_thread::sleep_for(3s);
+  s.message("Still working");
+  std::this_thread::sleep_for(3s);
+  s.message("Almost done");
+  std::this_thread::sleep_for(3s);
+  s.message("Done");
+  s.done();
+});
 
 int main(int argc, char** argv) {
   Demo::run_all(std::vector<std::string>(argv + 1, argv + argc));

@@ -302,12 +302,11 @@ Duration as_duration(std::variant<Duration, double> interval) {
 
 /// Displays a simple animation with a message.
 class Animation : public AsyncDisplay {
- private:
+ protected:
   unsigned short frame_ = 0;
   Strings stills_;
   Duration def_interval_{0.5};
 
- protected:
   long render_(const std::string& end = " ") override {
     long nls = render_message_();
     *out_ << stills_[frame_] << end;
@@ -349,6 +348,42 @@ class Animation : public AsyncDisplay {
 
   std::unique_ptr<AsyncDisplay> clone() const override {
     return std::make_unique<Animation>(*this);
+  }
+};
+
+/// Status is an Animation where it is possible to update the message
+/// while the animation is running.
+class Status : public Animation {
+ protected:
+  std::mutex message_mutex_;
+
+  long render_(const std::string& end = " ") override {
+    long nls;
+    {
+      std::lock_guard<std::mutex> lock(message_mutex_);
+      nls = render_message_();
+    }
+    *out_ << stills_[frame_] << end;
+    frame_ = (frame_ + 1) % stills_.size();
+    return nls; // assuming no newlines in stills
+  }
+
+ public:
+  Status(const AnimationConfig& cfg = {}) : Animation(cfg) {
+    if (cfg.show) { show(); }
+  }
+
+  Status(const Status& other) : Animation(other) {}
+  Status(Status&& other) : Animation(std::move(other)) {}
+  ~Status() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Status>(*this);
+  }
+
+  void message(const std::string& message) {
+    std::lock_guard<std::mutex> lock(message_mutex_);
+    message_ = message;
   }
 };
 
