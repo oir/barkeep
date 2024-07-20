@@ -5,6 +5,7 @@ from barkeep import (
     DType,
     ProgressBar,
     ProgressBarStyle,
+    Status,
 )
 from argparse import ArgumentParser
 from collections import OrderedDict
@@ -133,9 +134,21 @@ def fmt():
         work.done()
 
 
+def status():
+    s = Status(message="Working")
+    time.sleep(2.5)
+    s.message = "Still working"
+    time.sleep(2.5)
+    s.message = "Almost done"
+    time.sleep(2.5)
+    s.message = "Done"
+    s.done()
+
+
 demos = OrderedDict(
     [
         ("animation", animation),
+        ("status", status),
         ("counter", counter),
         ("progress_bar", progress_bar),
         ("composite", composite),
@@ -148,7 +161,15 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
         "demo",
-        choices=["animation", "counter", "progress_bar", "composite", "fmt", []],
+        choices=[
+            "animation",
+            "status",
+            "counter",
+            "progress_bar",
+            "composite",
+            "fmt",
+            [],
+        ],
         nargs="*",
     )
 

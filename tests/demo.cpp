@@ -327,7 +327,7 @@ Demo three_counters_lines(
       counters.done();
     });
 
-Demo three_bars(
+Demo three_bars( // ...
     "three_bars",
     "Composite display of three newline-delimited progress bars",
     []() {
@@ -430,6 +430,17 @@ Demo bar_counter_no_tty(
       }
       bar.done();
     });
+
+Demo status("status", "Status display", []() {
+  auto s = bk::Status({.message = "Working"});
+  std::this_thread::sleep_for(2.5s);
+  s.message("Still working");
+  std::this_thread::sleep_for(2.5s);
+  s.message("Almost done");
+  std::this_thread::sleep_for(2.5s);
+  s.message("Done");
+  s.done();
+});
 
 int main(int argc, char** argv) {
   Demo::run_all(std::vector<std::string>(argv + 1, argv + argc));

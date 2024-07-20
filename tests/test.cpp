@@ -46,7 +46,7 @@ bool startswith(const std::string& s, const std::string& prefix) {
 }
 
 auto check_and_get_parts(const std::string& s, bool no_tty = false) {
-  static const std::string crcl = "\r\033[K";
+  static const std::string crcl = "\r\033[K"; // carriage return clear line
   if (not no_tty) { REQUIRE(startswith(s, crcl)); }
   REQUIRE(s.back() == '\n');
 
@@ -60,15 +60,51 @@ auto check_and_get_parts(const std::string& s, bool no_tty = false) {
 void check_anim(const std::vector<std::string>& parts,
                 const std::string& msg,
                 const std::vector<std::string>& stills) {
+  auto incr = [&](size_t idx) {
+    std::string still = stills[idx];
+    while (still == stills[idx]) { idx = (idx + 1) % stills.size(); }
+    return idx;
+  };
+
+  size_t j = 0;
   for (size_t i = 0; i < parts.size() - 1; i++) {
-    size_t j = i % stills.size();
     auto& part = parts[i];
+    if (part != (msg + " " + stills[j] + " ")) { j = incr(j); }
     CHECK(part == (msg + " " + stills[j] + " "));
   }
 }
 
+void check_status(const std::vector<std::string>& parts,
+                  const std::vector<std::string>& messages,
+                  const std::vector<std::string>& stills) {
+  auto incr = [&](size_t idx) {
+    std::string still = stills[idx];
+    while (still == stills[idx]) { idx = (idx + 1) % stills.size(); }
+    return idx;
+  };
+
+  size_t still_i = 0;
+  size_t msg_i = 0;
+
+  for (size_t i = 0; i < parts.size() - 1; i++) {
+    auto& part = parts[i];
+    if (part != (messages[msg_i] + " " + stills[still_i] + " ")) {
+      // either msg_i or stills_i (or both) need to be incremented
+      if (part == (messages[msg_i] + " " + stills[incr(still_i)] + " ")) {
+        still_i = incr(still_i);
+      } else if (part == (messages[msg_i + 1] + " " + stills[still_i] + " ")) {
+        msg_i++;
+      } else {
+        still_i = incr(still_i);
+        msg_i++;
+      }
+    }
+    CHECK(part == (messages[msg_i] + " " + stills[still_i] + " "));
+  }
+}
+
 TEST_CASE("Animation default", "[anim]") {
-  auto anim = Animation({.show=false});
+  auto anim = Animation({.show = false});
   anim.done();
 }
 
@@ -116,6 +152,34 @@ TEST_CASE("Animation custom", "[anim]") {
   check_anim(parts, "Working", sty);
 }
 
+TEST_CASE("Status", "[status]") {
+  std::stringstream out;
+
+  auto sty = GENERATE(Ellipsis, Clock, Moon, Earth, Bar, Bounce);
+  auto no_tty = GENERATE(true, false);
+  auto interval = GENERATE(as<std::variant<Duration, double>>(), 100ms, 0.1);
+
+  auto stat = Status({
+      .out = &out,
+      .message = "Working",
+      .style = sty,
+      .interval = interval,
+      .no_tty = no_tty,
+  });
+
+  std::this_thread::sleep_for(0.5s);
+  stat.message("Still working");
+  std::this_thread::sleep_for(0.5s);
+  stat.message("Done");
+  stat.done();
+
+  auto parts = check_and_get_parts(out.str(), no_tty);
+  check_status(parts,
+               {"Working", "Still working", "Done"},
+               animation_stills_[size_t(sty)].first);
+  CHECK(stat.message() == "Done");
+}
+
 using ProgressTypeList =
     std::tuple<size_t, std::atomic<size_t>, int, unsigned, float, double>;
 
@@ -123,7 +187,7 @@ TEMPLATE_LIST_TEST_CASE("Counter default", "[counter]", ProgressTypeList) {
   using ValueType = value_t<TestType>;
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
 
-  auto ctr = Counter(&amount, {.show=false});
+  auto ctr = Counter(&amount, {.show = false});
   ctr.done();
 }
 
@@ -266,6 +330,12 @@ Animation factory_helper<Animation>(bool /*speedy*/) {
 }
 
 template <>
+Status factory_helper<Status>(bool /*speedy*/) {
+  static std::stringstream hide;
+  return Status({.out = &hide, .show = false});
+}
+
+template <>
 Counter<> factory_helper<Counter<>>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
@@ -301,7 +371,7 @@ Composite factory_helper<Composite>(bool speedy) {
 }
 
 using DisplayTypes =
-    std::tuple<Animation, Counter<>, ProgressBar<float>, Composite>;
+    std::tuple<Animation, Status, Counter<>, ProgressBar<float>, Composite>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   auto orig = factory_helper<TestType>(GENERATE(true, false));

@@ -149,15 +149,18 @@ class AsyncDisplay {
   std::string format_;
   bool no_tty_ = false;
 
- protected:
   /// Render a display: animation, progress bar, etc.
+  /// @param redraw If true, display is assumed to be redrawn. This, e.g. means
+  ///               an Animation should not increment the still frame index.
   /// @return Number of `\n` characters in the display.
-  virtual long render_(const std::string& end = " ") = 0;
+  virtual long render_(bool redraw = false, const std::string& end = " ") = 0;
 
   virtual Duration default_interval_() const = 0;
 
   /// Display everything (message, maybe with animation, progress bar, etc).
-  void display_() {
+  /// @param redraw If true, display is assumed to be redrawn. This, e.g. means
+  ///               an Animation should not increment the still frame index.
+  void display_(bool redraw = false) {
     static const auto clear_line = "\033[K";
     static const auto cursor_up = "\033[A";
 
@@ -167,12 +170,11 @@ class AsyncDisplay {
         *out_ << cursor_up << clear_line;
       }
     }
-    last_num_newlines_ = render_();
+    last_num_newlines_ = render_(redraw);
     if (no_tty_) { *out_ << "\n"; }
     *out_ << std::flush;
   }
 
- protected:
   /// Display the message to output stream.
   /// @return Number of `\n` characters in the message.
   long render_message_() const {
@@ -244,11 +246,19 @@ class AsyncDisplay {
         bool complete = false;
         auto interval =
             interval_ != Duration{0.} ? interval_ : default_interval_();
+        auto start = std::chrono::steady_clock::now();
         {
-          std::unique_lock<std::mutex> lock(completion_m_);
+          std::unique_lock lock(completion_m_);
           complete = complete_;
-          if (not complete) {
+          while (not complete and interval >= Duration{0.}) {
             completion_.wait_for(lock, interval);
+            auto end = std::chrono::steady_clock::now();
+            auto elapsed = end - start;
+            interval -= std::chrono::duration_cast<Duration>(elapsed);
+            if (interval > Duration{0.}) {
+              // early wake-up, display again
+              if (not no_tty_) { display_(/*redraw=*/true); }
+            }
             complete = complete_;
           }
         }
@@ -288,8 +298,9 @@ struct AnimationConfig {
 
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
-  bool show = true;    ///< show the animation immediately after construction
+  bool no_tty =
+      false;        ///< no-tty mode if true (no `\r`, slower default refresh)
+  bool show = true; ///< show the animation immediately after construction
 };
 
 Duration as_duration(std::variant<Duration, double> interval) {
@@ -302,16 +313,15 @@ Duration as_duration(std::variant<Duration, double> interval) {
 
 /// Displays a simple animation with a message.
 class Animation : public AsyncDisplay {
- private:
+ protected:
   unsigned short frame_ = 0;
   Strings stills_;
   Duration def_interval_{0.5};
 
- protected:
-  long render_(const std::string& end = " ") override {
+  long render_(bool redraw = false, const std::string& end = " ") override {
     long nls = render_message_();
+    if (not redraw) { frame_ = (frame_ + 1) % stills_.size(); }
     *out_ << stills_[frame_] << end;
-    frame_ = (frame_ + 1) % stills_.size();
     return nls; // assuming no newlines in stills
   }
 
@@ -338,6 +348,8 @@ class Animation : public AsyncDisplay {
       auto& stills_pair = animation_stills_[idx];
       stills_ = stills_pair.first;
       def_interval_ = Duration(stills_pair.second);
+      frame_ =
+          stills_.size() - 1; // start at the last frame, it will be incremented
     }
 
     if (cfg.show) { show(); }
@@ -352,6 +364,54 @@ class Animation : public AsyncDisplay {
   }
 };
 
+/// Status is an Animation where it is possible to update the message
+/// while the animation is running.
+class Status : public Animation {
+ protected:
+  std::mutex message_mutex_;
+
+  long render_(bool redraw = false, const std::string& end = " ") override {
+    long nls;
+    {
+      std::lock_guard lock(message_mutex_);
+      nls = render_message_();
+    }
+    if (not redraw) { frame_ = (frame_ + 1) % stills_.size(); }
+    *out_ << stills_[frame_] << end;
+    return nls; // assuming no newlines in stills
+  }
+
+ public:
+  Status(const AnimationConfig& cfg = {}) : Animation(cfg) {
+    if (cfg.show) { show(); }
+  }
+
+  Status(const Status& other) : Animation(other) {}
+  Status(Status&& other) : Animation(std::move(other)) {}
+  ~Status() { done(); }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Status>(*this);
+  }
+
+  /// Update the displayed message.
+  /// This is thread-safe between the display thread and the calling thread.
+  void message(const std::string& message) {
+    {
+      std::lock_guard lock(message_mutex_);
+      message_ = message;
+    }
+    // notify the display thread to trigger a redraw
+    completion_.notify_all();
+  }
+
+  /// Get the current message.
+  std::string message() {
+    std::lock_guard lock(message_mutex_);
+    return message_;
+  }
+};
+
 /// Creates a composite display out of two display that shows them side by side.
 /// For instance, you can combine two Counter objects to monitor two variables.
 class Composite : public AsyncDisplay {
@@ -359,14 +419,14 @@ class Composite : public AsyncDisplay {
   std::string delim_ = " ";
   std::vector<std::unique_ptr<AsyncDisplay>> displays_;
 
-  long render_(const std::string& end = " ") override {
+  long render_(bool redraw = false, const std::string& end = " ") override {
     long nls = render_message_();
     for (auto it = displays_.begin(); it != displays_.end(); it++) {
       if (it != displays_.begin()) {
         *out_ << delim_;
         nls += std::count(delim_.begin(), delim_.end(), '\n');
       }
-      (*it)->render_((it != displays_.end() - 1) ? "" : end);
+      (*it)->render_(redraw, (it != displays_.end() - 1) ? "" : end);
     }
     nls += std::count(end.begin(), end.end(), '\n');
     return nls;
@@ -565,7 +625,7 @@ class Counter : public AsyncDisplay {
   }
 
   /// Write the value of progress with the message to the output stream
-  long render_(const std::string& end = " ") override {
+  long render_(bool /*redraw*/ = false, const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -803,7 +863,7 @@ class ProgressBar : public AsyncDisplay {
   }
 
   /// Run all of the individual render methods to write everything to stream
-  long render_(const std::string& end = " ") override {
+  long render_(bool /*redraw*/ = false, const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;

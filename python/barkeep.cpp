@@ -82,6 +82,42 @@ class Animation_ : public Animation {
   }
 };
 
+class Status_ : public Status {
+ public:
+  std::shared_ptr<PyFileStream> file_ = nullptr;
+
+  Status_(py::object file = py::none(),
+          std::string message = "",
+          std::variant<AnimationStyle, Strings> style = Ellipsis,
+          double interval = 0.,
+          bool no_tty = false)
+      : Status({.out = nullptr,
+                .message = message,
+                .style = style,
+                .interval = interval,
+                .no_tty = no_tty,
+                .show = false}) {
+    if (not file.is_none()) {
+      file_ = std::make_shared<PyFileStream>(std::move(file));
+    }
+    out_ = file_ ? (std::ostream*)file_.get() : &std::cout;
+  }
+
+  void join() override {
+    if (file_) {
+      // release gil because displayer thread needs it to write
+      py::gil_scoped_release release;
+      AsyncDisplay::join();
+    } else {
+      AsyncDisplay::join();
+    }
+  }
+
+  std::unique_ptr<AsyncDisplay> clone() const override {
+    return std::make_unique<Status_>(*this);
+  }
+};
+
 template <typename T>
 class Counter_ : public Counter<T> {
  protected:
@@ -303,7 +339,8 @@ PYBIND11_MODULE(barkeep, m) {
                        std::variant<AnimationStyle, Strings> style,
                        bool no_tty,
                        bool show) {
-             auto a = std::make_unique<Animation_>(file, msg, style, interval, no_tty);
+             auto a = std::make_unique<Animation_>(
+                 file, msg, style, interval, no_tty);
              if (show) { a->show(); }
              return a;
            }),
@@ -328,12 +365,56 @@ PYBIND11_MODULE(barkeep, m) {
            )docstr",
            "file"_a = py::none(),
            "message"_a = "",
-           "interval"_a = 1.,
+           "interval"_a = 0.,
            "style"_a = AnimationStyle::Ellipsis,
            "no_tty"_a = false,
            "show"_a = true,
            py::keep_alive<0, 1>()); // keep file alive while the animation is
-                                    // alive);
+                                    // alive
+
+  py::class_<Status_, AsyncDisplay>(m, "Status")
+      .def(py::init([](py::object file,
+                       std::string msg,
+                       double interval,
+                       std::variant<AnimationStyle, Strings> style,
+                       bool no_tty,
+                       bool show) {
+             auto a =
+                 std::make_unique<Status_>(file, msg, style, interval, no_tty);
+             if (show) { a->show(); }
+             return a;
+           }),
+           R"docstr(
+            Status is an Animation where it is possible to update the message
+            while the animation is running.
+
+            Parameters
+            ----------
+            file : file-like object, optional
+                File to write to. Defaults to stdout.
+            message : str, optional
+                Message to display. Defaults to "".
+            interval : float, optional
+                Interval between frames in seconds. If None, defaults to 1 if
+                not no_tty, 60 otherwise.
+            style : AnimationStyle, optional
+                Animation style. Defaults to AnimationStyle.Ellipsis.
+            no_tty : bool, optional
+                If True, use no-tty mode (no \r, slower refresh). Defaults to False.
+            show : bool, optional
+                If True, show the animation immediately. Defaults to True.
+           )docstr",
+           "file"_a = py::none(),
+           "message"_a = "",
+           "interval"_a = 0.,
+           "style"_a = AnimationStyle::Ellipsis,
+           "no_tty"_a = false,
+           "show"_a = true,
+           py::keep_alive<0, 1>()) // keep file alive while the animation is
+                                   // alive
+      .def_property("message",
+                    py::overload_cast<>(&Status_::message),
+                    py::overload_cast<const std::string&>(&Status_::message));
 
   auto bind_display = [&](auto& m, auto disp, auto pv, const char* name) {
     using T = decltype(pv);
@@ -558,7 +639,7 @@ PYBIND11_MODULE(barkeep, m) {
     if (self.running() or other.running()) {
       // not sure why this is necessary, but it prevents segfaults.
       // maybe pybind11 implicit copies are causing problems when destructor
-      // attempts a done() ?
+      // attempts a `done()`?
       self.done();
       other.done();
       throw std::runtime_error("Cannot combine running AsyncDisplay objects!");

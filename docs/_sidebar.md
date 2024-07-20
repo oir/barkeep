@@ -13,6 +13,7 @@ __API__
     * [IterableBar::Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md)
     * [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)
     * [Speedometer](api/Classes/classbarkeep_1_1_speedometer.md)
+    * [Status](api/Classes/classbarkeep_1_1_status.md)
     * [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md)
     * [AtomicTraits](api/Classes/structbarkeep_1_1_atomic_traits.md)
     * [AtomicTraits< std::atomic< T > >](api/Classes/structbarkeep_1_1_atomic_traits_3_01std_1_1atomic_3_01_t_01_4_01_4.md)
