@@ -149,7 +149,6 @@ class AsyncDisplay {
   std::string format_;
   bool no_tty_ = false;
 
- protected:
   /// Render a display: animation, progress bar, etc.
   /// @return Number of `\n` characters in the display.
   virtual long render_(const std::string& end = " ") = 0;
@@ -172,7 +171,6 @@ class AsyncDisplay {
     *out_ << std::flush;
   }
 
- protected:
   /// Display the message to output stream.
   /// @return Number of `\n` characters in the message.
   long render_message_() const {
@@ -361,7 +359,7 @@ class Status : public Animation {
   long render_(const std::string& end = " ") override {
     long nls;
     {
-      std::lock_guard<std::mutex> lock(message_mutex_);
+      std::lock_guard lock(message_mutex_);
       nls = render_message_();
     }
     *out_ << stills_[frame_] << end;
@@ -385,13 +383,13 @@ class Status : public Animation {
   /// Update the displayed message.
   /// This is thread-safe between the display thread and the calling thread.
   void message(const std::string& message) {
-    std::lock_guard<std::mutex> lock(message_mutex_);
+    std::lock_guard lock(message_mutex_);
     message_ = message;
   }
 
   /// Get the current message.
   std::string message() {
-    std::lock_guard<std::mutex> lock(message_mutex_);
+    std::lock_guard lock(message_mutex_);
     return message_;
   }
 };
