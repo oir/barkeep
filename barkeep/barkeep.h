@@ -288,8 +288,9 @@ struct AnimationConfig {
 
   /// interval in which the animation is refreshed
   std::variant<Duration, double> interval = Duration{0.};
-  bool no_tty = false; ///< no-tty mode if true (no \r, slower default refresh)
-  bool show = true;    ///< show the animation immediately after construction
+  bool no_tty =
+      false;        ///< no-tty mode if true (no `\r`, slower default refresh)
+  bool show = true; ///< show the animation immediately after construction
 };
 
 Duration as_duration(std::variant<Duration, double> interval) {
