@@ -257,7 +257,7 @@ class AsyncDisplay {
             interval -= std::chrono::duration_cast<Duration>(elapsed);
             if (interval > Duration{0.}) {
               // early wake-up, display again
-              display_(/*redraw=*/true);
+              if (not no_tty_) { display_(/*redraw=*/true); }
             }
             complete = complete_;
           }
