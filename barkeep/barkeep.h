@@ -388,6 +388,12 @@ class Status : public Animation {
     std::lock_guard<std::mutex> lock(message_mutex_);
     message_ = message;
   }
+
+  /// Get the current message.
+  std::string message() {
+    std::lock_guard<std::mutex> lock(message_mutex_);
+    return message_;
+  }
 };
 
 /// Creates a composite display out of two display that shows them side by side.

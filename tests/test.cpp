@@ -157,6 +157,7 @@ TEST_CASE("Status", "[status]") {
   check_status(parts,
                {"Working", "Still working", "Done"},
                animation_stills_[size_t(sty)].first);
+  CHECK(stat.message() == "Done");
 }
 
 using ProgressTypeList =

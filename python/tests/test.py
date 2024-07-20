@@ -6,6 +6,7 @@ from barkeep import (
     DType,
     ProgressBar,
     ProgressBarStyle,
+    Status,
 )
 import pytest
 import random
@@ -49,6 +50,18 @@ def check_anim(parts: list[str], msg: str, stills: list[str]):
         assert part == (msg + " " + stills[j] + " ")
 
 
+def check_status(parts: list[str], messages: list[str], stills: list[str]):
+    msg_i = 0
+    for i in range(len(parts) - 1):
+        j = i % len(stills)
+        part = parts[i]
+        msg = messages[msg_i]
+        if part != (msg + " " + stills[j] + " "):
+            msg_i += 1
+            msg = messages[msg_i]
+        assert part == (msg + " " + stills[j] + " ")
+
+
 animation_styles = [
     AnimationStyle.Ellipsis,
     AnimationStyle.Clock,
@@ -88,6 +101,24 @@ def test_animation(i: int, sty: AnimationStyle):
     anim.done()
 
     check_anim(check_and_get_parts(out.getvalue()), "Working", animation_stills[i])
+
+
+@pytest.mark.parametrize("i,sty", enumerate(animation_styles))
+def test_status(i: int, sty: AnimationStyle):
+    out = io.StringIO()
+
+    stat = Status(message="Working", style=sty, interval=0.1, file=out)
+    time.sleep(0.5)
+    stat.message = "Still working"
+    time.sleep(0.5)
+    stat.message = "Done"
+    stat.done()
+
+    check_status(
+        check_and_get_parts(out.getvalue()),
+        ["Working", "Still working", "Done"],
+        animation_stills[i],
+    )
 
 
 def test_custom_animation():
