@@ -60,9 +60,16 @@ auto check_and_get_parts(const std::string& s, bool no_tty = false) {
 void check_anim(const std::vector<std::string>& parts,
                 const std::string& msg,
                 const std::vector<std::string>& stills) {
+  auto incr = [&](size_t idx) {
+    std::string still = stills[idx];
+    while (still == stills[idx]) { idx = (idx + 1) % stills.size(); }
+    return idx;
+  };
+
+  size_t j = 0;
   for (size_t i = 0; i < parts.size() - 1; i++) {
-    size_t j = i % stills.size();
     auto& part = parts[i];
+    if (part != (msg + " " + stills[j] + " ")) { j = incr(j); }
     CHECK(part == (msg + " " + stills[j] + " "));
   }
 }
@@ -70,16 +77,29 @@ void check_anim(const std::vector<std::string>& parts,
 void check_status(const std::vector<std::string>& parts,
                   const std::vector<std::string>& messages,
                   const std::vector<std::string>& stills) {
+  auto incr = [&](size_t idx) {
+    std::string still = stills[idx];
+    while (still == stills[idx]) { idx = (idx + 1) % stills.size(); }
+    return idx;
+  };
+
+  size_t still_i = 0;
   size_t msg_i = 0;
+
   for (size_t i = 0; i < parts.size() - 1; i++) {
-    size_t j = i % stills.size();
     auto& part = parts[i];
-    auto msg = messages.at(msg_i);
-    if (part != (msg + " " + stills[j] + " ")) {
-      msg_i++;
-      msg = messages.at(msg_i);
+    if (part != (messages[msg_i] + " " + stills[still_i] + " ")) {
+      // either msg_i or stills_i (or both) need to be incremented
+      if (part == (messages[msg_i] + " " + stills[incr(still_i)] + " ")) {
+        still_i = incr(still_i);
+      } else if (part == (messages[msg_i + 1] + " " + stills[still_i] + " ")) {
+        msg_i++;
+      } else {
+        still_i = incr(still_i);
+        msg_i++;
+      }
     }
-    CHECK(part == (msg + " " + stills[j] + " "));
+    CHECK(part == (messages[msg_i] + " " + stills[still_i] + " "));
   }
 }
 

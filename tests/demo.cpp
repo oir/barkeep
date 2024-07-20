@@ -432,11 +432,11 @@ Demo bar_counter_no_tty(
 
 Demo status("status", "Status display", []() {
   auto s = bk::Status({.message = "Working"});
-  std::this_thread::sleep_for(3s);
+  std::this_thread::sleep_for(2.5s);
   s.message("Still working");
-  std::this_thread::sleep_for(3s);
+  std::this_thread::sleep_for(2.5s);
   s.message("Almost done");
-  std::this_thread::sleep_for(3s);
+  std::this_thread::sleep_for(2.5s);
   s.message("Done");
   s.done();
 });

@@ -44,22 +44,52 @@ def check_and_get_parts(s: str, no_tty: bool = False) -> list[str]:
 
 
 def check_anim(parts: list[str], msg: str, stills: list[str]):
+    stills_i = 0
+
+    def incr(idx):
+        """
+        Find next different still
+        """
+        still = stills[idx]
+        while still == stills[idx]:
+            idx += 1
+            idx %= len(stills)
+        return idx
+
     for i in range(len(parts) - 1):
-        j = i % len(stills)
         part = parts[i]
-        assert part == (msg + " " + stills[j] + " ")
+        if part != (msg + " " + stills[stills_i] + " "):
+            stills_i = incr(stills_i)
+        assert part == (msg + " " + stills[stills_i] + " ")
 
 
 def check_status(parts: list[str], messages: list[str], stills: list[str]):
     msg_i = 0
+    stills_i = 0
+
+    def incr(idx):
+        """
+        Find next different still
+        """
+        still = stills[idx]
+        while still == stills[idx]:
+            idx += 1
+            idx %= len(stills)
+        return idx
+
+
     for i in range(len(parts) - 1):
-        j = i % len(stills)
         part = parts[i]
-        msg = messages[msg_i]
-        if part != (msg + " " + stills[j] + " "):
-            msg_i += 1
-            msg = messages[msg_i]
-        assert part == (msg + " " + stills[j] + " ")
+        if part != (messages[msg_i] + " " + stills[stills_i] + " "):
+            # either msg_i or stills_i (or both) need to be incremented
+            if part == messages[msg_i] + " " + stills[incr(stills_i)] + " ":
+                stills_i = incr(stills_i)
+            elif part == messages[msg_i + 1] + " " + stills[stills_i] + " ":
+                msg_i += 1
+            else:
+                stills_i = incr(stills_i)
+                msg_i += 1
+        assert part == (messages[msg_i] + " " + stills[stills_i] + " ")
 
 
 animation_styles = [
