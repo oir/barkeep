@@ -30,7 +30,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 |                | Name           |
 | -------------- | -------------- |
 | <span class="codey"> void </span>| <span class="codey"> **[render_counts_](api/Classes/classbarkeep_1_1_counter.md#function-render_counts_)**(const std::string & end = " ")</span><br>Write the value of progress to the output stream.  |
-| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_counter.md#function-render_)**(const std::string & end = " ") override</span><br>Write the value of progress with the message to the output stream.  |
+| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_counter.md#function-render_)**(bool  = false, const std::string & end = " ") override</span><br>Write the value of progress with the message to the output stream.  |
 | <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_counter.md#function-default_interval_)**() const override</span><br>Default interval in which the display is refreshed, if interval() is not invoked.  |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[start](api/Classes/classbarkeep_1_1_counter.md#function-start)**() override</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
 
@@ -78,7 +78,7 @@ Inherits from [`barkeep::AsyncDisplay`](api/Classes/classbarkeep_1_1_async_displ
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
+| <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**(bool redraw = false)</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
 | <span class="codey">long </span>| <span class="codey">**[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey">virtual void </span>| <span class="codey">**[join](api/Classes/classbarkeep_1_1_async_display.md#function-join)**()</span><br>Join the display thread. Protected because python bindings need to override to handle GIL.  |
 
@@ -195,6 +195,7 @@ Write the value of progress to the output stream.
 
 ```cpp
 inline virtual long render_(
+    bool  = false,
     const std::string & end = " "
 ) override
 ```

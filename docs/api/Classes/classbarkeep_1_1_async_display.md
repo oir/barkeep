@@ -32,9 +32,9 @@ Inherited by [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md), 
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**(const std::string & end = " ") = 0</span><br>Render a display: animation, progress bar, etc.  |
+| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_async_display.md#function-render_)**(bool redraw = false, const std::string & end = " ") = 0</span><br>Render a display: animation, progress bar, etc.  |
 | <span class="codey"> virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey"> **[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const = 0</span> |
-| <span class="codey"> void </span>| <span class="codey"> **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
+| <span class="codey"> void </span>| <span class="codey"> **[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**(bool redraw = false)</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
 | <span class="codey"> long </span>| <span class="codey"> **[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[start](api/Classes/classbarkeep_1_1_async_display.md#function-start)**()</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
 | <span class="codey"> virtual void </span>| <span class="codey"> **[join](api/Classes/classbarkeep_1_1_async_display.md#function-join)**()</span><br>Join the display thread. Protected because python bindings need to override to handle GIL.  |
@@ -153,11 +153,17 @@ virtual std::unique_ptr< AsyncDisplay > clone() const = 0
 
 ```cpp
 virtual long render_(
+    bool redraw = false,
     const std::string & end = " "
 ) = 0
 ```
 
 Render a display: animation, progress bar, etc. 
+
+**Parameters**: 
+
+  * **redraw** If true, display is assumed to be redrawn. This, e.g. means an [Animation](api/Classes/classbarkeep_1_1_animation.md) should not increment the still frame index. 
+
 
 **Return**: Number of `\n` characters in the display. 
 
@@ -177,10 +183,17 @@ virtual Duration default_interval_() const = 0
 ### function `display_`
 
 ```cpp
-inline void display_()
+inline void display_(
+    bool redraw = false
+)
 ```
 
 Display everything (message, maybe with animation, progress bar, etc). 
+
+**Parameters**: 
+
+  * **redraw** If true, display is assumed to be redrawn. This, e.g. means an [Animation](api/Classes/classbarkeep_1_1_animation.md) should not increment the still frame index. 
+
 
 ### function `render_message_`
 

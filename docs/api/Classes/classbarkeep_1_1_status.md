@@ -20,6 +20,7 @@ Inherits from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md),
 | <span class="codey"> </span>|  <span class="codey">  **[~Status](api/Classes/classbarkeep_1_1_status.md#function-~status)**()</span> |
 | <span class="codey"> virtual std::unique_ptr< [AsyncDisplay](api/Classes/classbarkeep_1_1_async_display.md) > </span>|  <span class="codey">  **[clone](api/Classes/classbarkeep_1_1_status.md#function-clone)**() const override</span> |
 | <span class="codey"> void </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status.md#function-message)**(const std::string & message)</span><br>Update the displayed message. This is thread-safe between the display thread and the calling thread.  |
+| <span class="codey"> std::string </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status.md#function-message)**()</span><br>Get the current message.  |
 
 
 </span>
@@ -30,7 +31,7 @@ Inherits from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md),
 
 |                | Name           |
 | -------------- | -------------- |
-| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_status.md#function-render_)**(const std::string & end = " ") override</span><br>Render a display: animation, progress bar, etc.  |
+| <span class="codey"> virtual long </span>| <span class="codey"> **[render_](api/Classes/classbarkeep_1_1_status.md#function-render_)**(bool redraw = false, const std::string & end = " ") override</span><br>Render a display: animation, progress bar, etc.  |
 
 
 </span>
@@ -122,7 +123,7 @@ Inherits from [`barkeep::Animation`](api/Classes/classbarkeep_1_1_animation.md),
 |                | Name           |
 | -------------- | -------------- |
 | <span class="codey">virtual [Duration](api/Namespaces/namespacebarkeep.md#using-duration) </span>| <span class="codey">**[default_interval_](api/Classes/classbarkeep_1_1_async_display.md#function-default_interval_)**() const = 0</span> |
-| <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**()</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
+| <span class="codey">void </span>| <span class="codey">**[display_](api/Classes/classbarkeep_1_1_async_display.md#function-display_)**(bool redraw = false)</span><br>Display everything (message, maybe with animation, progress bar, etc).  |
 | <span class="codey">long </span>| <span class="codey">**[render_message_](api/Classes/classbarkeep_1_1_async_display.md#function-render_message_)**() const</span><br>Display the message to output stream.  |
 | <span class="codey">virtual void </span>| <span class="codey">**[start](api/Classes/classbarkeep_1_1_async_display.md#function-start)**()</span><br>Start the display but do not show. This typically means start measuring speed if applicable, without displaying anything.  |
 | <span class="codey">virtual void </span>| <span class="codey">**[join](api/Classes/classbarkeep_1_1_async_display.md#function-join)**()</span><br>Join the display thread. Protected because python bindings need to override to handle GIL.  |
@@ -218,17 +219,31 @@ inline void message(
 
 Update the displayed message. This is thread-safe between the display thread and the calling thread. 
 
+### function `message`
+
+```cpp
+inline std::string message()
+```
+
+Get the current message. 
+
 ## Protected Functions Documentation
 
 ### function `render_`
 
 ```cpp
 inline virtual long render_(
+    bool redraw = false,
     const std::string & end = " "
 ) override
 ```
 
 Render a display: animation, progress bar, etc. 
+
+**Parameters**: 
+
+  * **redraw** If true, display is assumed to be redrawn. This, e.g. means an [Animation](api/Classes/classbarkeep_1_1_animation.md) should not increment the still frame index. 
+
 
 **Return**: Number of `\n` characters in the display. 
 
