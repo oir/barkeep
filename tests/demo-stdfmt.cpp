@@ -20,12 +20,10 @@ int main(int /*argc*/, char** /*argv*/) {
         }) {
       int work{0};
       auto c = bk::Counter(&work, {.format = fmtstr, .speed = speed});
-      c.show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         work++;
       }
-      c.done();
     }
   }
 
@@ -38,12 +36,10 @@ int main(int /*argc*/, char** /*argv*/) {
         }) {
       std::atomic<size_t> work{0};
       auto bar = bk::ProgressBar(&work, {.total = 1010, .format = fmtstr, .speed = speed});
-      bar.show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         work++;
       }
-      bar.done();
     }
   }
 }
