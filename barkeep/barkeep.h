@@ -1,4 +1,17 @@
-// Author: Ozan Irsoy
+// Copyright 2024 Ozan İrsoy
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 
 #ifndef BARKEEP_H
 #define BARKEEP_H
@@ -135,7 +148,7 @@ class BaseDisplay;
 
 /// Class to handle running display loop within a worker thread.
 class AsyncDisplayer {
- public: // TODO
+ protected: 
   std::ostream* out_ = &std::cout; ///< output stream to write
   BaseDisplay* parent_ = nullptr;  ///< parent display to render which owns this
 
@@ -150,7 +163,6 @@ class AsyncDisplayer {
   Duration interval_; ///< interval to refresh and check if complete
   bool no_tty_ = false; ///< true if output is not a tty
 
- protected:
   /// Display everything (message, maybe with animation, progress bar, etc).
   /// @param redraw If true, display is assumed to be redrawn. This, e.g. means
   ///               an Animation should not increment the still frame index.
@@ -171,6 +183,36 @@ class AsyncDisplayer {
       : out_(out), parent_(parent), interval_(interval), no_tty_(no_tty) {}
   virtual ~AsyncDisplayer() { done(); }
 
+  /// Set output stream to write to.
+  void out(std::ostream* out) {
+    assert(out != nullptr);
+    out_ = out;
+  }
+
+  /// Set parent display
+  void parent(BaseDisplay* parent) {
+    assert(parent != nullptr);
+    parent_ = parent;
+  }
+
+  /// Set interval
+  void interval(Duration interval) {
+    assert(interval >= Duration{0.});
+    interval_ = interval;
+  }
+
+  /// Get interval
+  Duration interval() const { return interval_; }
+
+  /// Set no-tty mode
+  void no_tty(bool no_tty) { no_tty_ = no_tty; }
+
+  /// Get no-tty mode
+  bool no_tty() const { return no_tty_; }
+
+  /// Notify completion condition variable.
+  void notify() { done_cv_.notify_all(); }
+
   /// Output stream to write to.
   std::ostream& out() { return *out_; }
 
@@ -181,6 +223,7 @@ class AsyncDisplayer {
   /// and computing speed if applicable.
   void show() {
     if (running()) { return; } // noop if already show()n before 
+    assert(interval_ > Duration{0.});
 
     displayer_thread_ = std::make_unique<std::thread>([this]() {
       display_();
@@ -282,6 +325,9 @@ class BaseDisplay {
   /// Output stream to write to.
   std::ostream& out() const { return displayer_->out(); }
 
+  /// Return true if the display is running.
+  bool running() const { return displayer_->running(); }
+
   friend class CompositeDisplay;
   friend class AsyncDisplayer;
 };
@@ -366,9 +412,9 @@ class AnimationDisplay : public BaseDisplay {
       frame_ = stills_.size() - 1; // start at the last frame,
                                    // it will be incremented
     }
-    displayer_->interval_ = as_duration(cfg.interval) == Duration{0}
-                                ? default_interval_(cfg.no_tty)
-                                : as_duration(cfg.interval);
+    displayer_->interval(as_duration(cfg.interval) == Duration{0}
+                             ? default_interval_(cfg.no_tty)
+                             : as_duration(cfg.interval));
 
     if (cfg.show) { show(); }
   }
@@ -411,7 +457,7 @@ class StatusDisplay : public AnimationDisplay {
       message_ = message;
     }
     // notify the display thread to trigger a redraw
-    displayer_->done_cv_.notify_all();
+    displayer_->notify();
   }
 
   /// Get the current message.
@@ -648,8 +694,8 @@ class CounterDisplay : public BaseDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
     }
-    if (displayer_->interval_ == Duration{0.}) {
-      displayer_->interval_ = default_interval_(cfg.no_tty);
+    if (displayer_->interval() == Duration{0.}) {
+      displayer_->interval(default_interval_(cfg.no_tty));
     }
     if (cfg.show) { show(); }
   }
@@ -911,8 +957,8 @@ class ProgressBarDisplay : public BaseDisplay {
       speedom_ =
           std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
     }
-    if (displayer_->interval_ == Duration{0.}) {
-      displayer_->interval_ = default_interval_(cfg.no_tty);
+    if (displayer_->interval() == Duration{0.}) {
+      displayer_->interval(default_interval_(cfg.no_tty));
     }
     if (cfg.show) { show(); }
   }
@@ -965,13 +1011,13 @@ class CompositeDisplay : public BaseDisplay {
     for (auto& display : displays_) {
       // all children need to point to same AsyncDisplayer
       auto& front = displays.front()->displayer_;
-      front->interval_ =
-          std::min(front->interval_, display->displayer_->interval_);
-      front->no_tty_ = front->no_tty_ or display->displayer_->no_tty_;
+      front->interval(
+          std::min(front->interval(), display->displayer_->interval()));
+      front->no_tty(front->no_tty() or display->displayer_->no_tty());
 
-      display->displayer_->out_ = front->out_;
+      display->displayer_->out(&front->out());
     }
-    displayer_->parent_ = this;
+    displayer_->parent(this);
     // show();
   }
 
