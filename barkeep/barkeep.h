@@ -968,7 +968,8 @@ auto ProgressBar(Progress* progress,
   return std::make_shared<ProgressBarDisplay<Progress>>(progress, cfg);
 }
 
-/// Creates a composite display out of two display that shows them side by side.
+/// Creates a composite display out of multiple child displays to show
+/// them together.
 /// For instance, you can combine two Counter objects, or a Counter and a
 /// ProgressBar to concurrently monitor two variables.
 class CompositeDisplay : public BaseDisplay {
