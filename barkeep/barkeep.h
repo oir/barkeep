@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef BARKEEP_H
 #define BARKEEP_H
 
@@ -148,7 +147,7 @@ class BaseDisplay;
 
 /// Class to handle running display loop within a worker thread.
 class AsyncDisplayer {
- protected: 
+ protected:
   std::ostream* out_ = &std::cout; ///< output stream to write
   BaseDisplay* parent_ = nullptr;  ///< parent display to render which owns this
 
@@ -160,13 +159,13 @@ class AsyncDisplayer {
   long last_num_newlines_ = 0;
 
   // configuration
-  Duration interval_; ///< interval to refresh and check if complete
+  Duration interval_;   ///< interval to refresh and check if complete
   bool no_tty_ = false; ///< true if output is not a tty
 
   /// Display everything (message, maybe with animation, progress bar, etc).
   /// @param redraw If true, display is assumed to be redrawn. This, e.g. means
   ///               an Animation should not increment the still frame index.
-  void display_(bool redraw = false); 
+  void display_(bool redraw = false);
 
   /// Join the display thread. Protected because python bindings need to
   /// override to handle GIL.
@@ -222,7 +221,7 @@ class AsyncDisplayer {
   /// Start the display. This starts writing the display in the output stream,
   /// and computing speed if applicable.
   void show() {
-    if (running()) { return; } // noop if already show()n before 
+    if (running()) { return; } // noop if already show()n before
     assert(interval_ > Duration{0.});
 
     displayer_thread_ = std::make_unique<std::thread>([this]() {
@@ -292,7 +291,8 @@ class BaseDisplay {
     return std::count(message_.begin(), message_.end(), '\n');
   }
 
-  BaseDisplay(std::shared_ptr<AsyncDisplayer> displayer) : displayer_(displayer) {}
+  BaseDisplay(std::shared_ptr<AsyncDisplayer> displayer)
+      : displayer_(displayer) {}
 
  public:
   BaseDisplay(std::ostream* out = &std::cout,
@@ -300,7 +300,8 @@ class BaseDisplay {
               const std::string& message = "",
               const std::string& format = "",
               bool no_tty = false)
-      : displayer_(std::make_shared<AsyncDisplayer>(this, out, interval, no_tty)),
+      : displayer_(
+            std::make_shared<AsyncDisplayer>(this, out, interval, no_tty)),
         message_(message),
         format_(format) {}
   BaseDisplay(const BaseDisplay&) = delete;
@@ -333,19 +334,19 @@ class BaseDisplay {
 };
 
 inline void AsyncDisplayer::display_(bool redraw) {
-    static const auto clear_line = "\033[K";
-    static const auto cursor_up = "\033[A";
+  static const auto clear_line = "\033[K";
+  static const auto cursor_up = "\033[A";
 
-    if (not no_tty_) {
-      *out_ << "\r" << clear_line;
-      for (long i = 0; i < last_num_newlines_; i++) {
-        *out_ << cursor_up << clear_line;
-      }
+  if (not no_tty_) {
+    *out_ << "\r" << clear_line;
+    for (long i = 0; i < last_num_newlines_; i++) {
+      *out_ << cursor_up << clear_line;
     }
-    last_num_newlines_ = parent_->render_(redraw, " ");
-    if (no_tty_) { *out_ << "\n"; }
-    *out_ << std::flush;
   }
+  last_num_newlines_ = parent_->render_(redraw, " ");
+  if (no_tty_) { *out_ << "\n"; }
+  *out_ << std::flush;
+}
 
 /// Animation parameters
 struct AnimationConfig {
@@ -359,7 +360,7 @@ struct AnimationConfig {
   std::variant<Duration, double> interval = Duration{0.};
 
   /// no-tty mode if true (no `\r`, slower default refresh)
-  bool no_tty = false; 
+  bool no_tty = false;
 
   bool show = true; ///< show the animation immediately after construction
 };
@@ -396,11 +397,7 @@ class AnimationDisplay : public BaseDisplay {
   /// Constructor.
   /// @param cfg Animation parameters
   AnimationDisplay(const AnimationConfig& cfg = {})
-      : BaseDisplay(cfg.out,
-                    Duration{0.},
-                    cfg.message,
-                    "",
-                    cfg.no_tty) {
+      : BaseDisplay(cfg.out, Duration{0.}, cfg.message, "", cfg.no_tty) {
     if (std::holds_alternative<Strings>(cfg.style)) {
       stills_ = std::get<Strings>(cfg.style);
     } else {
@@ -684,15 +681,14 @@ class CounterDisplay : public BaseDisplay {
   /// @param cfg      Counter parameters
   CounterDisplay(Progress* progress, const CounterConfig& cfg = {})
       : BaseDisplay(cfg.out,
-                     as_duration(cfg.interval),
-                     cfg.message,
-                     cfg.format.empty() ? "" : cfg.format + " ",
-                     cfg.no_tty),
+                    as_duration(cfg.interval),
+                    cfg.message,
+                    cfg.format.empty() ? "" : cfg.format + " ",
+                    cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit) {
     if (cfg.speed) {
-      speedom_ =
-          std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
+      speedom_ = std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
     }
     if (displayer_->interval() == Duration{0.}) {
       displayer_->interval(default_interval_(cfg.no_tty));
@@ -938,12 +934,13 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored to measure completion
   /// @param cfg      ProgressBar parameters
-  ProgressBarDisplay(Progress* progress, const ProgressBarConfig<ValueType>& cfg = {})
+  ProgressBarDisplay(Progress* progress,
+                     const ProgressBarConfig<ValueType>& cfg = {})
       : BaseDisplay(cfg.out,
-                     as_duration(cfg.interval),
-                     cfg.message,
-                     cfg.format.empty() ? "" : cfg.format + " ",
-                     cfg.no_tty),
+                    as_duration(cfg.interval),
+                    cfg.message,
+                    cfg.format.empty() ? "" : cfg.format + " ",
+                    cfg.no_tty),
         progress_(progress),
         speed_unit_(cfg.speed_unit),
         total_(cfg.total) {
@@ -954,8 +951,7 @@ class ProgressBarDisplay : public BaseDisplay {
           std::get<ProgressBarStyle>(cfg.style))];
     }
     if (cfg.speed) {
-      speedom_ =
-          std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
+      speedom_ = std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
     }
     if (displayer_->interval() == Duration{0.}) {
       displayer_->interval(default_interval_(cfg.no_tty));
@@ -967,13 +963,14 @@ class ProgressBarDisplay : public BaseDisplay {
 };
 
 template <typename Progress>
-auto ProgressBar(Progress* progress, const ProgressBarConfig<value_t<Progress>>& cfg = {}) {
+auto ProgressBar(Progress* progress,
+                 const ProgressBarConfig<value_t<Progress>>& cfg = {}) {
   return std::make_shared<ProgressBarDisplay<Progress>>(progress, cfg);
 }
 
 /// Creates a composite display out of two display that shows them side by side.
-/// For instance, you can combine two Counter objects, or a Counter and a ProgressBar
-/// to concurrently monitor two variables.
+/// For instance, you can combine two Counter objects, or a Counter and a
+/// ProgressBar to concurrently monitor two variables.
 class CompositeDisplay : public BaseDisplay {
  protected:
   std::string delim_ = " "; ///< delimiter between displays
@@ -1000,8 +997,7 @@ class CompositeDisplay : public BaseDisplay {
  public:
   CompositeDisplay(const std::vector<std::shared_ptr<BaseDisplay>>& displays,
                    std::string delim = " ")
-      : delim_(std::move(delim)),
-        displays_(displays) {
+      : delim_(std::move(delim)), displays_(displays) {
     for (auto& display : displays_) {
       if (display->displayer_->running()) {
         throw std::runtime_error("Cannot combine running displays!");
@@ -1024,7 +1020,8 @@ class CompositeDisplay : public BaseDisplay {
   ~CompositeDisplay() { done(); }
 };
 
-auto Composite(const std::vector<std::shared_ptr<BaseDisplay>>& displays, std::string delim = " ") {
+auto Composite(const std::vector<std::shared_ptr<BaseDisplay>>& displays,
+               std::string delim = " ") {
   return std::make_shared<CompositeDisplay>(displays, std::move(delim));
 }
 

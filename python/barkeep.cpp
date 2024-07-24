@@ -70,27 +70,26 @@ class AsyncDisplayer_ : public AsyncDisplayer {
 };
 
 class Animation_ : public AnimationDisplay {
-  public:
-    Animation_(py::object file = py::none(),
-              std::string message = "",
-              std::variant<AnimationStyle, Strings> style = Ellipsis,
-              double interval = 0.,
-              bool no_tty = false)
-        : AnimationDisplay( {.out = nullptr,
-                            .message = message,
-                            .style = style,
-                            .interval = interval,
-                            .no_tty = no_tty,
-                            .show = false}) {
-      std::shared_ptr<PyFileStream> fp = nullptr;
-      if (not file.is_none()) {
-        fp = std::make_shared<PyFileStream>(std::move(file));
-      }
-      auto interval_ =
-          interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
-      displayer_ = std::make_shared<AsyncDisplayer_>(
-          this, fp, interval_, no_tty);
+ public:
+  Animation_(py::object file = py::none(),
+             std::string message = "",
+             std::variant<AnimationStyle, Strings> style = Ellipsis,
+             double interval = 0.,
+             bool no_tty = false)
+      : AnimationDisplay({.out = nullptr,
+                          .message = message,
+                          .style = style,
+                          .interval = interval,
+                          .no_tty = no_tty,
+                          .show = false}) {
+    std::shared_ptr<PyFileStream> fp = nullptr;
+    if (not file.is_none()) {
+      fp = std::make_shared<PyFileStream>(std::move(file));
     }
+    auto interval_ =
+        interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
+    displayer_ = std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
+  }
 };
 
 class Status_ : public StatusDisplay {
@@ -100,12 +99,12 @@ class Status_ : public StatusDisplay {
           std::variant<AnimationStyle, Strings> style = Ellipsis,
           double interval = 0.,
           bool no_tty = false)
-      : StatusDisplay( {.out = nullptr,
-                        .message = message,
-                        .style = style,
-                        .interval = interval,
-                        .no_tty = no_tty,
-                        .show = false}) {
+      : StatusDisplay({.out = nullptr,
+                       .message = message,
+                       .style = style,
+                       .interval = interval,
+                       .no_tty = no_tty,
+                       .show = false}) {
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
       fp = std::make_shared<PyFileStream>(std::move(file));
@@ -136,14 +135,14 @@ class Counter_ : public CounterDisplay<T> {
            double interval = 0.,
            bool no_tty = false)
       : CounterDisplay<T>(nullptr,
-                   {.out = nullptr,
-                    .format = format,
-                    .message = message,
-                    .speed = std::nullopt,
-                    .speed_unit = speed_unit,
-                    .interval = interval,
-                    .no_tty = no_tty,
-                    .show = false}) {
+                          {.out = nullptr,
+                           .format = format,
+                           .message = message,
+                           .speed = std::nullopt,
+                           .speed_unit = speed_unit,
+                           .interval = interval,
+                           .no_tty = no_tty,
+                           .show = false}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
     }
@@ -194,16 +193,16 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
                double interval = 0.,
                bool no_tty = false)
       : ProgressBarDisplay<T>(nullptr,
-                       {.out = nullptr,
-                        .total = total,
-                        .format = format,
-                        .message = message,
-                        .speed = std::nullopt,
-                        .speed_unit = speed_unit,
-                        .style = style,
-                        .interval = interval,
-                        .no_tty = no_tty,
-                        .show = false}) {
+                              {.out = nullptr,
+                               .total = total,
+                               .format = format,
+                               .message = message,
+                               .speed = std::nullopt,
+                               .speed_unit = speed_unit,
+                               .style = style,
+                               .interval = interval,
+                               .no_tty = no_tty,
+                               .show = false}) {
     if (speed) {
       this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
     }
@@ -213,8 +212,8 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
     }
     auto interval_ =
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
-    this->displayer_ = std::make_shared<AsyncDisplayer_>(
-        this, fp, interval_, no_tty);
+    this->displayer_ =
+        std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
     this->progress_ = work.get();
     assert(this->progress_ != nullptr);
   }
@@ -295,18 +294,21 @@ PYBIND11_MODULE(barkeep, m) {
            "speed_left_modifier"_a = "",
            "speed_right_modifier"_a = "");
 
-  auto base_display = py::class_<BaseDisplay, std::shared_ptr<BaseDisplay>>(m, "AsyncDisplay")
-                           .def("show", &BaseDisplay::show)
-                           .def("done", &BaseDisplay::done);
+  auto base_display =
+      py::class_<BaseDisplay, std::shared_ptr<BaseDisplay>>(m, "AsyncDisplay")
+          .def("show", &BaseDisplay::show)
+          .def("done", &BaseDisplay::done);
 
-  py::class_<Animation_, std::shared_ptr<Animation_>, BaseDisplay>(m, "Animation")
+  py::class_<Animation_, std::shared_ptr<Animation_>, BaseDisplay>(m,
+                                                                   "Animation")
       .def(py::init([](py::object file,
                        std::string msg,
                        double interval,
                        std::variant<AnimationStyle, Strings> style,
                        bool no_tty,
                        bool show) {
-             auto a = std::make_shared<Animation_>(file, msg, style, interval, no_tty);
+             auto a = std::make_shared<Animation_>(
+                 file, msg, style, interval, no_tty);
              if (show) { a->show(); }
              return a;
            }),
@@ -599,13 +601,16 @@ PYBIND11_MODULE(barkeep, m) {
       "show"_a = true,
       py::keep_alive<0, 3>()); // keep file alive while the bar is alive
 
-  py::class_<CompositeDisplay, std::shared_ptr<CompositeDisplay>, BaseDisplay>(m, "Composite");
+  py::class_<CompositeDisplay, std::shared_ptr<CompositeDisplay>, BaseDisplay>(
+      m, "Composite");
 
-  base_display.def("__or__", [](std::shared_ptr<BaseDisplay> self,
-                                std::shared_ptr<BaseDisplay> other) {
-    if (self->running() or other->running()) {
-      throw std::runtime_error("Cannot combine running AsyncDisplay objects!");
-    }
-    return Composite({self, other});
-  });
+  base_display.def("__or__",
+                   [](std::shared_ptr<BaseDisplay> self,
+                      std::shared_ptr<BaseDisplay> other) {
+                     if (self->running() or other->running()) {
+                       throw std::runtime_error(
+                           "Cannot combine running AsyncDisplay objects!");
+                     }
+                     return Composite({self, other});
+                   });
 }
