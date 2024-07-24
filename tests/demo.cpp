@@ -294,12 +294,11 @@ Demo three_counters_lines(
       counters->done();
     });
 
-Demo three_bars(
-    "three_bars",
-    "Composite display of three newline-delimited progress bars",
-    []() {
-      std::atomic<size_t> linear{0}, quad{0}, cubic{0};
-      // clang-format off
+Demo three_bars("three_bars",
+                "Composite display of three newline-delimited progress bars",
+                []() {
+                  std::atomic<size_t> linear{0}, quad{0}, cubic{0};
+                  // clang-format off
       auto bars = bk::Composite(
         {bk::ProgressBar(&linear, {
              .total = 100,
@@ -323,16 +322,16 @@ Demo three_bars(
              .show = false,
          })},
         "\n");
-      // clang-format on
-      bars->show();
-      for (int i = 0; i < 100; i++) {
-        std::this_thread::sleep_for(130ms);
-        linear++;
-        quad += linear;
-        cubic += quad;
-      }
-      bars->done();
-    });
+                  // clang-format on
+                  bars->show();
+                  for (int i = 0; i < 100; i++) {
+                    std::this_thread::sleep_for(130ms);
+                    linear++;
+                    quad += linear;
+                    cubic += quad;
+                  }
+                  bars->done();
+                });
 
 Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
   std::vector<float> v(300, 0);

@@ -136,17 +136,17 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::string value_fmt =
       std::is_floating_point_v<ValueType> ? "{0:.2f}" : "{0:2d}";
 
-  auto bar = ProgressBar(&progress,
-                         {
-                             .out = &out,
-                             .total = 50,
-                             .format = "Computing {2:6.2f}%) {1} " +
-                                       value_fmt + "/{3}",
-                             .speed = 0.9,
-                             .style = GENERATE(Bars, Blocks),
-                             .interval = 0.001s,
-                             .no_tty = no_tty,
-                         });
+  auto bar = ProgressBar(
+      &progress,
+      {
+          .out = &out,
+          .total = 50,
+          .format = "Computing {2:6.2f}%) {1} " + value_fmt + "/{3}",
+          .speed = 0.9,
+          .style = GENERATE(Bars, Blocks),
+          .interval = 0.001s,
+          .no_tty = no_tty,
+      });
 
   bar->show();
   for (size_t i = 0; i < 50; i++) {
@@ -169,16 +169,15 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(
-      &progress,
-      {
-          .out = &out,
-          .total = 50,
-          .format = "Computing {2:6.2f}%) {1} {0:2d}/{3}",
-          .style = Bars,
-          .interval = 0.001,
-          .show = false,
-      });
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .format = "Computing {2:6.2f}%) {1} {0:2d}/{3}",
+                             .style = Bars,
+                             .interval = 0.001,
+                             .show = false,
+                         });
 
   SECTION("Above") {
     progress = 50;
@@ -215,22 +214,20 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar =
-      ProgressBar(
-          &sents,
-          {
-              .out = &out,
-              .total = 505,
-              .format = "Sents {2:6.2f}% {1} {0:3d}/{3:3d}",
-              .style = Bars,
-              .interval = 0.01,
-              .show = false,
-          }) |
-      Counter(&toks,
-              {.out = &out,
-               .format = "Toks {0}  ({1:.2f} tok/s)",
-               .speed = 1,
-               .show = false});
+  auto bar = ProgressBar(&sents,
+                         {
+                             .out = &out,
+                             .total = 505,
+                             .format = "Sents {2:6.2f}% {1} {0:3d}/{3:3d}",
+                             .style = Bars,
+                             .interval = 0.01,
+                             .show = false,
+                         }) |
+             Counter(&toks,
+                     {.out = &out,
+                      .format = "Toks {0}  ({1:.2f} tok/s)",
+                      .speed = 1,
+                      .show = false});
 
   bar->show();
   for (int i = 0; i < 505; i++) {

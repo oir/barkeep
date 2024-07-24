@@ -347,17 +347,17 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
   }());
 }
 
-//TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
-//  CHECK_NOTHROW([]() {
-//    auto orig = factory_helper<TestType>(GENERATE(true, false));
-//    auto copy = orig;
-//    auto moved = std::move(orig);
-//    copy.show();
-//    copy.done();
-//    moved.show();
-//    moved.done();
-//  }());
-//}
+// TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
+//   CHECK_NOTHROW([]() {
+//     auto orig = factory_helper<TestType>(GENERATE(true, false));
+//     auto copy = orig;
+//     auto moved = std::move(orig);
+//     copy.show();
+//     copy.done();
+//     moved.show();
+//     moved.done();
+//   }());
+// }
 
 void check_shrinking_space(const Strings& parts, const BarParts& sty) {
   // Check that space is shrinking
