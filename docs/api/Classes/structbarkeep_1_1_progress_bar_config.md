@@ -1,7 +1,7 @@
 # barkeep::ProgressBarConfig
 
 
- [More...](#detailed-description)
+Progress bar parameters.  [More...](#detailed-description)
 
 
 `#include <barkeep.h>`
@@ -33,6 +33,7 @@ template <typename ValueType >
 struct barkeep::ProgressBarConfig;
 ```
 
+Progress bar parameters. 
 ## Public Attributes Documentation
 
 ### variable `out`

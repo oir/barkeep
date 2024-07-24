@@ -1,7 +1,7 @@
 # barkeep::IterableBar::Iterator
 
 
-
+[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md)'s iterator class that wraps the container's iterator. When incremented, it increments the progress index. 
 
 
 `#include <barkeep.h>`

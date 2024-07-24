@@ -269,7 +269,7 @@ class AsyncDisplayer {
 class BaseDisplay {
  protected:
   std::shared_ptr<AsyncDisplayer> displayer_;
-  ///< can be shared across components of a composite display
+  ///< shared across components of a composite display
 
   // configuration
   std::string message_;
@@ -419,6 +419,8 @@ class AnimationDisplay : public BaseDisplay {
   ~AnimationDisplay() { done(); }
 };
 
+/// Convenience factory function to create a shared_ptr to AnimationDisplay.
+/// Prefer this to constructing AnimationDisplay directly.
 auto Animation(const AnimationConfig& cfg = {}) {
   return std::make_shared<AnimationDisplay>(cfg);
 }
@@ -464,6 +466,8 @@ class StatusDisplay : public AnimationDisplay {
   }
 };
 
+/// Convenience factory function to create a shared_ptr to StatusDisplay.
+/// Prefer this to constructing StatusDisplay directly.
 auto Status(const AnimationConfig& cfg = {}) {
   return std::make_shared<StatusDisplay>(cfg);
 }
@@ -699,11 +703,14 @@ class CounterDisplay : public BaseDisplay {
   ~CounterDisplay() { done(); }
 };
 
+/// Convenience factory function to create a shared_ptr to CounterDisplay.
+/// Prefer this to constructing CounterDisplay directly.
 template <typename Progress>
 auto Counter(Progress* progress, const CounterConfig& cfg = {}) {
   return std::make_shared<CounterDisplay<Progress>>(progress, cfg);
 }
 
+/// Progress bar parameters
 template <typename ValueType>
 struct ProgressBarConfig {
   std::ostream* out = &std::cout; ///< output stream
@@ -962,6 +969,8 @@ class ProgressBarDisplay : public BaseDisplay {
   ~ProgressBarDisplay() { done(); }
 };
 
+/// Convenience factory function to create a shared_ptr to ProgressBarDisplay.
+/// Prefer this to constructing ProgressBarDisplay directly.
 template <typename Progress>
 auto ProgressBar(Progress* progress,
                  const ProgressBarConfig<value_t<Progress>>& cfg = {}) {
@@ -1021,6 +1030,8 @@ class CompositeDisplay : public BaseDisplay {
   ~CompositeDisplay() { done(); }
 };
 
+/// Convenience factory function to create a shared_ptr to CompositeDisplay.
+/// Prefer this to constructing CompositeDisplay directly.
 auto Composite(const std::vector<std::shared_ptr<BaseDisplay>>& displays,
                std::string delim = " ") {
   return std::make_shared<CompositeDisplay>(displays, std::move(delim));
@@ -1033,6 +1044,7 @@ auto operator|(std::shared_ptr<BaseDisplay> left,
       std::vector{std::move(left), std::move(right)});
 }
 
+/// IterableBar parameters
 template <typename ValueType>
 struct IterableBarConfig {
   std::ostream* out = &std::cout; ///< output stream
@@ -1077,6 +1089,8 @@ class IterableBar {
   std::shared_ptr<Bar> bar_;
 
  public:
+  /// IterableBar's iterator class that wraps the container's iterator.
+  /// When incremented, it increments the progress index.
   class Iterator {
    private:
     typename Container::iterator it_, end_;

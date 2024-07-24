@@ -12,7 +12,7 @@ A progress bar that can be used with range-based for loops, that automatically t
 
 |                | Name           |
 | -------------- | -------------- |
-| class | **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md)**  |
+| class | **[Iterator](api/Classes/classbarkeep_1_1_iterable_bar_1_1_iterator.md)** <br>[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md)'s iterator class that wraps the container's iterator. When incremented, it increments the progress index.  |
 
 
 </span>
@@ -25,7 +25,7 @@ A progress bar that can be used with range-based for loops, that automatically t
 | -------------- | -------------- |
 | <span class="codey">using std::atomic< size_t > </span>| <span class="codey">**[ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype)** </span> |
 | <span class="codey">using [value_t](api/Namespaces/namespacebarkeep.md#using-value_t)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[ValueType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-valuetype)** </span> |
-| <span class="codey">using [ProgressBar](api/Classes/classbarkeep_1_1_progress_bar.md)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[Bar](api/Classes/classbarkeep_1_1_iterable_bar.md#using-bar)** </span> |
+| <span class="codey">using [ProgressBarDisplay](api/Classes/classbarkeep_1_1_progress_bar_display.md)< [ProgressType](api/Classes/classbarkeep_1_1_iterable_bar.md#using-progresstype) > </span>| <span class="codey">**[Bar](api/Classes/classbarkeep_1_1_iterable_bar.md#using-bar)** </span> |
 
 
 </span>
@@ -75,7 +75,7 @@ using barkeep::IterableBar< Container >::ValueType =  value_t<ProgressType>;
 ### using `Bar`
 
 ```cpp
-using barkeep::IterableBar< Container >::Bar =  ProgressBar<ProgressType>;
+using barkeep::IterableBar< Container >::Bar =  ProgressBarDisplay<ProgressType>;
 ```
 
 

@@ -15,7 +15,7 @@ Helper class to measure and display speed of progress.  [More...](#detailed-desc
 | <span class="codey"> double </span>|  <span class="codey">  **[speed](api/Classes/classbarkeep_1_1_speedometer.md#function-speed)**()</span> |
 | <span class="codey"> void </span>|  <span class="codey">  **[render_speed](api/Classes/classbarkeep_1_1_speedometer.md#function-render_speed)**(std::ostream * out, const std::string & speed_unit, const std::string & end = " ")</span><br>Write speed to given output stream. Speed is a double (written with precision 2), possibly followed by a unit of speed.  |
 | <span class="codey"> void </span>|  <span class="codey">  **[start](api/Classes/classbarkeep_1_1_speedometer.md#function-start)**()</span><br>Start computing the speed based on the amount of change in progress.  |
-| <span class="codey"> </span>|  <span class="codey">  **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**(Progress & progress, double discount)</span><br>Constructor.  |
+| <span class="codey"> </span>|  <span class="codey">  **[Speedometer](api/Classes/classbarkeep_1_1_speedometer.md#function-speedometer)**(Progress * progress, double discount)</span><br>Constructor.  |
 
 
 </span>
@@ -61,7 +61,7 @@ Start computing the speed based on the amount of change in progress.
 
 ```cpp
 inline Speedometer(
-    Progress & progress,
+    Progress * progress,
     double discount
 )
 ```

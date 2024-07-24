@@ -1,7 +1,7 @@
 # barkeep::IterableBarConfig
 
 
- [More...](#detailed-description)
+[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md) parameters.  [More...](#detailed-description)
 
 
 `#include <barkeep.h>`
@@ -31,6 +31,7 @@ template <typename ValueType >
 struct barkeep::IterableBarConfig;
 ```
 
+[IterableBar](api/Classes/classbarkeep_1_1_iterable_bar.md) parameters. 
 ## Public Attributes Documentation
 
 ### variable `out`
