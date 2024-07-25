@@ -1,61 +1,16 @@
 #define CATCH_CONFIG_MAIN
 
-#include <algorithm>
 #include <atomic>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
 #include <barkeep/barkeep.h>
 #include <catch2/catch.hpp>
 
+#include "testutil.h"
+
 using namespace std::chrono_literals;
 using namespace barkeep;
-
-std::vector<std::string> split(const std::string& s, char delim) {
-  std::vector<std::string> elems;
-  std::stringstream ss(s);
-  std::string elem;
-
-  while (std::getline(ss, elem, delim)) { elems.push_back(elem); }
-
-  return elems;
-}
-
-std::vector<std::string> split(const std::string& s, const std::string& delim) {
-  std::vector<std::string> elems;
-  size_t begin = 0, end = 0;
-  while ((end = s.find(delim, begin)) != std::string::npos) {
-    elems.push_back(s.substr(begin, end - begin));
-    begin = end + delim.size();
-  }
-  elems.push_back(s.substr(begin));
-  return elems;
-}
-
-std::string rstrip(const std::string& s) {
-  if (s.empty()) { return s; }
-  size_t i = s.size();
-  while (s[i - 1] == ' ') { i--; }
-  return s.substr(0, i);
-}
-
-bool startswith(const std::string& s, const std::string& prefix) {
-  return s.substr(0, prefix.size()) == prefix;
-}
-
-auto check_and_get_parts(const std::string& s, bool no_tty = false) {
-  static const std::string crcl = "\r\033[K"; // carriage return clear line
-  if (not no_tty) { REQUIRE(startswith(s, crcl)); }
-  REQUIRE(s.back() == '\n');
-
-  auto parts =
-      no_tty ? split(s.substr(0, s.size() - 1), '\n')
-             : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
-  CHECK(not parts.empty());
-  return parts;
-}
 
 void check_anim(const std::vector<std::string>& parts,
                 const std::string& msg,
@@ -105,7 +60,7 @@ void check_status(const std::vector<std::string>& parts,
 
 TEST_CASE("Animation default", "[anim]") {
   auto anim = Animation({.show = false});
-  anim.done();
+  anim->done();
 }
 
 TEST_CASE("Animation", "[anim]") {
@@ -124,7 +79,7 @@ TEST_CASE("Animation", "[anim]") {
   });
 
   std::this_thread::sleep_for(1s);
-  anim.done();
+  anim->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
   check_anim(parts, "Working", animation_stills_[size_t(sty)].first);
@@ -146,7 +101,7 @@ TEST_CASE("Animation custom", "[anim]") {
   });
 
   std::this_thread::sleep_for(1s);
-  anim.done();
+  anim->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
   check_anim(parts, "Working", sty);
@@ -168,16 +123,16 @@ TEST_CASE("Status", "[status]") {
   });
 
   std::this_thread::sleep_for(0.5s);
-  stat.message("Still working");
+  stat->message("Still working");
   std::this_thread::sleep_for(0.5s);
-  stat.message("Done");
-  stat.done();
+  stat->message("Done");
+  stat->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
   check_status(parts,
                {"Working", "Still working", "Done"},
                animation_stills_[size_t(sty)].first);
-  CHECK(stat.message() == "Done");
+  CHECK(stat->message() == "Done");
 }
 
 using ProgressTypeList =
@@ -188,7 +143,7 @@ TEMPLATE_LIST_TEST_CASE("Counter default", "[counter]", ProgressTypeList) {
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
 
   auto ctr = Counter(&amount, {.show = false});
-  ctr.done();
+  ctr->done();
 }
 
 TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
@@ -212,7 +167,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
     std::this_thread::sleep_for(0.13ms);
     // no work
   }
-  ctr.done();
+  ctr->done();
 
   auto parts = check_and_get_parts(out.str());
 
@@ -233,20 +188,6 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   }
 
   for (auto& part : parts) { CHECK(part == expected); }
-}
-
-template <typename Value>
-auto extract_counts(const std::string& prefix,
-                    const std::vector<std::string>& parts) {
-  std::vector<Value> rval;
-  for (auto& part : parts) {
-    REQUIRE(part.substr(0, prefix.size()) == prefix);
-    size_t i = part.find_first_of(' ', prefix.size());
-    auto countstr = part.substr(prefix.size(), i - prefix.size());
-    rval.push_back(Value(std::stod(countstr)));
-  }
-
-  return rval;
 }
 
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
@@ -274,7 +215,7 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
     std::this_thread::sleep_for(1.3ms);
     amount += increment;
   }
-  ctr.done();
+  ctr->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
   auto counts = extract_counts<ValueType>("Doing things ", parts);
@@ -307,7 +248,7 @@ TEST_CASE("Decreasing counter", "[counter]") {
     std::this_thread::sleep_for(1.3ms);
     amount--;
   }
-  ctr.done();
+  ctr->done();
 
   auto parts = check_and_get_parts(out.str());
   auto counts = extract_counts<int>("Doing things ", parts);
@@ -321,22 +262,22 @@ TEST_CASE("Decreasing counter", "[counter]") {
 }
 
 template <typename Display>
-Display factory_helper(bool /*speedy*/ = false);
+auto factory_helper(bool /*speedy*/ = false);
 
 template <>
-Animation factory_helper<Animation>(bool /*speedy*/) {
+auto factory_helper<AnimationDisplay>(bool /*speedy*/) {
   static std::stringstream hide;
   return Animation({.out = &hide, .show = false});
 }
 
 template <>
-Status factory_helper<Status>(bool /*speedy*/) {
+auto factory_helper<StatusDisplay>(bool /*speedy*/) {
   static std::stringstream hide;
   return Status({.out = &hide, .show = false});
 }
 
 template <>
-Counter<> factory_helper<Counter<>>(bool speedy) {
+auto factory_helper<CounterDisplay<>>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
   if (speedy) {
@@ -347,7 +288,7 @@ Counter<> factory_helper<Counter<>>(bool speedy) {
 }
 
 template <>
-ProgressBar<float> factory_helper<ProgressBar<float>>(bool speedy) {
+auto factory_helper<ProgressBarDisplay<float>>(bool speedy) {
   static float progress;
   static std::stringstream hide;
   if (speedy) {
@@ -358,7 +299,7 @@ ProgressBar<float> factory_helper<ProgressBar<float>>(bool speedy) {
 }
 
 template <>
-Composite factory_helper<Composite>(bool speedy) {
+auto factory_helper<CompositeDisplay>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
   if (speedy) {
@@ -370,25 +311,23 @@ Composite factory_helper<Composite>(bool speedy) {
   }
 }
 
-using DisplayTypes =
-    std::tuple<Animation, Status, Counter<>, ProgressBar<float>, Composite>;
+using DisplayTypes = std::tuple<AnimationDisplay,
+                                StatusDisplay,
+                                CounterDisplay<>,
+                                ProgressBarDisplay<float>,
+                                CompositeDisplay>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
   auto orig = factory_helper<TestType>(GENERATE(true, false));
-  orig.show();
-  SECTION("Running copy & move") {
-    CHECK_THROWS([&]() { auto copy{orig}; }());
-    CHECK_THROWS([&]() { auto copy{std::move(orig)}; }());
-  }
-  SECTION("Running compose") {
-    // This fails because copy / move is needed and they will both throw
-    CHECK_THROWS([&]() { orig | orig; }());
-    CHECK_THROWS([&]() { orig | orig | orig; }());
+  orig->show();
+  SECTION("Running compose 2") {
+    CHECK_THROWS(orig | orig);
+    CHECK_THROWS(orig | orig | orig);
   }
   // This is now a no-op, instead of error.
-  CHECK_NOTHROW(orig.show());
-  orig.done();
-  CHECK_NOTHROW(orig.done());
+  CHECK_NOTHROW(orig->show());
+  orig->done();
+  CHECK_NOTHROW(orig->done());
 }
 
 TEST_CASE("Invalid speed discount", "[edges]") {
@@ -403,31 +342,22 @@ TEMPLATE_LIST_TEST_CASE("Destroy before done", "[edges]", DisplayTypes) {
   CHECK_NOTHROW([]() {
     { // lifetime
       auto display = factory_helper<TestType>();
-      display.show();
+      display->show();
     }
   }());
 }
 
-TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
-  CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>(GENERATE(true, false));
-    auto copy = orig;
-    auto moved = std::move(orig);
-    copy.show();
-    copy.done();
-    moved.show();
-    moved.done();
-  }());
-}
-
-TEMPLATE_LIST_TEST_CASE("Clone", "[edges]", DisplayTypes) {
-  CHECK_NOTHROW([]() {
-    auto orig = factory_helper<TestType>(GENERATE(true, false));
-    auto clone = orig.clone();
-    clone->show();
-    clone->done();
-  }());
-}
+// TEMPLATE_LIST_TEST_CASE("Copy & move", "[edges]", DisplayTypes) {
+//   CHECK_NOTHROW([]() {
+//     auto orig = factory_helper<TestType>(GENERATE(true, false));
+//     auto copy = orig;
+//     auto moved = std::move(orig);
+//     copy.show();
+//     copy.done();
+//     moved.show();
+//     moved.done();
+//   }());
+// }
 
 void check_shrinking_space(const Strings& parts, const BarParts& sty) {
   // Check that space is shrinking
@@ -473,12 +403,12 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
                              .interval = 0.001s,
                              .no_tty = no_tty,
                          });
-  bar.show();
+  bar->show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
     progress++;
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
 
@@ -508,12 +438,12 @@ TEMPLATE_LIST_TEST_CASE("Progress bar custom", "[bar]", ProgressTypeList) {
                              .interval = 0.001s,
                              .no_tty = no_tty,
                          });
-  bar.show();
+  bar->show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
     progress++;
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
 
@@ -594,12 +524,12 @@ TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
 
   auto bar = ProgressBar(&progress, cfg);
 
-  bar.show();
+  bar->show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
     progress++;
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
 
@@ -704,12 +634,12 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
 
   SECTION("Above") {
     progress = 50;
-    bar.show();
+    bar->show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress++;
     }
-    bar.done();
+    bar->done();
 
     auto parts = check_and_get_parts(out.str());
     for (auto part : parts) {
@@ -719,12 +649,12 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
 
   SECTION("Below") {
     progress = 0;
-    bar.show();
+    bar->show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress--;
     }
-    bar.done();
+    bar->done();
 
     auto parts = check_and_get_parts(out.str());
     for (auto part : parts) {
@@ -762,13 +692,13 @@ TEST_CASE("Composite bar-counter", "[composite]") {
                          .speed_unit = "tok/s",
                          .show = false,
                      });
-  bar.show();
+  bar->show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
     sents++;
     toks += size_t(1 + rand() % 5);
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str());
   long last_spaces = std::numeric_limits<long>::max(), last_count = 0;

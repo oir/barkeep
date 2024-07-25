@@ -39,13 +39,13 @@ int main(int /*argc*/, char** /*argv*/) {
   auto bar = bk::ProgressBar(&i, {.total=docs.size(), .show=false}) |
              bk::Counter(&tokens, {.message="Tokens", .show=false}) |
              bk::Counter(&chars, {.message="Chars", .show=false});
-  bar.show();
+  bar->show();
   for (i = 0; i < docs.size(); ++i) {
 
     process_document(docs[i], out,
                      chars, tokens);
   }
-  bar.done();
+  bar->done();
 
   std::cout << "Total: " << chars
             << tokens << std::endl;

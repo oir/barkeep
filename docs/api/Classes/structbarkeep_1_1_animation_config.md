@@ -1,7 +1,7 @@
 # barkeep::AnimationConfig
 
 
-[Animation](api/Classes/classbarkeep_1_1_animation.md) parameters. 
+Animation parameters. 
 
 
 `#include <barkeep.h>`
@@ -59,8 +59,7 @@ interval in which the animation is refreshed
 ### variable `no_tty`
 
 ```cpp
-bool no_tty =
-      false;
+bool no_tty = false;
 ```
 
 no-tty mode if true (no `\r`, slower default refresh) 

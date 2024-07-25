@@ -30,9 +30,8 @@ jobs:
                --remove cov.info \
                                  '/usr/include*' \
                                  '*/subprojects/*' \
-                                 '*/test.cpp*' \
-                                 '*/test-fmtlib.cpp' \
-                                 '*/test-stdfmt.cpp' -o barkeep.info
+                                 '*/tests/*' \
+               -o barkeep.info
           rm cov.info
       - name: Coveralls
         uses: coverallsapp/github-action@master

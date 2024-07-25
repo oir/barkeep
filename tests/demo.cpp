@@ -69,9 +69,9 @@ std::unordered_map<std::string, Demo*> Demo::all_demos;
 Demo animations("animations", "Animations", []() {
   for (auto sty : {bk::Ellipsis, bk::Bounce, bk::Bar, bk::Moon}) {
     auto anim = bk::Animation({.message = "Working", .style = sty});
-    anim.show();
+    anim->show();
     std::this_thread::sleep_for(10s);
-    anim.done();
+    anim->done();
   }
 });
 
@@ -80,6 +80,17 @@ Demo custom_animations("custom_animations", "Custom animation stills", []() {
   auto anim =
       bk::Animation({.message = "Working", .style = stills, .interval = 0.5s});
   std::this_thread::sleep_for(10s);
+});
+
+Demo status("status", "Status display", []() {
+  auto s = bk::Status({.message = "Working"});
+  std::this_thread::sleep_for(2.5s);
+  s->message("Still working");
+  std::this_thread::sleep_for(2.5s);
+  s->message("Almost done");
+  std::this_thread::sleep_for(2.5s);
+  s->message("Done");
+  s->done();
 });
 
 Demo int_counter("int_counter", "Integral counter", []() {
@@ -91,12 +102,10 @@ Demo int_counter("int_counter", "Integral counter", []() {
                              .speed = speed,
                              .speed_unit = "tk/s",
                          });
-    c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
       work++;
     }
-    c.done();
   }
 });
 
@@ -109,12 +118,10 @@ Demo float_counter("float_counter", "Floating point counter", []() {
                              .speed = speed,
                              .speed_unit = "tk/s",
                          });
-    c.show();
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
       work += 0.213;
     }
-    c.done();
   }
 });
 
@@ -127,12 +134,11 @@ Demo decreasing_counter("decreasing_counter", "Decreasing counter", []() {
                              .speed = speed,
                              .speed_unit = "",
                          });
-    c.show();
     while (work > 0) {
       std::this_thread::sleep_for(13ms);
       work--;
     }
-    // Let destructor do the c.done() this time
+    c->done(); // let's explicitly end this time
   }
 });
 
@@ -148,12 +154,10 @@ Demo bars("bars", "Progress bars", []() {
                                      .speed_unit = "tk/s",
                                      .style = sty,
                                  });
-      bar.show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(7ms);
         work++;
       }
-      bar.done();
     }
   }
 });
@@ -169,16 +173,14 @@ Demo custom_bar("custom_bar", "Custom bar style", []() {
                                  .speed_unit = "tk/s",
                                  .style = sty,
                              });
-  bar.show();
   for (int i = 0; i < 1010; i++) {
     std::this_thread::sleep_for(7ms);
     work++;
   }
-  bar.done();
 });
 
-Demo decreasing_progress_bar( // ...
-    "decreasing_progress_bar",
+Demo decreasing_bar( // ...
+    "decreasing_bar",
     "Decreasing progress bar",
     []() {
       unsigned long work{1010};
@@ -187,12 +189,10 @@ Demo decreasing_progress_bar( // ...
                                      .total = 1010,
                                      .speed = 1.,
                                  });
-      bar.show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(7ms);
         work--;
       }
-      bar.done();
     });
 
 Demo bar_and_counter(
@@ -218,80 +218,58 @@ Demo bar_and_counter(
                                  .speed_unit = "tok/s",
                                  .show = false,
                              });
-      bar.show();
+      bar->show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         sents++;
         toks += (1 + size_t(rand()) % 5);
       }
-      bar.done();
+      bar->done();
     });
 
-Demo three_counters( // ...
+Demo three_counters(
     "three_counters",
     "Composite display of three counters",
     []() {
       std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
-      // TODO: clang-format makes this very ugly
-      auto counters = bk::Counter(&squares,
-                                  {
-                                      .message = "Squares",
-                                      .speed = 0.1,
-                                      .show = false,
-                                  }) |
-                      bk::Counter(&cubes,
-                                  {
-                                      .message = "Cubes",
-                                      .speed = 0.1,
-                                      .show = false,
-                                  }) |
-                      bk::Counter(&hypercubes,
-                                  {
-                                      .message = "Hypercubes",
-                                      .speed = 0.1,
-                                      .show = false,
-                                  });
-      counters.show();
+      // clang-format off
+      auto counters = 
+          bk::Counter(&squares, { .message = "Squares", .speed = 0.1, .show = false }) |
+          bk::Counter(&cubes, { .message = "Cubes", .speed = 0.1, .show = false }) |
+          bk::Counter(&hypercubes, { .message = "Hypercubes", .speed = 0.1, .show = false });
+      // clang-format on
+      counters->show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         squares += (1 + size_t(rand()) % 5);
         cubes += (1 + size_t(rand()) % 10);
         hypercubes += (1 + size_t(rand()) % 20);
       }
-      counters.done();
+      counters->done();
     });
 
 Demo three_counters_delim(
     "three_counters_delim",
     "Composite display of three counters with custom delimiter",
     []() {
+      static const std::string blue = "\033[34m";
+      static const std::string reset = "\033[0m";
       std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
       // clang-format off
-      auto counters = bk::Composite(" | ",
-                                    bk::Counter(&squares, {
-                                        .message = "Squares",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }),
-                                    bk::Counter(&cubes, {
-                                        .message = "Cubes",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }),
-                                    bk::Counter(&hypercubes, {
-                                        .message = "Hypercubes",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }));
+      auto counters = bk::Composite(
+          {bk::Counter(&squares, { .message = "Squares", .speed = 0.1, .show = false }),
+           bk::Counter(&cubes, { .message = "Cubes", .speed = 0.1, .show = false }),
+           bk::Counter(&hypercubes, { .message = "Hypercubes", .speed = 0.1, .show = false })},
+          blue + " | " + reset);
       // clang-format on
-      counters.show();
+      counters->show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         squares += (1 + size_t(rand()) % 5);
         cubes += (1 + size_t(rand()) % 10);
         hypercubes += (1 + size_t(rand()) % 20);
       }
-      counters.done();
+      counters->done();
     });
 
 Demo three_counters_lines(
@@ -300,31 +278,20 @@ Demo three_counters_lines(
     []() {
       std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
       // clang-format off
-      auto counters = bk::Composite("\n",
-                                    bk::Counter(&squares, {
-                                        .message = "Squares",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }),
-                                    bk::Counter(&cubes, {
-                                        .message = "Cubes",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }),
-                                    bk::Counter(&hypercubes, {
-                                        .message = "Hypercubes",
-                                        .speed = 0.1,
-                                        .show = false,
-                                    }));
+      auto counters = bk::Composite(
+        {bk::Counter(&squares, { .message = "Squares", .speed = 0.1, .show = false }),
+         bk::Counter(&cubes, { .message = "Cubes", .speed = 0.1, .show = false }),
+         bk::Counter(&hypercubes, { .message = "Hypercubes", .speed = 0.1, .show = false })},
+        "\n");
       // clang-format on
-      counters.show();
+      counters->show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         squares += (1 + size_t(rand()) % 5);
         cubes += (1 + size_t(rand()) % 10);
         hypercubes += (1 + size_t(rand()) % 20);
       }
-      counters.done();
+      counters->done();
     });
 
 Demo three_bars( // ...
@@ -333,37 +300,38 @@ Demo three_bars( // ...
     []() {
       std::atomic<size_t> linear{0}, quad{0}, cubic{0};
       // clang-format off
-      auto bars = bk::Composite("\n",
-                                bk::ProgressBar(&linear, {
-                                    .total = 100,
-                                    .message = "Linear   ",
-                                    .speed = 0,
-                                    .style = bk::Rich,
-                                    .show = false,
-                                }),
-                                bk::ProgressBar(&quad, {
-                                    .total = 5050,
-                                    .message = "Quadratic",
-                                    .speed = 0,
-                                    .style = bk::Rich,
-                                    .show = false,
-                                }),
-                                bk::ProgressBar(&cubic, {
-                                    .total = 171700,
-                                    .message = "Cubic    ",
-                                    .speed = 0,
-                                    .style = bk::Rich,
-                                    .show = false,
-                                }));
+      auto bars = bk::Composite(
+        {bk::ProgressBar(&linear, {
+             .total = 100,
+             .message = "Linear   ",
+             .speed = 0,
+             .style = bk::Rich,
+             .show = false,
+         }),
+         bk::ProgressBar(&quad, {
+             .total = 5050,
+             .message = "Quadratic",
+             .speed = 0,
+             .style = bk::Rich,
+             .show = false,
+         }),
+         bk::ProgressBar(&cubic, {
+             .total = 171700,
+             .message = "Cubic    ",
+             .speed = 0,
+             .style = bk::Rich,
+             .show = false,
+         })},
+        "\n");
       // clang-format on
-      bars.show();
+      bars->show();
       for (int i = 0; i < 100; i++) {
         std::this_thread::sleep_for(130ms);
         linear++;
         quad += linear;
         cubic += quad;
       }
-      bars.done();
+      bars->done();
     });
 
 Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
@@ -391,13 +359,11 @@ Demo bar_no_tty(
                                      .speed = 1,
                                      .no_tty = true,
                                  });
-      bar.show();
       for (int i = 0; i < 20100; i++) {
         std::this_thread::sleep_for(13ms);
         sents++;
         toks += (1 + size_t(rand()) % 5);
       }
-      bar.done();
     });
 
 Demo bar_counter_no_tty(
@@ -422,25 +388,14 @@ Demo bar_counter_no_tty(
                                  .no_tty = true,
                                  .show = false,
                              });
-      bar.show();
+      bar->show();
       for (int i = 0; i < 20100; i++) {
         std::this_thread::sleep_for(13ms);
         sents++;
         toks += (1 + size_t(rand()) % 5);
       }
-      bar.done();
+      bar->done();
     });
-
-Demo status("status", "Status display", []() {
-  auto s = bk::Status({.message = "Working"});
-  std::this_thread::sleep_for(2.5s);
-  s.message("Still working");
-  std::this_thread::sleep_for(2.5s);
-  s.message("Almost done");
-  std::this_thread::sleep_for(2.5s);
-  s.message("Done");
-  s.done();
-});
 
 int main(int argc, char** argv) {
   Demo::run_all(std::vector<std::string>(argv + 1, argv + argc));

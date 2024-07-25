@@ -3,62 +3,16 @@
 #define BARKEEP_ENABLE_STD_FORMAT
 #endif
 
-#include <algorithm>
 #include <atomic>
-#include <iostream>
-#include <sstream>
 #include <string>
 #include <tuple>
-#include <vector>
 #include <barkeep/barkeep.h>
 #include <catch2/catch.hpp>
 
+#include "testutil.h"
+
 using namespace std::chrono_literals;
 using namespace barkeep;
-
-std::vector<std::string> split(const std::string& s, char delim) {
-  std::vector<std::string> elems;
-  std::stringstream ss(s);
-  std::string elem;
-
-  while (std::getline(ss, elem, delim)) { elems.push_back(elem); }
-
-  return elems;
-}
-
-std::vector<std::string> split(const std::string& s, const std::string& delim) {
-  std::vector<std::string> elems;
-  size_t begin = 0, end = 0;
-  while ((end = s.find(delim, begin)) != std::string::npos) {
-    elems.push_back(s.substr(begin, end - begin));
-    begin = end + delim.size();
-  }
-  elems.push_back(s.substr(begin));
-  return elems;
-}
-
-std::string rstrip(const std::string& s) {
-  if (s.empty()) { return s; }
-  size_t i = s.size();
-  while (s[i - 1] == ' ') { i--; }
-  return s.substr(0, i);
-}
-
-bool startswith(const std::string& s, const std::string& prefix) {
-  return s.substr(0, prefix.size()) == prefix;
-}
-
-auto check_and_get_parts(const std::string& s, bool no_tty = false) {
-  static const std::string crcl = "\r\033[K";
-  if (not no_tty) { REQUIRE(startswith(s, crcl)); }
-  REQUIRE(s.back() == '\n');
-
-  auto parts =
-      no_tty ? split(s.substr(0, s.size() - 1), '\n')
-             : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
-  CHECK(not parts.empty());
-  return parts;
-}
 
 using ProgressTypeList =
     std::tuple<size_t, std::atomic<size_t>, int, unsigned, float, double>;
@@ -88,12 +42,12 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
 
   auto ctr = Counter(
       &amount, {.out = &out, .format = fmtstr, .speed = sp, .interval = 0.001});
-  ctr.show();
+  ctr->show();
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(0.13ms);
     // no work
   }
-  ctr.done();
+  ctr->done();
 
   auto parts = check_and_get_parts(out.str());
 
@@ -114,20 +68,6 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   }
 
   for (auto& part : parts) { CHECK(part == expected); }
-}
-
-template <typename Value>
-auto extract_counts(const std::string& prefix,
-                    const std::vector<std::string>& parts) {
-  std::vector<Value> rval;
-  for (auto& part : parts) {
-    REQUIRE(part.substr(0, prefix.size()) == prefix);
-    size_t i = part.find_first_of(' ', prefix.size());
-    auto countstr = part.substr(prefix.size(), i - prefix.size());
-    rval.push_back(Value(std::stod(countstr)));
-  }
-
-  return rval;
 }
 
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
@@ -160,14 +100,14 @@ TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
                       .speed = sp,
                       .interval = 0.001,
                       .no_tty = no_tty});
-  ctr.show();
+  ctr->show();
 
   ValueType increment = ValueType(1.2); // becomes 1 for integral types
   for (size_t i = 0; i < 101; i++) {
     std::this_thread::sleep_for(1.3ms);
     amount += increment;
   }
-  ctr.done();
+  ctr->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
   auto counts = extract_counts<ValueType>("Doing things ", parts);
@@ -196,24 +136,24 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   std::string value_fmt =
       std::is_floating_point_v<ValueType> ? "{0:.2f}" : "{0:2d}";
 
-  auto bar = ProgressBar(&progress,
-                         {
-                             .out = &out,
-                             .total = 50,
-                             .format = "Computing {2:6.2f}%) {1} " +
-                                       value_fmt + "/{3}",
-                             .speed = 0.9,
-                             .style = GENERATE(Bars, Blocks),
-                             .interval = 0.001s,
-                             .no_tty = no_tty,
-                         });
+  auto bar = ProgressBar(
+      &progress,
+      {
+          .out = &out,
+          .total = 50,
+          .format = "Computing {2:6.2f}%) {1} " + value_fmt + "/{3}",
+          .speed = 0.9,
+          .style = GENERATE(Bars, Blocks),
+          .interval = 0.001s,
+          .no_tty = no_tty,
+      });
 
-  bar.show();
+  bar->show();
   for (size_t i = 0; i < 50; i++) {
     std::this_thread::sleep_for(1.3ms);
     progress++;
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str(), no_tty);
 
@@ -229,25 +169,24 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   std::stringstream out;
   int progress;
-  auto bar = ProgressBar(
-      &progress,
-      {
-          .out = &out,
-          .total = 50,
-          .format = "Computing {2:6.2f}%) {1} {0:2d}/{3}",
-          .style = Bars,
-          .interval = 0.001,
-          .show = false,
-      });
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = 50,
+                             .format = "Computing {2:6.2f}%) {1} {0:2d}/{3}",
+                             .style = Bars,
+                             .interval = 0.001,
+                             .show = false,
+                         });
 
   SECTION("Above") {
     progress = 50;
-    bar.show();
+    bar->show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress++;
     }
-    bar.done();
+    bar->done();
 
     auto parts = check_and_get_parts(out.str());
     for (auto part : parts) {
@@ -257,12 +196,12 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
 
   SECTION("Below") {
     progress = 0;
-    bar.show();
+    bar->show();
     for (size_t i = 0; i < 50; i++) {
       std::this_thread::sleep_for(1.3ms);
       progress--;
     }
-    bar.done();
+    bar->done();
 
     auto parts = check_and_get_parts(out.str());
     for (auto part : parts) {
@@ -275,30 +214,28 @@ TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
 
   std::atomic<size_t> sents{0}, toks{0};
-  auto bar =
-      ProgressBar(
-          &sents,
-          {
-              .out = &out,
-              .total = 505,
-              .format = "Sents {2:6.2f}% {1} {0:3d}/{3:3d}",
-              .style = Bars,
-              .interval = 0.01,
-              .show = false,
-          }) |
-      Counter(&toks,
-              {.out = &out,
-               .format = "Toks {0}  ({1:.2f} tok/s)",
-               .speed = 1,
-               .show = false});
+  auto bar = ProgressBar(&sents,
+                         {
+                             .out = &out,
+                             .total = 505,
+                             .format = "Sents {2:6.2f}% {1} {0:3d}/{3:3d}",
+                             .style = Bars,
+                             .interval = 0.01,
+                             .show = false,
+                         }) |
+             Counter(&toks,
+                     {.out = &out,
+                      .format = "Toks {0}  ({1:.2f} tok/s)",
+                      .speed = 1,
+                      .show = false});
 
-  bar.show();
+  bar->show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(0.13ms);
     sents++;
     toks += size_t(1 + rand() % 5);
   }
-  bar.done();
+  bar->done();
 
   auto parts = check_and_get_parts(out.str());
   long last_spaces = std::numeric_limits<long>::max(), last_count = 0;

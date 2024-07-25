@@ -20,12 +20,10 @@ int main(int /*argc*/, char** /*argv*/) {
         }) {
       int work{0};
       auto c = bk::Counter(&work, {.format = fmtstr, .speed = speed});
-      c.show();
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         work++;
       }
-      c.done();
     }
   }
 
@@ -37,13 +35,12 @@ int main(int /*argc*/, char** /*argv*/) {
             "Picking flowers\n{8}{0:4d}/1010\n{6}{1}\n{7}{2:3.0f}%{11}\n({4:.1f} flo/s)",
         }) {
       std::atomic<size_t> work{0};
-      auto bar = bk::ProgressBar(&work, {.total = 1010, .format = fmtstr, .speed = speed});
-      bar.show();
+      auto bar = bk::ProgressBar(
+          &work, {.total = 1010, .format = fmtstr, .speed = speed});
       for (int i = 0; i < 1010; i++) {
         std::this_thread::sleep_for(13ms);
         work++;
       }
-      bar.done();
     }
   }
 }
