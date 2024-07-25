@@ -44,7 +44,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   
   auto anim = bk::Animation({.message = "Working"});
   /* do work */ std::this_thread::sleep_for(10s);
-  anim.done();
+  anim->done();
   ```
 
   <picture>
@@ -78,7 +78,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
   }
-  c.done();
+  c->done();
   ```
 
   <picture>
@@ -101,7 +101,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
   }
-  bar.done();
+  bar->done();
   ```
 
   <picture>
@@ -125,7 +125,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     std::this_thread::sleep_for(13ms); // read & process line
     work++;
   }
-  bar.done();
+  bar->done();
   ```
 
   <picture>
@@ -149,19 +149,19 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     std::this_thread::sleep_for(13ms);
     work++;
   }
-  bar.done();
+  bar->done();
   ```
 
   ```cpp
   int work;
   auto bar = bk::ProgressBar(&work, {.total = 505, .show = false});
   work = 0;
-  bar.show();
+  bar->show();
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms);
     work++;
   }
-  bar.done();
+  bar->done();
   ```
 
   ```cpp
@@ -244,14 +244,14 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
         .speed = 1., 
         .speed_unit = "tok/s",
         .show = false});
-  bar.show();
+  bar->show();
   for (int i = 0; i < 1010; i++) {
     // do work
     std::this_thread::sleep_for(13ms);
     sents++;
     toks += (1 + rand() % 5);
   }
-  bar.done();
+  bar->done();
   ```
 
   (Observe the non-running initialization of components using `.show = false`, which is needed for composition.)
@@ -277,7 +277,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     std::this_thread::sleep_for(13ms);
     sents++;
   }
-  bar.done();
+  bar->done();
   ```
 
   <picture>
@@ -315,7 +315,7 @@ This option can be used to format the entire display using a `fmt`-like format s
       .speed = 0.1
     });
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
-    c.done();
+    c->done();
     ```
 
   - with standard `<format>` enabled:
@@ -327,7 +327,7 @@ This option can be used to format the entire display using a `fmt`-like format s
       .speed = 0.1
     });
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(13ms), work++; }
-    c.done();
+    c->done();
     ```
 
   <picture>
@@ -347,7 +347,7 @@ This option can be used to format the entire display using a `fmt`-like format s
         .speed = 0.1
     });
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-    bar.done();
+    bar->done();
     ```
 
   - with standard `<format>` enabled:
@@ -360,7 +360,7 @@ This option can be used to format the entire display using a `fmt`-like format s
         .speed = 0.1
     });
     for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-    bar.done();
+    bar->done();
     ```
 
   <picture>
@@ -386,7 +386,7 @@ Additionally, some basic ansi color sequences are predefined as identifiers whic
                 "{yellow}{percent:3.0f}%{reset}  ({speed:.1f} flo/s)",
       .speed = 0.1});
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-  bar.done();
+  bar->done();
   ```
 
 - with standard `<format>` enabled:
@@ -399,7 +399,7 @@ Additionally, some basic ansi color sequences are predefined as identifiers whic
                 "{7}{2:3.0f}%{11}  ({4:.1f} flo/s)",
       .speed = 0.1});
   for (int i = 0; i < 1010; i++) { std::this_thread::sleep_for(9ms), work++; }
-  bar.done();
+  bar->done();
   ```
 
 <picture>
