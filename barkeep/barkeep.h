@@ -449,7 +449,7 @@ class StatusDisplay : public AnimationDisplay {
   ~StatusDisplay() { done(); }
 
   /// Update the displayed message.
-  /// This is thread-safe between the display thread and the calling thread.
+  /// This is synchronized between the display thread and the calling thread.
   void message(const std::string& message) {
     {
       std::lock_guard lock(message_mutex_);

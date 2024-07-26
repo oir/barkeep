@@ -1,6 +1,6 @@
-#include <vector>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #include <catch2/catch.hpp>
 
@@ -38,12 +38,19 @@ bool startswith(const std::string& s, const std::string& prefix) {
 
 auto check_and_get_parts(const std::string& s, bool no_tty = false) {
   static const std::string crcl = "\r\033[K";
+  static const std::string cursor_up_cl = "\033[A\033[K";
   if (not no_tty) { REQUIRE(startswith(s, crcl)); }
   REQUIRE(s.back() == '\n');
 
   auto parts =
       no_tty ? split(s.substr(0, s.size() - 1), '\n')
              : split(s.substr(crcl.size(), s.size() - 1 - crcl.size()), crcl);
+  for (auto& part : parts) {
+    // Remove cursor up and clear line from the beginning
+    while (startswith(part, cursor_up_cl)) {
+      part = part.substr(cursor_up_cl.size());
+    }
+  }
   CHECK(not parts.empty());
   return parts;
 }
