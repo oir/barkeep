@@ -728,3 +728,58 @@ TEST_CASE("Composite bar-counter", "[composite]") {
     }
   }
 }
+
+TEST_CASE("Three bars multiline", "[composite]") {
+  std::stringstream out;
+  std::atomic<size_t> linear{0}, quad{0}, cubic{0};
+  // clang-format off
+  auto bars = Composite(
+    {ProgressBar(&linear, {
+          .out = &out,
+          .total = 100,
+          .message = "Linear   ",
+          .speed = 0,
+          .style = Rich,
+          .show = false,
+      }),
+      ProgressBar(&quad, {
+          .total = 5050,
+          .message = "Quadratic",
+          .speed = 0,
+          .style = Rich,
+          .show = false,
+      }),
+      ProgressBar(&cubic, {
+          .total = 171700,
+          .message = "Cubic    ",
+          .speed = 0,
+          .style = Rich,
+          .show = false,
+      })},
+    "\n");
+  // clang-format on
+  bars->show();
+  for (int i = 0; i < 100; i++) {
+    std::this_thread::sleep_for(65ms);
+    linear++;
+    quad += linear;
+    cubic += quad;
+  }
+  bars->done();
+  auto parts = check_and_get_parts(out.str());
+  std::vector<std::vector<std::string>> interleaved_parts(3);
+  for (auto& part : parts) {
+    auto lines = split(part, '\n');
+    REQUIRE(lines.size() == 3);
+    CHECK(startswith(lines[0], "Linear   "));
+    CHECK(startswith(lines[1], "Quadratic"));
+    CHECK(startswith(lines[2], "Cubic    "));
+    interleaved_parts[0].push_back(lines[0]);
+    interleaved_parts[1].push_back(lines[1]);
+    interleaved_parts[2].push_back(lines[2]);
+  }
+
+  check_shrinking_space(interleaved_parts[0], Rich);
+  check_shrinking_space(interleaved_parts[1], Rich);
+  check_shrinking_space(interleaved_parts[2], Rich);
+}
