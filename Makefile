@@ -1,7 +1,7 @@
 CXX?=g++
 
 FLAGS=-std=c++20 -pthread -Wall -Wextra -Wpedantic -Wsign-conversion
-DEBUG_FLAGS=-g -fprofile-arcs -ftest-coverage
+DEBUG_FLAGS=-g -O0 -fprofile-arcs -ftest-coverage
 RELEASE_FLAGS=-O3
 
 .PHONY: all
