@@ -256,6 +256,53 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <img src="rec/composite-light.svg" width="700">
   </picture>
 
+  Instead of using `|` operator, you can also call `Composite()` with the components explicitly, which also accepts an additional string argument as the delimiter between the components.
+  See the example below.
+
+- If your display is multiline (has `\n` appear in it), all lines are automatically rerendered during animations.
+  The example below combines three bars similarly to the example above, however uses `\n` as the delimiter:
+  ```cpp
+  std::atomic<size_t> linear{0}, quad{0}, cubic{0};
+  auto bars = bk::Composite(
+    {bk::ProgressBar(&linear, {
+          .total = 100,
+          .message = "Linear   ",
+          .speed = 0,
+          .style = bk::Rich,
+          .show = false,
+      }),
+      bk::ProgressBar(&quad, {
+          .total = 5050,
+          .message = "Quadratic",
+          .speed = 0,
+          .style = bk::Rich,
+          .show = false,
+      }),
+      bk::ProgressBar(&cubic, {
+          .total = 171700,
+          .message = "Cubic    ",
+          .speed = 0,
+          .style = bk::Rich,
+          .show = false,
+      })},
+    "\n");
+  bars->show();
+  for (int i = 0; i < 100; i++) {
+    std::this_thread::sleep_for(130ms);
+    linear++;
+    quad += linear;
+    cubic += quad;
+  }
+  bars->done();
+  ```
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="rec/three-bars-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/three-bars-light.svg" width="700">
+    <img src="rec/three-bars-light.svg" width="700">
+  </picture>
+
+
 - Use "no tty" mode to, e.g., output to log files:
 
   ```cpp
