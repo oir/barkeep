@@ -309,6 +309,29 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
   </picture>
 
 
+- Display status messages:
+  
+  ```cpp
+  auto s = bk::Status({.message = "Working"});
+  std::this_thread::sleep_for(2.5s);
+  s->message("Still working");
+  std::this_thread::sleep_for(2.5s);
+  s->message("Almost done");
+  std::this_thread::sleep_for(2.5s);
+  s->message("Done");
+  s->done();
+  ```
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/status-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/status-light.svg" width="700">
+    <img src="docs/rec/status-light.svg" width="700">
+  </picture>
+
+  Unlike other displays, `Status` display does not monitor a string variable but instead expects it as an argument to `message()` calls.
+  This is because a string is too big of an object to have unguarded concurrent access (see [this section](https://oir.github.io/barkeep/#/?id=caveat)).
+
+
 - Use "no tty" mode to, e.g., output to log files:
 
   ```cpp
