@@ -16,7 +16,7 @@ Inherits from [`barkeep::AnimationDisplay`](api/Classes/classbarkeep_1_1_animati
 | -------------- | -------------- |
 | <span class="codey"> </span>|  <span class="codey">  **[StatusDisplay](api/Classes/classbarkeep_1_1_status_display.md#function-statusdisplay)**(const [AnimationConfig](api/Classes/structbarkeep_1_1_animation_config.md) & cfg = {})</span> |
 | <span class="codey"> </span>|  <span class="codey">  **[~StatusDisplay](api/Classes/classbarkeep_1_1_status_display.md#function-~statusdisplay)**()</span> |
-| <span class="codey"> void </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status_display.md#function-message)**(const std::string & message)</span><br>Update the displayed message. This is thread-safe between the display thread and the calling thread.  |
+| <span class="codey"> void </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status_display.md#function-message)**(const std::string & message)</span><br>Update the displayed message. This is synchronized between the display thread and the calling thread.  |
 | <span class="codey"> std::string </span>|  <span class="codey">  **[message](api/Classes/classbarkeep_1_1_status_display.md#function-message)**()</span><br>Get the current message.  |
 
 
@@ -177,7 +177,7 @@ inline void message(
 )
 ```
 
-Update the displayed message. This is thread-safe between the display thread and the calling thread. 
+Update the displayed message. This is synchronized between the display thread and the calling thread. 
 
 ### function `message`
 
