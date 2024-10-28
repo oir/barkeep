@@ -119,7 +119,7 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
     .message = "Reading lines",
     .speed = 1.,
     .speed_unit = "line/s",
-    .style = bk::ProgressBarStyle::Pip,
+    .style = bk::ProgressBarStyle::Rich,
   });
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line

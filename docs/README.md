@@ -113,7 +113,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     .message = "Reading lines",
     .speed = 1.,
     .speed_unit = "line/s",
-    .style = bk::ProgressBarStyle::Pip,
+    .style = bk::ProgressBarStyle::Rich,
   });
   for (int i = 0; i < 505; i++) {
     std::this_thread::sleep_for(13ms); // read & process line
