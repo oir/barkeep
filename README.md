@@ -8,7 +8,7 @@
 
 Small, single C++ header to display async animations, counters, and progress bars.
 Use it by including `barkeep.h` in your project.
-__barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README?id=non-intrusive-design).
+__barkeep__ strives to be [non-intrusive](#non-intrusive-design).
 **barkeep** also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 <div>
@@ -363,6 +363,161 @@ __barkeep__ strives to be [non-intrusive](https://oir.github.io/barkeep/#/README
 
 See `demo.cpp` for more examples.
 
+## Non intrusive design
+
+Usually when you get to a point where you think you might want a waiting animation, you probably already have some variables you are monitoring and maybe even occasionally printing to screen. Displaying an animation comes as an afterthought. 
+
+__barkeep__ strives to be minimally intrusive by monitoring existing variables using pointers, so that in such situations you can start using it with very little code change.
+
+<table>
+<tr>
+</tr>
+<tr>
+<td>
+
+Before
+
+```cpp
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+
+
+
+
+// tokenize by space
+std::vector<std::string> tknz(std::string s) {
+  std::vector<std::string> rval;
+  std::istringstream iss(s);
+  for (std::string word; iss >> word;) {
+    rval.push_back(word);
+  }
+  return rval;
+}
+
+void process_document(const std::string& doc,
+                      std::ofstream& out,
+                      size_t& total_chars,
+                      size_t& total_tokens) {
+  auto tokens = tknz(doc);
+  for (auto& token : tokens) {
+     out << token << std::endl;
+     total_chars += token.size();
+     total_tokens++;
+  }
+  out << std::endl;
+}
+
+int main(int /*argc*/, char** /*argv*/) {
+  std::vector<std::string> docs = {/*...*/};
+  std::ofstream out("tokens.txt");
+  size_t chars = 0, tokens = 0;
+
+
+
+
+  
+  for (size_t i = 0; i < docs.size(); ++i) {
+    std::cout << "Doc " << i << std::endl;
+    process_document(docs[i], out,
+                     chars, tokens);
+  }
+
+
+  std::cout << "Total: " << chars
+            << tokens << std::endl;
+
+  return 0;
+}
+```
+
+</td>
+<td>
+
+After
+
+```cpp
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <barkeep/barkeep.h>
+
+namespace bk = barkeep;
+
+// tokenize by space
+std::vector<std::string> tknz(std::string s) {
+  std::vector<std::string> rval;
+  std::istringstream iss(s);
+  for (std::string word; iss >> word;) {
+    rval.push_back(word);
+  }
+  return rval;
+}
+
+void process_document(const std::string& doc,
+                      std::ofstream& out,
+                      size_t& total_chars,
+                      size_t& total_tokens) {
+  auto tokens = tknz(doc);
+  for (auto& token : tokens) {
+     out << token << std::endl;
+     total_chars += token.size();
+     total_tokens++;
+  }
+  out << std::endl;
+}
+
+int main(int /*argc*/, char** /*argv*/) {
+  std::vector<std::string> docs = {/*...*/};
+  std::ofstream out("tokens.txt");
+  size_t chars = 0, tokens = 0, i = 0;
+
+  auto bar = bk::ProgressBar(&i, {.total=docs.size(), .show=false}) |
+             bk::Counter(&tokens, {.message="Tokens", .show=false}) |
+             bk::Counter(&chars, {.message="Chars", .show=false});
+  bar->show();
+  for (i = 0; i < docs.size(); ++i) {
+
+    process_document(docs[i], out,
+                     chars, tokens);
+  }
+  bar->done();
+
+  std::cout << "Total: " << chars
+            << tokens << std::endl;
+
+  return 0;
+}
+```
+
+</td>
+</tr>
+</table>
+
+In the example above, we add a display to monitor the loop variable `i`, `total_chars`, and `total_tokens`.
+For-loop changes slightly (because `i` needs to be declared earlier), but the way in which these variables are used in code stays the same.
+For instance, we do not use a custom data structure to call `operator++()` to increment progress.
+As a result, signature of `process_document()` does not change.
+
+We start and stop the display and __barkeep__ is out of the way.
+
+### Caveat
+
+Since displaying thread typically works concurrently, reads of progress variables (`i`, `total_chars`, `total_tokens`) is always racing with your own modifications.
+Even though theoretically it is possible that a read can interleave a write in the middle such that you read e.g. a 4 byte float where 2 byte of is fresh and 2 byte is stale, this kind of concurrent access seems to be almost always okay in practice (see, e.g. [this](https://stackoverflow.com/questions/54188/are-c-reads-and-writes-of-an-int-atomic), and [this](https://stackoverflow.com/questions/36624881/why-is-integer-assignment-on-a-naturally-aligned-variable-atomic-on-x86) thread).
+It has always been okay in my own anecdotal experience.
+If not, a race condition would result in momentarily displaying a garbage value.
+
+Given the practical rarity of encountering this, its minimal impact outcome, and the desire to be as non-intrusive as possible, __barkeep__ does not introduce any lock guards (which would require a custom type as the progress variables instead of, e.g. an `int` or `float`). 
+
+If you still want to be extra safe and __guarantee__ non-racing read and writes, you can use `std::atomic<T>` for your progress variables, as can be seen in some of the examples above.
+
 ## Advanced formatting
 
 You can enable advanced formatting by either
@@ -494,7 +649,7 @@ See `demo-fmtlib.cpp` or `demo-stdfmt.cpp` for more examples.
 - Progress variables (and `total` for progress bar) can be floating point types too. They can also be negative and/or decreasing (careful with the numeric type to avoid underflows).
 - Note that progress variable is taken by pointer, which means it needs to outlive the display.
 - Display runs on a concurrent, separate thread, doing concurrent reads on your progress variable.
-  See [this section](https://oir.github.io/barkeep/#/?id=caveat) for what that might imply.
+  See [this section](#Caveat) for what that might imply.
 - The examples above use C++20's designated initializers.
   If you prefer to use an older C++ version, you can simply initialize the config classes (e.g. `ProgressBarConfig`) the regular way to pass options into display classes (e.g. `ProgressBar`).
 
