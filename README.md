@@ -41,6 +41,13 @@ __barkeep__ strives to be [non-intrusive](#non-intrusive-design).
 &nbsp;&nbsp; [Notes](#notes)
 &nbsp;&nbsp; [Building](#building)
 
+<sub>
+
+💡: &nbsp;&nbsp;&nbsp;&nbsp;
+_Prefer viewing [docs](https://oir.github.io/barkeep/) over navigating README, as it is more ergonomic and contains everything below (and more)._
+
+</sub>
+
 ---
 
 ## Showcase 
