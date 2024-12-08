@@ -33,8 +33,17 @@ __barkeep__ strives to be [non-intrusive](#non-intrusive-design).
 <a href=""><img src="docs/img/pip-install.svg"></a>
 </div>
 
+<br>
+
+⛵: &nbsp;&nbsp; [Showcase](#showcase) 
+&nbsp;&nbsp; [Non-intrusive design](#non-intrusive-design) (_[Caveat](#caveat)_)
+&nbsp;&nbsp; [Advanced formatting](#advanced-formatting)
+&nbsp;&nbsp; [Notes](#notes)
+&nbsp;&nbsp; [Building](#building)
 
 ---
+
+## Showcase 
 
 - Display a waiting animation with a message:
 
