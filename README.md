@@ -50,7 +50,7 @@ _Prefer viewing [docs](https://oir.github.io/barkeep/) over navigating README, a
 
 ---
 
-## Showcase 
+<a id="showcase" name="showcase"></a>
 
 - Display a waiting animation with a message:
 
