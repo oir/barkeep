@@ -20,7 +20,6 @@ class barkeepConan(ConanFile):
                 break
 
     def package(self):
-        # This will also copy the "include" folder
         copy(
             self,
             "barkeep/barkeep.h",
