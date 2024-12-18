@@ -195,6 +195,22 @@ Demo decreasing_bar( // ...
       }
     });
 
+Demo decreasing_bar_lambda( // ...
+    "decreasing_bar_lambda",
+    "Decreasing progress bar with lambda",
+    []() {
+      unsigned long work{1010};
+      auto bar = bk::ProgressBar([&] { return work; },
+                                 {
+                                     .total = 1010,
+                                     .speed = 1.,
+                                 });
+      for (int i = 0; i < 1010; i++) {
+        std::this_thread::sleep_for(7ms);
+        work--;
+      }
+    });
+
 Demo bar_and_counter(
     "bar_and_counter",
     "Composite display of a ProgressBar and Counter",

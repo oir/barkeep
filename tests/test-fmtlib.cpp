@@ -21,7 +21,7 @@ using ProgressTypeList =
 TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = value_t<TestType>;
+  using ValueType = value_t<TestType*>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
@@ -74,7 +74,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = value_t<TestType>;
+  using ValueType = value_t<TestType*>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   ValueType initial = amount;
@@ -133,7 +133,7 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
 
   bool no_tty = GENERATE(true, false);
 
-  using ValueType = value_t<TestType>;
+  using ValueType = value_t<TestType*>;
   std::string value_fmt =
       std::is_floating_point_v<ValueType> ? "{value:.2f}" : "{value:2d}";
 

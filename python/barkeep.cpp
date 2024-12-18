@@ -1,4 +1,5 @@
 #include <iostream>
+#include <type_traits>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -121,11 +122,13 @@ class Status_ : public StatusDisplay {
 template <typename T>
 class Counter_ : public CounterDisplay<T> {
  protected:
+  using ProviderUnderlyingType = typename provider_t<T>::underlying_type;
   using CounterDisplay<T>::render_;
   using CounterDisplay<T>::default_interval_;
 
  public:
-  std::shared_ptr<T> work = std::make_shared<T>(0);
+  std::shared_ptr<ProviderUnderlyingType> work =
+      std::make_shared<ProviderUnderlyingType>(0);
 
   Counter_(py::object file = py::none(),
            std::string format = "",
@@ -144,7 +147,8 @@ class Counter_ : public CounterDisplay<T> {
                            .no_tty = no_tty,
                            .show = false}) {
     if (speed) {
-      this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
+      this->speedom_ =
+          std::make_unique<Speedometer<provider_t<T>>>(work.get(), *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -154,8 +158,8 @@ class Counter_ : public CounterDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_ = work.get();
-    assert(this->progress_ != nullptr);
+    this->progress_provider_ = work.get();
+    assert(this->progress_provider_.ok());
   }
 
   auto& operator+=(value_t<T> v) {
@@ -177,11 +181,13 @@ class Counter_ : public CounterDisplay<T> {
 template <typename T>
 class ProgressBar_ : public ProgressBarDisplay<T> {
  protected:
+  using ProviderUnderlyingType = typename provider_t<T>::underlying_type;
   using ProgressBarDisplay<T>::render_;
   using ProgressBarDisplay<T>::default_interval_;
 
  public:
-  std::shared_ptr<T> work = std::make_shared<T>(0);
+  std::shared_ptr<ProviderUnderlyingType> work =
+      std::make_shared<ProviderUnderlyingType>(0);
 
   ProgressBar_(py::object file = py::none(),
                value_t<T> total = 100,
@@ -204,7 +210,8 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
                                .no_tty = no_tty,
                                .show = false}) {
     if (speed) {
-      this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
+      this->speedom_ =
+          std::make_unique<Speedometer<provider_t<T>>>(work.get(), *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -214,8 +221,8 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_ = work.get();
-    assert(this->progress_ != nullptr);
+    this->progress_provider_ = work.get();
+    assert(this->progress_provider_.ok());
   }
 
   auto& operator+=(value_t<T> v) {
@@ -403,7 +410,10 @@ PYBIND11_MODULE(barkeep, m) {
   };
 
   auto bind_counter = [&](auto& m, auto pv, const char* name) {
-    bind_display(m, Counter_<decltype(pv)>(), decltype(pv)(), name);
+    bind_display(m,
+                 Counter_<std::add_pointer_t<decltype(pv)>>(),
+                 std::add_pointer_t<decltype(pv)>(),
+                 name);
   };
 
   bind_counter(m, Int(), "IntCounter");
@@ -429,7 +439,7 @@ PYBIND11_MODULE(barkeep, m) {
         std::shared_ptr<BaseDisplay> rval;
 
         auto make_counter = [&](auto pv) {
-          using T = decltype(pv);
+          using T = std::add_pointer_t<decltype(pv)>;
           auto c = std::make_shared<Counter_<T>>(file,
                                                  fmt.value_or(""),
                                                  msg,
@@ -498,7 +508,10 @@ PYBIND11_MODULE(barkeep, m) {
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
   auto bind_progress_bar = [&](auto& m, auto pv, const char* name) {
-    bind_display(m, ProgressBar_<decltype(pv)>(), decltype(pv)(), name);
+    bind_display(m,
+                 ProgressBar_<std::add_pointer_t<decltype(pv)>>(),
+                 std::add_pointer_t<decltype(pv)>(),
+                 name);
   };
 
   bind_progress_bar(m, Int(), "IntProgressBar");
@@ -524,7 +537,7 @@ PYBIND11_MODULE(barkeep, m) {
          DType dtype,
          bool show) -> std::shared_ptr<BaseDisplay> {
         auto make_progress_bar = [&](auto pv) {
-          using T = decltype(pv);
+          using T = std::add_pointer_t<decltype(pv)>;
           auto bar = std::make_shared<ProgressBar_<T>>(file,
                                                        total,
                                                        fmt.value_or(""),
