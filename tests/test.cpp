@@ -140,7 +140,7 @@ using ProgressTypeList =
     std::tuple<size_t, std::atomic<size_t>, int, unsigned, float, double>;
 
 TEMPLATE_LIST_TEST_CASE("Counter default", "[counter]", ProgressTypeList) {
-  using ValueType = value_t<TestType*>;
+  using ValueType = value_t<TestType>;
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
 
   auto ctr = Counter(&amount, {.show = false});
@@ -150,7 +150,7 @@ TEMPLATE_LIST_TEST_CASE("Counter default", "[counter]", ProgressTypeList) {
 TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = value_t<TestType*>;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   auto sp = GENERATE(as<std::optional<double>>(), std::nullopt, 1);
@@ -194,7 +194,7 @@ TEMPLATE_LIST_TEST_CASE("Counter constant", "[counter]", ProgressTypeList) {
 TEMPLATE_LIST_TEST_CASE("Counter", "[counter]", ProgressTypeList) {
   std::stringstream out;
 
-  using ValueType = value_t<TestType*>;
+  using ValueType = value_t<TestType>;
 
   TestType amount{GENERATE(as<ValueType>(), 0, 3)};
   ValueType initial = amount;
@@ -289,7 +289,7 @@ auto factory_helper<CounterDisplay<>>(bool speedy) {
 }
 
 template <>
-auto factory_helper<ProgressBarDisplay<float*>>(bool speedy) {
+auto factory_helper<ProgressBarDisplay<float>>(bool speedy) {
   static float progress;
   static std::stringstream hide;
   if (speedy) {
@@ -328,7 +328,7 @@ auto factory_helper<CompositeDisplay>(bool speedy) {
 using DisplayTypes = std::tuple<AnimationDisplay,
                                 StatusDisplay,
                                 CounterDisplay<>,
-                                ProgressBarDisplay<float*>,
+                                ProgressBarDisplay<float>,
                                 ProgressBarDisplay<std::function<float()>>,
                                 CompositeDisplay>;
 
@@ -511,7 +511,7 @@ TEST_CASE("Iterable bar", "[bar]") {
 TEMPLATE_LIST_TEST_CASE("Speedy progress bar", "[bar]", ProgressTypeList) {
   std::stringstream out;
   TestType progress{0};
-  using ValueType = value_t<TestType*>;
+  using ValueType = value_t<TestType>;
 
   bool no_tty = GENERATE(true, false);
   auto sty = GENERATE(Bars, Blocks, Rich);

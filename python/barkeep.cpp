@@ -410,10 +410,7 @@ PYBIND11_MODULE(barkeep, m) {
   };
 
   auto bind_counter = [&](auto& m, auto pv, const char* name) {
-    bind_display(m,
-                 Counter_<std::add_pointer_t<decltype(pv)>>(),
-                 std::add_pointer_t<decltype(pv)>(),
-                 name);
+    bind_display(m, Counter_<decltype(pv)>(), decltype(pv)(), name);
   };
 
   bind_counter(m, Int(), "IntCounter");
@@ -439,7 +436,7 @@ PYBIND11_MODULE(barkeep, m) {
         std::shared_ptr<BaseDisplay> rval;
 
         auto make_counter = [&](auto pv) {
-          using T = std::add_pointer_t<decltype(pv)>;
+          using T = decltype(pv);
           auto c = std::make_shared<Counter_<T>>(file,
                                                  fmt.value_or(""),
                                                  msg,
@@ -508,10 +505,7 @@ PYBIND11_MODULE(barkeep, m) {
       py::keep_alive<0, 2>()); // keep file alive while the counter is alive
 
   auto bind_progress_bar = [&](auto& m, auto pv, const char* name) {
-    bind_display(m,
-                 ProgressBar_<std::add_pointer_t<decltype(pv)>>(),
-                 std::add_pointer_t<decltype(pv)>(),
-                 name);
+    bind_display(m, ProgressBar_<decltype(pv)>(), decltype(pv)(), name);
   };
 
   bind_progress_bar(m, Int(), "IntProgressBar");
@@ -537,7 +531,7 @@ PYBIND11_MODULE(barkeep, m) {
          DType dtype,
          bool show) -> std::shared_ptr<BaseDisplay> {
         auto make_progress_bar = [&](auto pv) {
-          using T = std::add_pointer_t<decltype(pv)>;
+          using T = decltype(pv);
           auto bar = std::make_shared<ProgressBar_<T>>(file,
                                                        total,
                                                        fmt.value_or(""),

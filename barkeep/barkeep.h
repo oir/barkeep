@@ -16,6 +16,7 @@
 #define BARKEEP_H
 
 #include <atomic>
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -474,10 +475,7 @@ inline auto Status(const AnimationConfig& cfg = {}) {
 }
 
 template <typename T>
-struct Provider;
-
-template <typename T>
-struct Provider<T*> {
+struct Provider {
   using value_type = T;
   using provider_type = T*;
   using underlying_type = T;
@@ -494,7 +492,7 @@ struct Provider<T*> {
 };
 
 template <typename T>
-struct Provider<std::atomic<T>*> {
+struct Provider<std::atomic<T>> {
   using value_type = T;
   using provider_type = std::atomic<T>*;
   using underlying_type = std::atomic<T>;
@@ -528,16 +526,26 @@ struct Provider<std::function<T()>> {
 };
 
 template <typename T, typename = void>
-struct ProviderSelector;
-
-template <typename T>
-struct ProviderSelector<T*> {
-  using type_t = Provider<T*>;
+struct ReasonablyInvocable {
+  constexpr static auto value = false;
 };
 
 template <typename T>
-struct ProviderSelector<std::atomic<T>*> {
-  using type_t = Provider<std::atomic<T>*>;
+struct ReasonablyInvocable<T, std::enable_if_t<!std::is_same_v<void, std::invoke_result_t<T>>>> {
+  constexpr static auto value = true;
+};
+
+template <typename T>
+constexpr bool ReasonablyInvocableV = ReasonablyInvocable<T>::value;
+
+template <typename T, typename = void>
+struct ProviderSelector {
+  using type_t = Provider<T>;
+};
+
+template <typename T>
+struct ProviderSelector<std::atomic<T>> {
+  using type_t = Provider<std::atomic<T>>;
 };
 
 template <typename T>
@@ -553,26 +561,23 @@ using provider_t = typename ProviderSelector<T>::type_t;
 /// Trait class to extract underlying value type from numerics and
 /// std::atomics of numerics.
 template <typename T>
-struct AtomicTraits;
-
-template <typename T>
-struct AtomicTraits<T*> {
+struct AtomicTraits {
   using value_type = T;
 };
 
 template <typename T>
-struct AtomicTraits<std::atomic<T>*> {
+struct AtomicTraits<std::atomic<T>> {
   using value_type = T;
 };
 
 template <typename T>
-struct AtomicTraits<Provider<T*>> {
-  using value_type = typename Provider<T*>::value_type;
+struct AtomicTraits<Provider<T>> {
+  using value_type = typename Provider<T>::value_type;
 };
 
 template <typename T>
-struct AtomicTraits<Provider<std::atomic<T>*>> {
-  using value_type = typename Provider<std::atomic<T>*>::value_type;
+struct AtomicTraits<Provider<std::atomic<T>>> {
+  using value_type = typename Provider<std::atomic<T>>::value_type;
 };
 
 template <typename T>
@@ -782,7 +787,7 @@ class CounterDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
   /// @param cfg      Counter parameters
-  CounterDisplay(Progress progress_provider, const CounterConfig& cfg = {})
+  CounterDisplay(provider_t<Progress> progress_provider, const CounterConfig& cfg = {})
       : BaseDisplay(cfg.out,
                     as_duration(cfg.interval),
                     cfg.message,
@@ -800,16 +805,30 @@ class CounterDisplay : public BaseDisplay {
     if (cfg.show) { show(); }
   }
 
+  CounterDisplay(Progress* progress_provider, const CounterConfig& cfg = {})
+    : CounterDisplay(provider_t<Progress>(progress_provider), cfg)
+  {}
+
+  CounterDisplay(Progress progress_provider, const CounterConfig& cfg = {})
+    : CounterDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
+  {}
+
   ~CounterDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to CounterDisplay.
 /// Prefer this to constructing CounterDisplay directly.
-template <typename SomeProgress,
-          typename ProgressProvider = provider_t<SomeProgress>>
-auto Counter(SomeProgress progress, const CounterConfig& cfg = {}) {
-  return std::make_shared<CounterDisplay<SomeProgress>>(std::move(progress),
-                                                        cfg);
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>,
+          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+auto Counter(Progress&& progress, const CounterConfig& cfg = {}) {
+  return std::make_shared<CounterDisplay<Progress>>(std::forward<Progress>(progress), cfg);
+}
+
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>>
+auto Counter(Progress* progress, const CounterConfig& cfg = {}) {
+  return std::make_shared<CounterDisplay<Progress>>(progress, cfg);
 }
 
 /// Progress bar parameters
@@ -1045,7 +1064,7 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored to measure completion
   /// @param cfg      ProgressBar parameters
-  ProgressBarDisplay(Progress progress_provider,
+  ProgressBarDisplay(provider_t<Progress> progress_provider,
                      const ProgressBarConfig<ValueType>& cfg = {})
       : BaseDisplay(cfg.out,
                     as_duration(cfg.interval),
@@ -1071,17 +1090,33 @@ class ProgressBarDisplay : public BaseDisplay {
     if (cfg.show) { show(); }
   }
 
+  ProgressBarDisplay(Progress* progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
+    : ProgressBarDisplay(provider_t<Progress>(progress_provider), cfg)
+  {}
+
+  ProgressBarDisplay(Progress progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
+    : ProgressBarDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
+  {}
+
   ~ProgressBarDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to ProgressBarDisplay.
 /// Prefer this to constructing ProgressBarDisplay directly.
-template <typename SomeProgress,
-          typename ProgressProvider = provider_t<SomeProgress>>
-auto ProgressBar(SomeProgress progress,
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>,
+          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+auto ProgressBar(Progress&& progress,
                  const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
-  return std::make_shared<ProgressBarDisplay<SomeProgress>>(std::move(progress),
+  return std::make_shared<ProgressBarDisplay<Progress>>(std::forward<Progress>(progress),
                                                             cfg);
+}
+
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>>
+auto ProgressBar(Progress* progress,
+                 const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
+  return std::make_shared<ProgressBarDisplay<Progress>>(progress, cfg);
 }
 
 /// Creates a composite display out of multiple child displays to show
@@ -1187,8 +1222,8 @@ template <typename Container>
 class IterableBar {
  public:
   using ProgressType = std::atomic<size_t>;
-  using ValueType = value_t<ProgressType*>;
-  using Bar = ProgressBarDisplay<ProgressType*>;
+  using ValueType = value_t<ProgressType>;
+  using Bar = ProgressBarDisplay<ProgressType>;
 
  private:
   Container& container_;
