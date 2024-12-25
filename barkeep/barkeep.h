@@ -695,7 +695,7 @@ struct CounterConfig {
 };
 
 /// Monitors and displays a single numeric variable
-template <typename Progress = size_t*>
+template <typename Progress = size_t>
 class CounterDisplay : public BaseDisplay {
  protected:
   using ProgressProvider = provider_t<Progress>;

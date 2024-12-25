@@ -146,9 +146,11 @@ class Counter_ : public CounterDisplay<T> {
                            .interval = interval,
                            .no_tty = no_tty,
                            .show = false}) {
+    
+    this->progress_provider_ = work.get();
     if (speed) {
       this->speedom_ =
-          std::make_unique<Speedometer<provider_t<T>>>(work.get(), *speed);
+          std::make_unique<Speedometer<provider_t<T>>>(this->progress_provider_, *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -158,9 +160,10 @@ class Counter_ : public CounterDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_provider_ = work.get();
     assert(this->progress_provider_.ok());
   }
+  
+  ~Counter_() { this->done(); }
 
   auto& operator+=(value_t<T> v) {
     *work += v;
@@ -209,9 +212,11 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
                                .interval = interval,
                                .no_tty = no_tty,
                                .show = false}) {
+    
+    this->progress_provider_ = work.get();
     if (speed) {
       this->speedom_ =
-          std::make_unique<Speedometer<provider_t<T>>>(work.get(), *speed);
+          std::make_unique<Speedometer<provider_t<T>>>(this->progress_provider_, *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -221,9 +226,10 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_provider_ = work.get();
     assert(this->progress_provider_.ok());
   }
+
+  ~ProgressBar_() { this->done(); }
 
   auto& operator+=(value_t<T> v) {
     *work += v;
