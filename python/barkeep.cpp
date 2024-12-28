@@ -1,4 +1,5 @@
 #include <iostream>
+#include <type_traits>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -121,11 +122,13 @@ class Status_ : public StatusDisplay {
 template <typename T>
 class Counter_ : public CounterDisplay<T> {
  protected:
+  using ProviderUnderlyingType = typename provider_t<T>::underlying_type;
   using CounterDisplay<T>::render_;
   using CounterDisplay<T>::default_interval_;
 
  public:
-  std::shared_ptr<T> work = std::make_shared<T>(0);
+  std::shared_ptr<ProviderUnderlyingType> work =
+      std::make_shared<ProviderUnderlyingType>(0);
 
   Counter_(py::object file = py::none(),
            std::string format = "",
@@ -143,8 +146,11 @@ class Counter_ : public CounterDisplay<T> {
                            .interval = interval,
                            .no_tty = no_tty,
                            .show = false}) {
+    
+    this->progress_provider_ = work.get();
     if (speed) {
-      this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
+      this->speedom_ =
+          std::make_unique<Speedometer<provider_t<T>>>(this->progress_provider_, *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -154,9 +160,10 @@ class Counter_ : public CounterDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_ = work.get();
-    assert(this->progress_ != nullptr);
+    assert(this->progress_provider_.ok());
   }
+  
+  ~Counter_() { this->done(); }
 
   auto& operator+=(value_t<T> v) {
     *work += v;
@@ -177,11 +184,13 @@ class Counter_ : public CounterDisplay<T> {
 template <typename T>
 class ProgressBar_ : public ProgressBarDisplay<T> {
  protected:
+  using ProviderUnderlyingType = typename provider_t<T>::underlying_type;
   using ProgressBarDisplay<T>::render_;
   using ProgressBarDisplay<T>::default_interval_;
 
  public:
-  std::shared_ptr<T> work = std::make_shared<T>(0);
+  std::shared_ptr<ProviderUnderlyingType> work =
+      std::make_shared<ProviderUnderlyingType>(0);
 
   ProgressBar_(py::object file = py::none(),
                value_t<T> total = 100,
@@ -203,8 +212,11 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
                                .interval = interval,
                                .no_tty = no_tty,
                                .show = false}) {
+    
+    this->progress_provider_ = work.get();
     if (speed) {
-      this->speedom_ = std::make_unique<Speedometer<T>>(work.get(), *speed);
+      this->speedom_ =
+          std::make_unique<Speedometer<provider_t<T>>>(this->progress_provider_, *speed);
     }
     std::shared_ptr<PyFileStream> fp = nullptr;
     if (not file.is_none()) {
@@ -214,9 +226,10 @@ class ProgressBar_ : public ProgressBarDisplay<T> {
         interval == 0. ? this->default_interval_(no_tty) : Duration(interval);
     this->displayer_ =
         std::make_shared<AsyncDisplayer_>(this, fp, interval_, no_tty);
-    this->progress_ = work.get();
-    assert(this->progress_ != nullptr);
+    assert(this->progress_provider_.ok());
   }
+
+  ~ProgressBar_() { this->done(); }
 
   auto& operator+=(value_t<T> v) {
     *work += v;

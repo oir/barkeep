@@ -16,10 +16,12 @@
 #define BARKEEP_H
 
 #include <atomic>
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <cmath>
 #include <condition_variable>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <optional>
@@ -472,6 +474,90 @@ inline auto Status(const AnimationConfig& cfg = {}) {
   return std::make_shared<StatusDisplay>(cfg);
 }
 
+template <typename T>
+struct Provider {
+  using value_type = T;
+  using provider_type = T*;
+  using underlying_type = T;
+
+  Provider(provider_type ptr) noexcept : ptr_{ptr} {}
+  Provider(const Provider&) = default;
+  Provider& operator=(const Provider&) = default;
+
+  [[nodiscard]] T load() const noexcept { return *ptr_; }
+
+  [[nodiscard]] bool ok() const noexcept { return ptr_; }
+
+  provider_type ptr_{nullptr};
+};
+
+template <typename T>
+struct Provider<std::atomic<T>> {
+  using value_type = T;
+  using provider_type = std::atomic<T>*;
+  using underlying_type = std::atomic<T>;
+
+  Provider(provider_type ptr) noexcept : ptr_{ptr} {}
+  Provider(const Provider&) = default;
+  Provider& operator=(const Provider&) = default;
+
+  [[nodiscard]] T load() const noexcept { return ptr_->load(std::memory_order_relaxed); }
+
+  [[nodiscard]] bool ok() const noexcept { return ptr_; }
+
+  provider_type ptr_{nullptr};
+};
+
+template <typename T>
+struct Provider<std::function<T()>> {
+  using value_type = T;
+  using provider_type = std::function<T()>;
+  using underlying_type = std::function<T()>;
+
+  Provider(provider_type fun) : fun_{std::move(fun)} {}
+  Provider(const Provider&) = default;
+  Provider& operator=(const Provider&) = default;
+
+  [[nodiscard]] T load() const { return fun_(); }
+
+  [[nodiscard]] bool ok() const noexcept { return fun_; }
+
+  provider_type fun_;
+};
+
+template <typename T, typename = void>
+struct ReasonablyInvocable {
+  constexpr static auto value = false;
+};
+
+template <typename T>
+struct ReasonablyInvocable<T, std::enable_if_t<!std::is_same_v<void, std::invoke_result_t<T>>>> {
+  constexpr static auto value = true;
+};
+
+template <typename T>
+constexpr bool ReasonablyInvocableV = ReasonablyInvocable<T>::value;
+
+template <typename T, typename = void>
+struct ProviderSelector {
+  using type_t = Provider<T>;
+};
+
+template <typename T>
+struct ProviderSelector<std::atomic<T>> {
+  using type_t = Provider<std::atomic<T>>;
+};
+
+template <typename T>
+struct ProviderSelector<
+    T,
+    std::enable_if_t<!std::is_same_v<void, std::invoke_result_t<T>>>> {
+  using type_t = Provider<std::function<std::invoke_result_t<T>()>>;
+};
+
+template <typename T>
+using provider_t = typename ProviderSelector<T>::type_t;
+
 /// Trait class to extract underlying value type from numerics and
 /// std::atomics of numerics.
 template <typename T>
@@ -485,6 +571,21 @@ struct AtomicTraits<std::atomic<T>> {
 };
 
 template <typename T>
+struct AtomicTraits<Provider<T>> {
+  using value_type = typename Provider<T>::value_type;
+};
+
+template <typename T>
+struct AtomicTraits<Provider<std::atomic<T>>> {
+  using value_type = typename Provider<std::atomic<T>>::value_type;
+};
+
+template <typename T>
+struct AtomicTraits<Provider<std::function<T()>>> {
+  using value_type = typename Provider<std::function<T()>>::value_type;
+};
+
+template <typename T>
 using value_t = typename AtomicTraits<T>::value_type;
 
 template <typename T>
@@ -493,13 +594,13 @@ using signed_t = typename std::conditional_t<std::is_integral_v<T>,
                                              std::common_type<T>>::type;
 
 /// Helper class to measure and display speed of progress.
-template <typename Progress>
+template <typename ProgressProvider>
 class Speedometer {
  private:
-  Progress* progress_; // Current amount of work done
+  const ProgressProvider& progress_provider_; // Current amount of work done
   double discount_;
 
-  using ValueType = value_t<Progress>;
+  using ValueType = value_t<ProgressProvider>;
   using SignedType = signed_t<ValueType>;
   using Clock = std::chrono::steady_clock;
   using Time = std::chrono::time_point<Clock>;
@@ -516,7 +617,8 @@ class Speedometer {
     Duration dur = now - last_start_time_;
     last_start_time_ = now;
 
-    ValueType progress_copy = *progress_; // to avoid progress_ changing below
+    ValueType progress_copy =
+        progress_provider_.load(); // to avoid progress_ changing below
     SignedType progress_increment =
         SignedType(progress_copy) - SignedType(last_progress_);
     last_progress_ = progress_copy;
@@ -551,7 +653,8 @@ class Speedometer {
 
   /// Start computing the speed based on the amount of change in progress.
   void start() {
-    last_progress_ = *progress_;
+    last_progress_ = progress_provider_.load();
+    ;
     last_start_time_ = Clock::now();
   }
 
@@ -562,8 +665,8 @@ class Speedometer {
   ///                 If discount is 0, all increments are weighted equally.
   ///                 If discount is 1, only the most recent increment is
   ///                 considered.
-  Speedometer(Progress* progress, double discount)
-      : progress_(progress), discount_(discount) {
+  Speedometer(const ProgressProvider& progress_provider, double discount)
+      : progress_provider_(progress_provider), discount_(discount) {
     if (discount < 0 or discount > 1) {
       throw std::runtime_error("Discount must be in [0, 1]");
     }
@@ -595,8 +698,9 @@ struct CounterConfig {
 template <typename Progress = size_t>
 class CounterDisplay : public BaseDisplay {
  protected:
-  Progress* progress_ = nullptr; // current amount of work done
-  std::unique_ptr<Speedometer<Progress>> speedom_;
+  using ProgressProvider = provider_t<Progress>;
+  ProgressProvider progress_provider_; // current amount of work done
+  std::unique_ptr<Speedometer<ProgressProvider>> speedom_;
   std::string speed_unit_ = "it/s"; // unit of speed text next to speed
 
   std::stringstream ss_;
@@ -604,7 +708,7 @@ class CounterDisplay : public BaseDisplay {
  protected:
   /// Write the value of progress to the output stream
   void render_counts_(const std::string& end = " ") {
-    ss_ << *progress_;
+    ss_ << progress_provider_.load();
     out() << ss_.str() << end;
     ss_.str("");
   }
@@ -614,7 +718,7 @@ class CounterDisplay : public BaseDisplay {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
-      value_t<Progress> progress = *progress_;
+      value_t<Progress> progress = progress_provider_.load();
       if (speedom_) {
         fmt::print(out(),
                    fmt::runtime(format_),
@@ -643,7 +747,7 @@ class CounterDisplay : public BaseDisplay {
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
-      value_t<Progress> progress = *progress_;
+      value_t<Progress> progress = progress_provider_.load();
       auto speed = speedom_ ? speedom_->speed() : std::nan("");
       out() << std::vformat(format_,
                             std::make_format_args(progress,
@@ -673,7 +777,7 @@ class CounterDisplay : public BaseDisplay {
   }
 
   void start() override {
-    if constexpr (std::is_floating_point_v<value_t<Progress>>) {
+    if constexpr (std::is_floating_point_v<value_t<ProgressProvider>>) {
       ss_ << std::fixed << std::setprecision(2);
     }
     if (speedom_) { speedom_->start(); }
@@ -683,16 +787,17 @@ class CounterDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
   /// @param cfg      Counter parameters
-  CounterDisplay(Progress* progress, const CounterConfig& cfg = {})
+  CounterDisplay(provider_t<Progress> progress_provider, const CounterConfig& cfg = {})
       : BaseDisplay(cfg.out,
                     as_duration(cfg.interval),
                     cfg.message,
                     cfg.format.empty() ? "" : cfg.format + " ",
                     cfg.no_tty),
-        progress_(progress),
+        progress_provider_(std::move(progress_provider)),
         speed_unit_(cfg.speed_unit) {
     if (cfg.speed) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
+      speedom_ = std::make_unique<Speedometer<ProgressProvider>>(
+          progress_provider_, *cfg.speed);
     }
     if (displayer_->interval() == Duration{0.}) {
       displayer_->interval(default_interval_(cfg.no_tty));
@@ -700,12 +805,28 @@ class CounterDisplay : public BaseDisplay {
     if (cfg.show) { show(); }
   }
 
+  CounterDisplay(Progress* progress_provider, const CounterConfig& cfg = {})
+    : CounterDisplay(provider_t<Progress>(progress_provider), cfg)
+  {}
+
+  CounterDisplay(Progress progress_provider, const CounterConfig& cfg = {})
+    : CounterDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
+  {}
+
   ~CounterDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to CounterDisplay.
 /// Prefer this to constructing CounterDisplay directly.
-template <typename Progress>
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>,
+          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+auto Counter(Progress&& progress, const CounterConfig& cfg = {}) {
+  return std::make_shared<CounterDisplay<Progress>>(std::forward<Progress>(progress), cfg);
+}
+
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>>
 auto Counter(Progress* progress, const CounterConfig& cfg = {}) {
   return std::make_shared<CounterDisplay<Progress>>(progress, cfg);
 }
@@ -741,10 +862,11 @@ struct ProgressBarConfig {
 template <typename Progress>
 class ProgressBarDisplay : public BaseDisplay {
  protected:
-  using ValueType = value_t<Progress>;
+  using ProgressProvider = provider_t<Progress>;
+  using ValueType = value_t<ProgressProvider>;
 
-  Progress* progress_; // work done so far
-  std::unique_ptr<Speedometer<Progress>> speedom_;
+  ProgressProvider progress_provider_; // work done so far
+  std::unique_ptr<Speedometer<ProgressProvider>> speedom_;
   std::string speed_unit_ = "it/s";    // unit of speed text next to speed
   static constexpr size_t width_ = 30; // width of progress bar
                                        // (TODO: make customizable?)
@@ -756,8 +878,9 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Compute the shape of the progress bar based on progress and write to
   /// output stream.
   void render_progress_bar_(std::ostream* out) {
-    ValueType progress_copy = *progress_; // to avoid progress_ changing
-                                          // during computations below
+    ValueType progress_copy =
+        progress_provider_.load(); // to avoid progress_ changing
+                                   // during computations below
     bool complete = progress_copy >= total_;
     int on = int(ValueType(width_) * progress_copy / total_);
     size_t partial = size_t(ValueType(bar_parts_.fill.size()) *
@@ -810,14 +933,14 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Progress width is expanded (and right justified) to match width of total.
   void render_counts_(const std::string& end = " ") {
     std::stringstream ss, totals;
-    if (std::is_floating_point_v<Progress>) {
+    if (std::is_floating_point_v<ProgressProvider>) {
       ss << std::fixed << std::setprecision(2);
       totals << std::fixed << std::setprecision(2);
     }
     totals << total_;
     auto width = static_cast<std::streamsize>(totals.str().size());
     ss.width(width);
-    ss << std::right << *progress_ << "/" << total_ << end;
+    ss << std::right << progress_provider_.load() << "/" << total_ << end;
     out() << ss.str();
   }
 
@@ -826,7 +949,7 @@ class ProgressBarDisplay : public BaseDisplay {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss.width(6);
-    ss << std::right << *progress_ * 100. / total_ << "%" << end;
+    ss << std::right << progress_provider_.load() * 100. / total_ << "%" << end;
     out() << ss.str();
   }
 
@@ -835,7 +958,7 @@ class ProgressBarDisplay : public BaseDisplay {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
-      value_t<Progress> progress = *progress_;
+      value_t<Progress> progress = progress_provider_.load();
 
       std::stringstream bar_ss;
       render_progress_bar_(&bar_ss);
@@ -876,7 +999,7 @@ class ProgressBarDisplay : public BaseDisplay {
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
-      value_t<Progress> progress = *progress_;
+      value_t<Progress> progress = progress_provider_.load();
 
       std::stringstream bar_ss;
       render_progress_bar_(&bar_ss);
@@ -941,14 +1064,14 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored to measure completion
   /// @param cfg      ProgressBar parameters
-  ProgressBarDisplay(Progress* progress,
+  ProgressBarDisplay(provider_t<Progress> progress_provider,
                      const ProgressBarConfig<ValueType>& cfg = {})
       : BaseDisplay(cfg.out,
                     as_duration(cfg.interval),
                     cfg.message,
                     cfg.format.empty() ? "" : cfg.format + " ",
                     cfg.no_tty),
-        progress_(progress),
+        progress_provider_(std::move(progress_provider)),
         speed_unit_(cfg.speed_unit),
         total_(cfg.total) {
     if (std::holds_alternative<BarParts>(cfg.style)) {
@@ -958,7 +1081,8 @@ class ProgressBarDisplay : public BaseDisplay {
           std::get<ProgressBarStyle>(cfg.style))];
     }
     if (cfg.speed) {
-      speedom_ = std::make_unique<Speedometer<Progress>>(progress_, *cfg.speed);
+      speedom_ = std::make_unique<Speedometer<ProgressProvider>>(
+          progress_provider_, *cfg.speed);
     }
     if (displayer_->interval() == Duration{0.}) {
       displayer_->interval(default_interval_(cfg.no_tty));
@@ -966,14 +1090,32 @@ class ProgressBarDisplay : public BaseDisplay {
     if (cfg.show) { show(); }
   }
 
+  ProgressBarDisplay(Progress* progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
+    : ProgressBarDisplay(provider_t<Progress>(progress_provider), cfg)
+  {}
+
+  ProgressBarDisplay(Progress progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
+    : ProgressBarDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
+  {}
+
   ~ProgressBarDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to ProgressBarDisplay.
 /// Prefer this to constructing ProgressBarDisplay directly.
-template <typename Progress>
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>,
+          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+auto ProgressBar(Progress&& progress,
+                 const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
+  return std::make_shared<ProgressBarDisplay<Progress>>(std::forward<Progress>(progress),
+                                                            cfg);
+}
+
+template <typename Progress,
+          typename ProgressProvider = provider_t<Progress>>
 auto ProgressBar(Progress* progress,
-                 const ProgressBarConfig<value_t<Progress>>& cfg = {}) {
+                 const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
   return std::make_shared<ProgressBarDisplay<Progress>>(progress, cfg);
 }
 
@@ -1033,13 +1175,13 @@ class CompositeDisplay : public BaseDisplay {
 /// Convenience factory function to create a shared_ptr to CompositeDisplay.
 /// Prefer this to constructing CompositeDisplay directly.
 inline auto Composite(const std::vector<std::shared_ptr<BaseDisplay>>& displays,
-               std::string delim = " ") {
+                      std::string delim = " ") {
   return std::make_shared<CompositeDisplay>(displays, std::move(delim));
 }
 
 /// Pipe operator can be used to combine two displays into a Composite.
 inline auto operator|(std::shared_ptr<BaseDisplay> left,
-               std::shared_ptr<BaseDisplay> right) {
+                      std::shared_ptr<BaseDisplay> right) {
   return std::make_shared<CompositeDisplay>(
       std::vector{std::move(left), std::move(right)});
 }

@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <atomic>
+#include <functional>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -299,6 +300,19 @@ auto factory_helper<ProgressBarDisplay<float>>(bool speedy) {
 }
 
 template <>
+auto factory_helper<ProgressBarDisplay<std::function<float()>>>(bool speedy) {
+  static float progress;
+  static std::stringstream hide;
+  auto lambda = [&] { return progress; };
+  if (speedy) {
+    return ProgressBar(std::move(lambda),
+                       {.out = &hide, .speed = 1, .show = false});
+  } else {
+    return ProgressBar(std::move(lambda), {.out = &hide, .show = false});
+  }
+}
+
+template <>
 auto factory_helper<CompositeDisplay>(bool speedy) {
   static size_t progress;
   static std::stringstream hide;
@@ -315,6 +329,7 @@ using DisplayTypes = std::tuple<AnimationDisplay,
                                 StatusDisplay,
                                 CounterDisplay<>,
                                 ProgressBarDisplay<float>,
+                                ProgressBarDisplay<std::function<float()>>,
                                 CompositeDisplay>;
 
 TEMPLATE_LIST_TEST_CASE("Error cases", "[edges]", DisplayTypes) {
