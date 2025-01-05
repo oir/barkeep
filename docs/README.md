@@ -34,6 +34,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
 </div>
 
+<div style="visibility: hidden; height: 0">
+
+### Animations
+
+</div>
+
 - Display a waiting animation with a message:
 
   ```cpp
@@ -61,6 +67,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <img src="rec/anim2-light.svg" width="700">
   </picture>
 
+<div style="visibility: hidden; height: 0;">
+
+### Counters
+
+</div>
+
 - Display a counter to monitor a numeric variable while waiting:
 
   ```cpp
@@ -81,6 +93,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <source media="(prefers-color-scheme: light)" srcset="rec/counter-light.svg" width="700">
     <img src="rec/counter-light.svg" width="700">
   </picture>
+
+<div style="visibility: hidden; height: 0;">
+
+### Progress bars
+
+</div>
 
 - Display a progress bar to monitor a numeric variable and measure its completion by comparing against a total:
 
@@ -128,6 +146,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <img src="rec/bar-pip-light.svg" width="700">
   </picture>
 
+<div style="visibility: hidden; height: 0;">
+
+### Deferred start
+
+</div>
+
 - Displaying can be deferred with `.show = false`, and explicitly invoked by calling
   `show()`, instead of at construction time.
   
@@ -168,6 +192,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     }
   }
   ```
+
+<div style="visibility: hidden; height: 0;">
+
+### Iterable bar
+
+</div>
 
 - Automatically iterate over a container with a progress bar display
   (instead of monitoring an explicit progress variable):
@@ -223,7 +253,47 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
   </details>
   </blockquote>
-  
+
+<div style="visibility: hidden; height: 0;">
+
+### Functional progress
+
+</div>
+
+- Use a function (e.g. lambda) to monitor progress, instead of a variable
+  (_credit: [jh0x](https://github.com/oir/barkeep/pull/97)_):
+
+  ```cpp
+  unsigned long total_area = 10000;
+  unsigned long width = 0, height = 0;
+  auto bar = bk::ProgressBar([&] { return width * height; }, {
+      .total = total_area,
+      .message = "Sweeping area",
+      .speed = 1.,
+  });
+  while (width < 100 and height < 100) {
+    std::this_thread::sleep_for(70ms);
+    if (width < 100) { width++; }
+    if (height < 100) { height++; }
+  }
+  ```
+
+  Observe how a lambda is passed as the first argument as opposed to a variable
+  like `&width`.
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="rec/lambda-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="rec/lambda-light.svg" width="700">
+    <img src="rec/lambda-light.svg" width="700">
+  </picture>
+
+
+<div style="visibility: hidden; height: 0;">
+
+### Multi display
+
+</div>
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
@@ -258,6 +328,13 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 
   Instead of using `|` operator, you can also call `Composite()` with the components explicitly, which also accepts an additional string argument as the delimiter between the components.
   See the example below.
+
+
+<div style="visibility: hidden; height: 0;">
+
+### Multiline
+
+</div>
 
 - If your display is multiline (has `\n` appear in it), all lines are automatically rerendered during animations.
   The example below combines three bars similarly to the example above, however uses `\n` as the delimiter:
@@ -303,6 +380,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   </picture>
 
 
+<div style="visibility: hidden; height: 0;">
+
+### Status messages
+
+</div>
+
 - Display status messages:
   
   ```cpp
@@ -325,6 +408,12 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
   Unlike other displays, `Status` display does not monitor a string variable but instead expects it as an argument to `message()` calls.
   This is because a string is too big of an object to have unguarded concurrent access (see [this section](#caveat)).
 
+
+<div style="visibility: hidden; height: 0;">
+
+### No-tty mode
+
+</div>
 
 - Use "no tty" mode to, e.g., output to log files:
 

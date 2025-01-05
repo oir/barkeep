@@ -230,6 +230,33 @@ __barkeep__ strives to be [non-intrusive](#non-intrusive-design).
   </details>
   </blockquote>
   
+- Use a function (e.g. lambda) to monitor progress, instead of a variable
+  (_credit: [jh0x](https://github.com/oir/barkeep/pull/97)_):
+
+  ```cpp
+  unsigned long total_area = 10000;
+  unsigned long width = 0, height = 0;
+  auto bar = bk::ProgressBar([&] { return width * height; }, {
+      .total = total_area,
+      .message = "Sweeping area",
+      .speed = 1.,
+  });
+  while (width < 100 and height < 100) {
+    std::this_thread::sleep_for(70ms);
+    if (width < 100) { width++; }
+    if (height < 100) { height++; }
+  }
+  ```
+
+  Observe how a lambda is passed as the first argument as opposed to a variable
+  like `&width`.
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/rec/lambda-dark.svg" width="700">
+    <source media="(prefers-color-scheme: light)" srcset="docs/rec/lambda-light.svg" width="700">
+    <img src="docs/rec/lambda-light.svg" width="700">
+  </picture>
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
