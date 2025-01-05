@@ -287,6 +287,9 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <img src="rec/lambda-light.svg" width="700">
   </picture>
 
+  Such monitoring functions are concurrently invoked,
+  see [this section](#caveat) for what that might imply.
+
 
 <div style="visibility: hidden; height: 0;">
 

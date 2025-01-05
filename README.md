@@ -258,6 +258,9 @@ __barkeep__ strives to be [non-intrusive](#non-intrusive-design).
     <img src="docs/rec/lambda-light.svg" width="700">
   </picture>
 
+  Such monitoring functions are concurrently invoked,
+  see [this section](#Caveat) for what that might imply.
+
 - Combine diplays using `|` operator to monitor multiple variables:
 
   ```cpp
