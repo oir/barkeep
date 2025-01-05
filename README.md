@@ -33,6 +33,7 @@ __barkeep__ strives to be [non-intrusive](#non-intrusive-design).
 <a href=""><img src="docs/img/pip-install.svg"></a>
 </div>
 
+💡 _[Documentation](https://oir.github.io/barkeep/) is a superset of what's below and easier to navigate._
 
 ---
 
