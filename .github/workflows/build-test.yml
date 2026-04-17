@@ -79,3 +79,21 @@ jobs:
           meson setup build --buildtype=release --warnlevel=3
           meson compile -C build python
           PYTHONPATH=build/python pytest python/tests/test.py
+  conan-recipe-test:
+    name: "Test conan recipe"
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: "Install tooling"
+        run: |
+          pip install "conan>=2.0"
+          conan profile detect
+      - name: "Build and test conan package"
+        run: |
+          conan create . --build=missing -s compiler.cppstd=20

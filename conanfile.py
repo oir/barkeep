@@ -6,6 +6,7 @@ from conan.tools.files import copy, load
 
 class barkeepConan(ConanFile):
     name = "barkeep"
+    package_type = "header-library"
     # No settings/options are necessary, this is header only
     exports_sources = "barkeep/barkeep.h"
     # We can avoid copying the sources to the build folder in the cache
