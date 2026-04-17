@@ -645,64 +645,19 @@ Still, this section details how to build the demos, tests and python bindings an
 
 ### No tooling
 
-If you don't want to deal with even a Makefile, you can simply invoke the compiler on the corresponding `.cpp` files.
-
-- First clone with submodules:
-  ```bash
-  git clone --recursive https://github.com/oir/barkeep
-  cd barkeep
-  ```
-  Or if you already cloned without the `recursive` option, you can init the submodules:
-  ```bash
-  git clone https://github.com/oir/barkeep
-  cd barkeep
-  git submodule update --init
-  ```
-- Then, build & run the demo like:
-  ```bash
-  g++ -std=c++20 -I./ tests/demo.cpp -o demo.out
-  ./demo.out
-  ```
-  (You can replace `g++` with your choice of compiler like `clang`.)
-- Or, build the tests like:
-  ```bash
-  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ tests/test.cpp -o test.out
-  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ tests/test-stdfmt.cpp -o test-stdfmt.out
-  g++ -std=c++20 -I./ -I./subprojects/Catch2_/single_include/ -I./subprojects/fmt_/include/ tests/test-fmtlib.cpp -o test-fmtlib.out
-  ./test.out
-  ./test-stdfmt.out
-  ./test-fmtlib.out
-  ```
-
-?> Detail: Github submodules are staged in folders that end with a `_` to avoid clashing with Meson's subproject downloading.
-
-_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
-
-
-### Minimal tooling: Make
-
-If you don't want to deal with a complex build system, but also don't want to invoke raw compiler commands, you can use `make`.
-
-Clone the repo with submodules as in the [previous section](#no-tooling) and `cd` into it.
-
-Build demo and tests:
+If you don't want to deal with a build system, you can simply invoke the compiler to build the demo:
 ```bash
-make all
-```
-
-...and run:
-```bash
+git clone https://github.com/oir/barkeep
+cd barkeep
+g++ -std=c++20 -I./ tests/demo.cpp -o demo.out
 ./demo.out
-./test.out
-./test-stdfmt.out
-./test-fmtlib.out
 ```
 
-_Python bindings are slightly more involved, therefore a proper build system is recommended, [see below](#build-system-meson)._
+(You can replace `g++` with your choice of compiler like `clang`.)
+
+To build the test suites or the Python bindings, use Meson (below).
 
 ### Build system: Meson
-
-Meson has its own subproject staging logic, thus cloning the submodules is not needed.
 
 - Get [Meson](https://mesonbuild.com/Getting-meson.html) and [ninja](https://ninja-build.org/), e.g.:
   ```bash
@@ -728,10 +683,10 @@ Meson has its own subproject staging logic, thus cloning the submodules is not n
   The output of `configure` command will list those, e.g.:
   ```
   Message: Python targets:
-  Message:   barkeep.cpython-39-darwin
-  Message:   barkeep.cpython-310-darwin
   Message:   barkeep.cpython-311-darwin
   Message:   barkeep.cpython-312-darwin
+  Message:   barkeep.cpython-313-darwin
+  Message:   barkeep.cpython-314-darwin
   ```
   ```bash
   meson compile -C build python
