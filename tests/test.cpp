@@ -678,13 +678,35 @@ TEST_CASE("Progress bar out-of-bounds", "[bar][edges]") {
   }
 }
 
-// TEMPLATE_LIST_TEST_CASE("Zero total progress",
-//                         "[bar][edges]",
-//                         ProgressTypeList) {
-//   TestType progress;
-//   CHECK_THROWS(ProgressBar(&progress, {.total = 0}));
-//   // TODO: make this not an error
-// }
+TEMPLATE_LIST_TEST_CASE("Zero total progress",
+                        "[bar][edges]",
+                        ProgressTypeList) {
+  using ValueType = value_t<TestType>;
+  std::stringstream out;
+  TestType progress{};
+
+  auto bar = ProgressBar(&progress,
+                         {
+                             .out = &out,
+                             .total = ValueType(0),
+                             .message = "Empty",
+                             .speed_unit = "",
+                             .style = Bars,
+                             .interval = 0.001s,
+                             .show = false,
+                         });
+
+  bar->show();
+  std::this_thread::sleep_for(5ms);
+  bar->done();
+
+  auto parts = check_and_get_parts(out.str());
+  // Zero total is complete from the start
+  for (auto& part : parts) {
+    CHECK(part.find(std::string(30, '|')) != std::string::npos);
+    CHECK(part.find("100.00%") != std::string::npos);
+  }
+}
 
 TEST_CASE("Composite bar-counter", "[composite]") {
   std::stringstream out;
