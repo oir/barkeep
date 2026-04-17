@@ -15,8 +15,8 @@
 #ifndef BARKEEP_H
 #define BARKEEP_H
 
-#include <atomic>
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -501,7 +501,9 @@ struct Provider<std::atomic<T>> {
   Provider(const Provider&) = default;
   Provider& operator=(const Provider&) = default;
 
-  [[nodiscard]] T load() const noexcept { return ptr_->load(std::memory_order_relaxed); }
+  [[nodiscard]] T load() const noexcept {
+    return ptr_->load(std::memory_order_relaxed);
+  }
 
   [[nodiscard]] bool ok() const noexcept { return ptr_; }
 
@@ -531,7 +533,9 @@ struct ReasonablyInvocable {
 };
 
 template <typename T>
-struct ReasonablyInvocable<T, std::enable_if_t<!std::is_same_v<void, std::invoke_result_t<T>>>> {
+struct ReasonablyInvocable<
+    T,
+    std::enable_if_t<!std::is_same_v<void, std::invoke_result_t<T>>>> {
   constexpr static auto value = true;
 };
 
@@ -787,7 +791,8 @@ class CounterDisplay : public BaseDisplay {
   /// Constructor.
   /// @param progress Variable to be monitored and displayed
   /// @param cfg      Counter parameters
-  CounterDisplay(provider_t<Progress> progress_provider, const CounterConfig& cfg = {})
+  CounterDisplay(provider_t<Progress> progress_provider,
+                 const CounterConfig& cfg = {})
       : BaseDisplay(cfg.out,
                     as_duration(cfg.interval),
                     cfg.message,
@@ -806,27 +811,27 @@ class CounterDisplay : public BaseDisplay {
   }
 
   CounterDisplay(Progress* progress_provider, const CounterConfig& cfg = {})
-    : CounterDisplay(provider_t<Progress>(progress_provider), cfg)
-  {}
+      : CounterDisplay(provider_t<Progress>(progress_provider), cfg) {}
 
   CounterDisplay(Progress progress_provider, const CounterConfig& cfg = {})
-    : CounterDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
-  {}
+      : CounterDisplay(provider_t<Progress>(std::move(progress_provider)),
+                       cfg) {}
 
   ~CounterDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to CounterDisplay.
 /// Prefer this to constructing CounterDisplay directly.
-template <typename Progress,
-          typename ProgressProvider = provider_t<Progress>,
-          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+template <
+    typename Progress,
+    typename ProgressProvider = provider_t<Progress>,
+    typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
 auto Counter(Progress&& progress, const CounterConfig& cfg = {}) {
-  return std::make_shared<CounterDisplay<Progress>>(std::forward<Progress>(progress), cfg);
+  return std::make_shared<CounterDisplay<Progress>>(
+      std::forward<Progress>(progress), cfg);
 }
 
-template <typename Progress,
-          typename ProgressProvider = provider_t<Progress>>
+template <typename Progress, typename ProgressProvider = provider_t<Progress>>
 auto Counter(Progress* progress, const CounterConfig& cfg = {}) {
   return std::make_shared<CounterDisplay<Progress>>(progress, cfg);
 }
@@ -1101,30 +1106,31 @@ class ProgressBarDisplay : public BaseDisplay {
     if (cfg.show) { show(); }
   }
 
-  ProgressBarDisplay(Progress* progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
-    : ProgressBarDisplay(provider_t<Progress>(progress_provider), cfg)
-  {}
+  ProgressBarDisplay(Progress* progress_provider,
+                     const ProgressBarConfig<ValueType>& cfg = {})
+      : ProgressBarDisplay(provider_t<Progress>(progress_provider), cfg) {}
 
-  ProgressBarDisplay(Progress progress_provider, const ProgressBarConfig<ValueType>& cfg = {})
-    : ProgressBarDisplay(provider_t<Progress>(std::move(progress_provider)), cfg)
-  {}
+  ProgressBarDisplay(Progress progress_provider,
+                     const ProgressBarConfig<ValueType>& cfg = {})
+      : ProgressBarDisplay(provider_t<Progress>(std::move(progress_provider)),
+                           cfg) {}
 
   ~ProgressBarDisplay() { done(); }
 };
 
 /// Convenience factory function to create a shared_ptr to ProgressBarDisplay.
 /// Prefer this to constructing ProgressBarDisplay directly.
-template <typename Progress,
-          typename ProgressProvider = provider_t<Progress>,
-          typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
+template <
+    typename Progress,
+    typename ProgressProvider = provider_t<Progress>,
+    typename std::enable_if_t<ReasonablyInvocableV<Progress>, bool> = true>
 auto ProgressBar(Progress&& progress,
                  const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
-  return std::make_shared<ProgressBarDisplay<Progress>>(std::forward<Progress>(progress),
-                                                            cfg);
+  return std::make_shared<ProgressBarDisplay<Progress>>(
+      std::forward<Progress>(progress), cfg);
 }
 
-template <typename Progress,
-          typename ProgressProvider = provider_t<Progress>>
+template <typename Progress, typename ProgressProvider = provider_t<Progress>>
 auto ProgressBar(Progress* progress,
                  const ProgressBarConfig<value_t<ProgressProvider>>& cfg = {}) {
   return std::make_shared<ProgressBarDisplay<Progress>>(progress, cfg);
