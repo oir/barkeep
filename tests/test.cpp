@@ -485,10 +485,10 @@ TEST_CASE("Iterable bar", "[bar]") {
   for (auto& thing : IterableBar(things,
                                  {
                                      .out = &out,
-                                    .message = "Computing",
-                                    .style = sty,
-                                    .interval = 0.001s,
-                                    .no_tty = no_tty,
+                                     .message = "Computing",
+                                     .style = sty,
+                                     .interval = 0.001s,
+                                     .no_tty = no_tty,
                                  })) {
     dummy_sum += thing;
     std::this_thread::sleep_for(1.3ms);
@@ -583,11 +583,11 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
     for (auto& thing : IterableBar(things,
                                    {
                                        .out = &out,
-                                      .message = "Computing",
-                                      .speed = 1,
-                                      .style = sty,
-                                      .interval = 0.001s,
-                                      .no_tty = no_tty,
+                                       .message = "Computing",
+                                       .speed = 1,
+                                       .style = sty,
+                                       .interval = 0.001s,
+                                       .no_tty = no_tty,
                                    })) {
       std::this_thread::sleep_for(1.3ms);
       dummy_sum += thing;
@@ -596,12 +596,12 @@ TEST_CASE("Speedy iterable bar", "[bar]") {
     for (auto& thing : IterableBar(things,
                                    {
                                        .out = &out,
-                                      .message = "Computing",
-                                      .speed = 1,
-                                      .speed_unit = "thing/time",
-                                      .style = sty,
-                                      .interval = 0.001s,
-                                      .no_tty = no_tty,
+                                       .message = "Computing",
+                                       .speed = 1,
+                                       .speed_unit = "thing/time",
+                                       .style = sty,
+                                       .interval = 0.001s,
+                                       .no_tty = no_tty,
                                    })) {
       std::this_thread::sleep_for(1.3ms);
       dummy_sum += thing;

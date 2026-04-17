@@ -97,3 +97,27 @@ jobs:
       - name: "Build and test conan package"
         run: |
           conan create . --build=missing -s compiler.cppstd=20
+  clang-format-check:
+    name: "Check formatting"
+    timeout-minutes: 5
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: "Install clang-format"
+        run: pip install -r requirements-dev.txt
+      - name: "Check formatting"
+        run: |
+          clang-format --version
+          clang-format --dry-run --Werror \
+            barkeep/barkeep.h \
+            docs/after.cpp docs/before.cpp \
+            python/barkeep.cpp \
+            test_package/test_package.cpp \
+            tests/demo-fmtlib.cpp tests/demo-stdfmt.cpp tests/demo.cpp \
+            tests/test-fmtlib.cpp tests/test-stdfmt.cpp tests/test.cpp \
+            tests/testutil.h
