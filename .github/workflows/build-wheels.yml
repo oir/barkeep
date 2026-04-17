@@ -16,16 +16,16 @@ jobs:
     strategy:
       matrix:
         platform:
-          - [ubuntu-20.04, manylinux, x86_64]
-          - [ubuntu-20.04, manylinux, i686]
-          - [ubuntu-20.04, manylinux, aarch64]
-          - [ubuntu-20.04, manylinux, ppc64le]
-          - [ubuntu-20.04, manylinux, s390x]
-          - [ubuntu-20.04, musllinux, x86_64]
-          - [ubuntu-20.04, musllinux, i686]
-          - [ubuntu-20.04, musllinux, aarch64]
-          - [ubuntu-20.04, musllinux, ppc64le]
-          - [ubuntu-20.04, musllinux, s390x]
+          - [ubuntu-22.04, manylinux, x86_64]
+          - [ubuntu-22.04, manylinux, i686]
+          - [ubuntu-22.04, manylinux, aarch64]
+          - [ubuntu-22.04, manylinux, ppc64le]
+          - [ubuntu-22.04, manylinux, s390x]
+          - [ubuntu-22.04, musllinux, x86_64]
+          - [ubuntu-22.04, musllinux, i686]
+          - [ubuntu-22.04, musllinux, aarch64]
+          - [ubuntu-22.04, musllinux, ppc64le]
+          - [ubuntu-22.04, musllinux, s390x]
           - [macos-13, macosx, x86_64] # macOS 13 is x86
           - [macos-14, macosx, arm64] # macOS 14 is ARM
         version: [39, 310, 311, 312]
@@ -39,12 +39,13 @@ jobs:
         with:
           platforms: all
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.22.0
         env:
           CIBW_BUILD: "cp${{ matrix.version }}-${{ matrix.platform[1] }}*"
           CIBW_ARCHS: ${{ matrix.platform[2] }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: wheels-${{ matrix.platform[1] }}-${{ matrix.platform[2] }}-cp${{ matrix.version }}
           path: ./wheelhouse/*.whl
 
   build-sdist:
@@ -56,8 +57,9 @@ jobs:
           submodules: false
       - name: Build sdist
         run: pipx run build --sdist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
+          name: sdist
           path: dist/*.tar.gz
 
   upload-pypi:
@@ -68,10 +70,9 @@ jobs:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          # unpacks default artifact into dist/
-          # if `name: artifact` is omitted, the action will create extra parent dir
-          name: artifact
           path: dist
+          pattern: "{wheels-*,sdist}"
+          merge-multiple: true
       - uses: pypa/gh-action-pypi-publish@release/v1
