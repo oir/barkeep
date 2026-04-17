@@ -886,13 +886,12 @@ class ProgressBarDisplay : public BaseDisplay {
     int on = (total_ == ValueType(0))
                  ? int(width_)
                  : int(ValueType(width_) * progress_copy / total_);
-    size_t partial = (total_ == ValueType(0))
-                         ? 0
-                         : size_t(ValueType(bar_parts_.fill.size()) *
-                                      ValueType(width_) * progress_copy /
-                                      total_ -
-                                  ValueType(bar_parts_.fill.size()) *
-                                      ValueType(on));
+    size_t partial =
+        (total_ == ValueType(0))
+            ? 0
+            : size_t(ValueType(bar_parts_.fill.size()) * ValueType(width_) *
+                         progress_copy / total_ -
+                     ValueType(bar_parts_.fill.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
       partial = 0;
