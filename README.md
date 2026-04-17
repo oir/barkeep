@@ -693,8 +693,7 @@ Still, this section details how to build the demos, tests and python bindings an
 
 ### No tooling
 
-Since barkeep is header-only, the demo can be built with a bare compiler invocation — no build system, no dependencies:
-
+If you don't want to deal with a build system, you can simply invoke the compiler to build the demo:
 ```bash
 git clone https://github.com/oir/barkeep
 cd barkeep
@@ -704,7 +703,7 @@ g++ -std=c++20 -I./ tests/demo.cpp -o demo.out
 
 (You can replace `g++` with your choice of compiler like `clang`.)
 
-To build the test suites or the Python bindings, use Meson (below) — tests depend on Catch2 and fmtlib, and Meson handles both via subproject wraps.
+To build the test suites or the Python bindings, use Meson (below).
 
 ### Build system: Meson
 
