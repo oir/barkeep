@@ -1,9 +1,9 @@
 pymod = import('python')
 installations = {
-  '3.9': pymod.find_installation('python3.9', required: false),
-  '3.10': pymod.find_installation('python3.10', required: false),
   '3.11': pymod.find_installation('python3.11', required: false),
   '3.12': pymod.find_installation('python3.12', required: false),
+  '3.13': pymod.find_installation('python3.13', required: false),
+  '3.14': pymod.find_installation('python3.14', required: false),
 }
 
 py_targets = []
@@ -34,4 +34,6 @@ foreach tgt : py_targets
   message('  ' + tgt.name())
 endforeach
 
-alias_target('python', py_targets)
+if py_targets.length() > 0
+  alias_target('python', py_targets)
+endif
