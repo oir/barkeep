@@ -11,7 +11,7 @@ name = 'barkeep'
 version = '0.1.5'
 description = ''
 readme = 'python/README.md'
-requires-python = '>=3.9'
+requires-python = '>=3.11'
 license = {file = 'LICENSE'}
 authors = [
   {name = 'Ozan Irsoy'},

@@ -49,7 +49,7 @@ jobs:
           submodules: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9' 
+          python-version: '3.11'
       - name: "Install tooling"
         run: |
           g++-13 --version
@@ -72,7 +72,7 @@ jobs:
           submodules: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.9' 
+          python-version: '3.11'
       - run: |
           pip install meson pytest
           sudo apt install ninja-build

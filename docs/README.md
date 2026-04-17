@@ -21,7 +21,7 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
 <br/>
 <icon prefix="python"></icon>
 <a href="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg"><img style="vertical-align:middle" src="https://github.com/oir/barkeep/actions/workflows/build-wheels.yml/badge.svg" alt="Build status"></a>
-<a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:middle" src="https://img.shields.io/badge/python-3.9_|_3.10_|_3.11_|_3.12-blue.svg" alt="pypi"></a>
+<a href="https://pypi.python.org/pypi/barkeep"><img style="vertical-align:middle" src="https://img.shields.io/badge/python-3.11_|_3.12_|_3.13_|_3.14-blue.svg" alt="pypi"></a>
 <code>pip install barkeep</code>
 
 </div>
