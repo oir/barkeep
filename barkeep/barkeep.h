@@ -835,7 +835,8 @@ auto Counter(Progress* progress, const CounterConfig& cfg = {}) {
 template <typename ValueType>
 struct ProgressBarConfig {
   std::ostream* out = &std::cout; ///< output stream
-  ValueType total = 100;          ///< total amount of work for a full bar
+  ValueType total = 100;          ///< total amount of work for a full bar.
+                                  ///< A total of 0 is immediately complete.
   std::string format = "";        ///< format string for the entire progress bar
   std::string message = "";       ///< message to display with the bar
 
@@ -882,10 +883,15 @@ class ProgressBarDisplay : public BaseDisplay {
         progress_provider_.load(); // to avoid progress_ changing
                                    // during computations below
     bool complete = progress_copy >= total_;
-    int on = int(ValueType(width_) * progress_copy / total_);
-    size_t partial = size_t(ValueType(bar_parts_.fill.size()) *
-                                ValueType(width_) * progress_copy / total_ -
-                            ValueType(bar_parts_.fill.size()) * ValueType(on));
+    int on = (total_ == ValueType(0))
+                 ? int(width_)
+                 : int(ValueType(width_) * progress_copy / total_);
+    size_t partial =
+        (total_ == ValueType(0))
+            ? 0
+            : size_t(ValueType(bar_parts_.fill.size()) * ValueType(width_) *
+                         progress_copy / total_ -
+                     ValueType(bar_parts_.fill.size()) * ValueType(on));
     if (on >= int(width_)) {
       on = width_;
       partial = 0;
@@ -949,7 +955,10 @@ class ProgressBarDisplay : public BaseDisplay {
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2);
     ss.width(6);
-    ss << std::right << progress_provider_.load() * 100. / total_ << "%" << end;
+    double percent = (total_ == ValueType(0))
+                         ? 100.
+                         : progress_provider_.load() * 100. / total_;
+    ss << std::right << percent << "%" << end;
     out() << ss.str();
   }
 
@@ -963,7 +972,8 @@ class ProgressBarDisplay : public BaseDisplay {
       std::stringstream bar_ss;
       render_progress_bar_(&bar_ss);
 
-      double percent = progress * 100. / total_;
+      double percent =
+          (total_ == value_t<Progress>(0)) ? 100. : progress * 100. / total_;
 
       if (speedom_) {
         fmt::print(out(),
@@ -1005,7 +1015,8 @@ class ProgressBarDisplay : public BaseDisplay {
       render_progress_bar_(&bar_ss);
       std::string bar = bar_ss.str();
 
-      double percent = progress * 100. / total_;
+      double percent =
+          (total_ == value_t<Progress>(0)) ? 100. : progress * 100. / total_;
       auto speed = speedom_ ? speedom_->speed() : std::nan("");
 
       out() << std::vformat(format_,
