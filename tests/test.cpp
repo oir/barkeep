@@ -1,12 +1,9 @@
-#define CATCH_CONFIG_MAIN
-
 #include <atomic>
 #include <functional>
 #include <string>
 #include <tuple>
 #include <vector>
 #include <barkeep/barkeep.h>
-#include <catch2/catch.hpp>
 
 #include "testutil.h"
 

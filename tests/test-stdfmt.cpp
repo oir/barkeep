@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_MAIN
 #ifndef BARKEEP_ENABLE_STD_FORMAT
 #define BARKEEP_ENABLE_STD_FORMAT
 #endif
@@ -7,7 +6,6 @@
 #include <string>
 #include <tuple>
 #include <barkeep/barkeep.h>
-#include <catch2/catch.hpp>
 
 #include "testutil.h"
 

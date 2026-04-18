@@ -2,7 +2,9 @@
 #include <string>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 std::vector<std::string> split(const std::string& s, char delim) {
   std::vector<std::string> elems;

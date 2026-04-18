@@ -1,4 +1,3 @@
-#define CATCH_CONFIG_MAIN
 #define FMT_HEADER_ONLY
 #ifndef BARKEEP_ENABLE_FMT_FORMAT
 #define BARKEEP_ENABLE_FMT_FORMAT
@@ -8,7 +7,6 @@
 #include <string>
 #include <tuple>
 #include <barkeep/barkeep.h>
-#include <catch2/catch.hpp>
 
 #include "testutil.h"
 
