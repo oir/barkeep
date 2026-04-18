@@ -219,40 +219,39 @@ __barkeep__ also has [python bindings](https://pypi.python.org/pypi/barkeep).
     <img src="rec/iter-bar-light.svg" width="700">
   </picture>
 
-  <blockquote class="warn">
-  <details>
-  <summary>
-  Detail: IterableBar starts the display not at the time of construction, ...  
-  </summary>
-  
-  ... but at the time of the first call to `begin()`.
-  Thus, it is possible to set it up prior to loop execution.
- 
-  Similarly, it ends the display not at the time of destruction, but at the
-  first increment of the iterator past the end. Thus, even if the object stays
-  alive after the loop, the display will be stopped.
-
-  Therefore, you could initialize it earlier than the loop execution, and destroy
-  it late afterwards:
-
-  ```cpp
-  std::vector<float> v(300, 0);
-  std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
-  float sum = 0;
-  bk::IterableBar bar(v, {.message = "Summing", .interval = .02});
-  // <-- At this point, display is not yet shown.
-  //     Thus, more work can be done here.
-  for (auto x : bar) { // <-- Display starts showing.
-    std::this_thread::sleep_for(1.s/x);
-    sum += x;
-  }
-  // <-- Display stops here even if `bar` object is still alive.
-  //     Thus, more work can be done here.
-  std::cout << "Sum: " << sum << std::endl;
-  ```
-
-  </details>
-  </blockquote>
+  > [!NOTE]
+  > <details>
+  > <summary>
+  > Detail: IterableBar starts the display not at the time of construction, ...
+  > </summary>
+  >
+  > ... but at the time of the first call to `begin()`.
+  > Thus, it is possible to set it up prior to loop execution.
+  >
+  > Similarly, it ends the display not at the time of destruction, but at the
+  > first increment of the iterator past the end. Thus, even if the object stays
+  > alive after the loop, the display will be stopped.
+  >
+  > Therefore, you could initialize it earlier than the loop execution, and destroy
+  > it late afterwards:
+  >
+  > ```cpp
+  > std::vector<float> v(300, 0);
+  > std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
+  > float sum = 0;
+  > bk::IterableBar bar(v, {.message = "Summing", .interval = .02});
+  > // <-- At this point, display is not yet shown.
+  > //     Thus, more work can be done here.
+  > for (auto x : bar) { // <-- Display starts showing.
+  >   std::this_thread::sleep_for(1.s/x);
+  >   sum += x;
+  > }
+  > // <-- Display stops here even if `bar` object is still alive.
+  > //     Thus, more work can be done here.
+  > std::cout << "Sum: " << sum << std::endl;
+  > ```
+  >
+  > </details>
 
 <div style="visibility: hidden; height: 0;">
 
@@ -698,19 +697,16 @@ To build the test suites or the Python bindings, use Meson (below).
   PYTHONPATH=build/python/ python3.11 python/tests/demo.py
   ```
 
-  <div class="tip">
-
-  By default, python bindings assume `std::atomic<double>` support.
-  This requires availability of supporting compilers, e.g. g++-13 instead of Clang 15.0.0. Such compilers can be specified during `configure` step:
-  ```bash
-  CXX=g++-13 meson setup build
-  ```
-  Alternatively, you can disable atomic float support by providing the appropriate compile flag if you don't have a supporting compiler:
-  ```bash
-  CXXFLAGS="-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" meson setup build
-  ```
-  
-  </div>
+  > [!TIP]
+  > By default, python bindings assume `std::atomic<double>` support.
+  > This requires availability of supporting compilers, e.g. g++-13 instead of Clang 15.0.0. Such compilers can be specified during `configure` step:
+  > ```bash
+  > CXX=g++-13 meson setup build
+  > ```
+  > Alternatively, you can disable atomic float support by providing the appropriate compile flag if you don't have a supporting compiler:
+  > ```bash
+  > CXXFLAGS="-DBARKEEP_ENABLE_ATOMIC_FLOAT=0" meson setup build
+  > ```
 
 ## Similar projects
 

@@ -74,7 +74,7 @@ for fname in class_files:
     m = re.match(r"# barkeep::(.+)", content)
     class_name = m.group(1)
     path = fname.removeprefix("docs/")
-    class_list_str += f"    * [{class_name}]({path})\n"
+    class_list_str += f'    * [{class_name}]({path} "barkeep • {class_name}")\n'
 
 sidebar = "docs/_sidebar.md"
 content = open(sidebar).read()
