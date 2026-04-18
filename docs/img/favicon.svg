@@ -1,0 +1,17 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .ink { fill: #2c2c2c; }
+    .cutout { fill: #f0f0f0; }
+    @media (prefers-color-scheme: dark) {
+      .ink { fill: #f0f0f0; }
+      .cutout { fill: #2c2c2c; }
+    }
+  </style>
+  <rect class="ink" x="2" y="2" width="3" height="28"/>
+  <rect class="ink" x="7" y="2" width="18" height="28"/>
+  <rect class="ink" x="27" y="2" width="3" height="28"/>
+  <!-- "b" glyph from Raleway Black (wght=900), scaled to fit fill rect -->
+  <path class="cutout"
+        transform="translate(9.05 24.76) scale(0.024 -0.024) translate(-48 0)"
+        d="M383 -10Q324 -10 281.0 13.5Q238 37 213 82V0H48V730H238V448Q261 491 303.0 513.5Q345 536 402 536Q450 536 491.0 515.5Q532 495 562.5 458.0Q593 421 610.0 370.5Q627 320 627 261Q627 203 608.5 153.5Q590 104 557.5 67.0Q525 30 480.5 10.0Q436 -10 383 -10ZM328 150Q351 150 370.0 158.0Q389 166 403.0 180.5Q417 195 424.5 215.0Q432 235 432 260Q432 292 419.5 318.5Q407 345 385.5 360.5Q364 376 336 376Q316 376 297.0 366.0Q278 356 262.5 338.5Q247 321 238 298V204Q247 191 257.5 180.5Q268 170 279.0 163.5Q290 157 302.5 153.5Q315 150 328 150Z"/>
+</svg>
