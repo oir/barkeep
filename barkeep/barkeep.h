@@ -1,4 +1,4 @@
-// Copyright 2024 Ozan İrsoy
+// Copyright 2026 Ozan İrsoy
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -230,17 +230,13 @@ class AsyncDisplayer {
       display_();
       while (true) {
         bool done = false;
-        auto interval = interval_;
-        auto start = std::chrono::steady_clock::now();
+        auto deadline = std::chrono::steady_clock::now() + interval_;
         {
           std::unique_lock lock(done_m_);
           done = done_;
-          while (not done and interval >= Duration{0.}) {
-            done_cv_.wait_for(lock, interval);
-            auto end = std::chrono::steady_clock::now();
-            auto elapsed = end - start;
-            interval -= std::chrono::duration_cast<Duration>(elapsed);
-            if (interval > Duration{0.}) {
+          while (not done and std::chrono::steady_clock::now() < deadline) {
+            done_cv_.wait_until(lock, deadline);
+            if (std::chrono::steady_clock::now() < deadline) {
               // early wake-up, display again
               if (not no_tty_) { display_(/*redraw=*/true); }
             }
@@ -408,9 +404,9 @@ class AnimationDisplay : public BaseDisplay {
       auto& stills_pair = animation_stills_[idx];
       stills_ = stills_pair.first;
       def_interval_ = Duration(stills_pair.second);
-      frame_ = stills_.size() - 1; // start at the last frame,
-                                   // it will be incremented
     }
+    frame_ = stills_.size() - 1; // start at the last frame,
+                                 // it will be incremented
     displayer_->interval(as_duration(cfg.interval) == Duration{0}
                              ? default_interval_(cfg.no_tty)
                              : as_duration(cfg.interval));
@@ -445,7 +441,15 @@ class StatusDisplay : public AnimationDisplay {
   }
 
  public:
-  StatusDisplay(const AnimationConfig& cfg = {}) : AnimationDisplay(cfg) {
+  StatusDisplay(const AnimationConfig& cfg = {})
+      : AnimationDisplay([&] {
+          // Suppress base auto-show so that the display thread only starts
+          // once StatusDisplay's vtable (and its synchronized render_) is in
+          // place.
+          AnimationConfig c = cfg;
+          c.show = false;
+          return c;
+        }()) {
     if (cfg.show) { show(); }
   }
   ~StatusDisplay() { done(); }
@@ -658,7 +662,6 @@ class Speedometer {
   /// Start computing the speed based on the amount of change in progress.
   void start() {
     last_progress_ = progress_provider_.load();
-    ;
     last_start_time_ = Clock::now();
   }
 
@@ -944,7 +947,7 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Progress width is expanded (and right justified) to match width of total.
   void render_counts_(const std::string& end = " ") {
     std::stringstream ss, totals;
-    if (std::is_floating_point_v<ProgressProvider>) {
+    if constexpr (std::is_floating_point_v<value_t<ProgressProvider>>) {
       ss << std::fixed << std::setprecision(2);
       totals << std::fixed << std::setprecision(2);
     }
@@ -1167,6 +1170,9 @@ class CompositeDisplay : public BaseDisplay {
   CompositeDisplay(const std::vector<std::shared_ptr<BaseDisplay>>& displays,
                    std::string delim = " ")
       : delim_(std::move(delim)), displays_(displays) {
+    if (displays_.empty()) {
+      throw std::runtime_error("Cannot create composite from empty displays!");
+    }
     for (auto& display : displays_) {
       if (display->displayer_->running()) {
         throw std::runtime_error("Cannot combine running displays!");
@@ -1186,7 +1192,12 @@ class CompositeDisplay : public BaseDisplay {
     // show();
   }
 
-  ~CompositeDisplay() { done(); }
+  ~CompositeDisplay() {
+    done();
+    // Restore the front child as the shared displayer's parent, in case
+    // children outlive this composite.
+    displayer_->parent(displays_.front().get());
+  }
 };
 
 /// Convenience factory function to create a shared_ptr to CompositeDisplay.
