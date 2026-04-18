@@ -433,6 +433,11 @@ TEMPLATE_LIST_TEST_CASE("Progress bar", "[bar]", ProgressTypeList) {
   // Check that default speed unit does not appear
   for (auto& part : parts) { CHECK(part.find("it/s") == std::string::npos); }
 
+  // Floating-point progress types should render counts with fixed precision
+  if constexpr (std::is_floating_point_v<value_t<TestType>>) {
+    CHECK(parts.back().find("/50.00") != std::string::npos);
+  }
+
   // Check that space is shrinking
   check_shrinking_space(parts, sty);
 }

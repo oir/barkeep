@@ -230,17 +230,13 @@ class AsyncDisplayer {
       display_();
       while (true) {
         bool done = false;
-        auto interval = interval_;
-        auto start = std::chrono::steady_clock::now();
+        auto deadline = std::chrono::steady_clock::now() + interval_;
         {
           std::unique_lock lock(done_m_);
           done = done_;
-          while (not done and interval >= Duration{0.}) {
-            done_cv_.wait_for(lock, interval);
-            auto end = std::chrono::steady_clock::now();
-            auto elapsed = end - start;
-            interval -= std::chrono::duration_cast<Duration>(elapsed);
-            if (interval > Duration{0.}) {
+          while (not done and std::chrono::steady_clock::now() < deadline) {
+            done_cv_.wait_until(lock, deadline);
+            if (std::chrono::steady_clock::now() < deadline) {
               // early wake-up, display again
               if (not no_tty_) { display_(/*redraw=*/true); }
             }
@@ -944,7 +940,7 @@ class ProgressBarDisplay : public BaseDisplay {
   /// Progress width is expanded (and right justified) to match width of total.
   void render_counts_(const std::string& end = " ") {
     std::stringstream ss, totals;
-    if (std::is_floating_point_v<ProgressProvider>) {
+    if constexpr (std::is_floating_point_v<value_t<ProgressProvider>>) {
       ss << std::fixed << std::setprecision(2);
       totals << std::fixed << std::setprecision(2);
     }
