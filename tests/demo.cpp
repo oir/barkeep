@@ -13,7 +13,7 @@ const static std::string reset = "\033[0m";
 const static std::string bold = "\033[1m";
 const static std::string dim = "\033[2m";
 
-std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1, 1};
+std::vector<std::optional<double>> speeds{std::nullopt, 0, 0.1};
 
 class Demo {
  private:
