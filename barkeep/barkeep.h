@@ -614,29 +614,42 @@ class Speedometer {
   using Time = std::chrono::time_point<Clock>;
 
   double progress_increment_sum_ = 0; // (weighted) sum of progress increments
-  Duration duration_increment_sum_{}; // (weighted) sum of duration increments
+  Duration duration_increment_sum_{}; // (weighted) sum of inter-increment gaps
 
-  Time last_start_time_;
+  Time last_increment_time_;
   ValueType last_progress_;
 
  public:
   double speed() {
     Time now = Clock::now();
-    Duration dur = now - last_start_time_;
-    last_start_time_ = now;
 
     ValueType progress_copy =
         progress_provider_.load(); // to avoid progress_ changing below
     SignedType progress_increment =
         SignedType(progress_copy) - SignedType(last_progress_);
-    last_progress_ = progress_copy;
 
-    progress_increment_sum_ =
-        (1 - discount_) * progress_increment_sum_ + progress_increment;
-    duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + dur;
-    return duration_increment_sum_.count() == 0
-               ? 0
-               : progress_increment_sum_ / duration_increment_sum_.count();
+    if (progress_increment != 0) {
+      Duration gap = now - last_increment_time_;
+      progress_increment_sum_ =
+          (1 - discount_) * progress_increment_sum_ + progress_increment;
+      duration_increment_sum_ = (1 - discount_) * duration_increment_sum_ + gap;
+      last_progress_ = progress_copy;
+      last_increment_time_ = now;
+    }
+
+    if (duration_increment_sum_.count() == 0) { return 0; }
+    double base_speed =
+        progress_increment_sum_ / duration_increment_sum_.count();
+
+    // If we've been waiting longer than the EWMA inter-increment gap implies,
+    // the true speed must be at most 1/current_wait in magnitude, otherwise
+    // we would have already seen another increment. Clamp accordingly so the
+    // reported speed decays when increments stop.
+    Duration current_wait = now - last_increment_time_;
+    if (std::abs(base_speed) * current_wait.count() > 1.0) {
+      return std::copysign(1.0 / current_wait.count(), base_speed);
+    }
+    return base_speed;
   }
 
   /// Write speed to given output stream. Speed is a double (written with
@@ -659,10 +672,10 @@ class Speedometer {
     *out << s;
   }
 
-  /// Start computing the speed based on the amount of change in progress.
+  /// Start computing the speed based on time between progress increments.
   void start() {
     last_progress_ = progress_provider_.load();
-    last_start_time_ = Clock::now();
+    last_increment_time_ = Clock::now();
   }
 
   /// Constructor.
