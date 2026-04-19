@@ -257,7 +257,10 @@ class AsyncDisplayer {
   /// End the display.
   virtual void done() {
     if (not running()) { return; } // noop if already done() before
-    done_ = true;
+    {
+      std::lock_guard lock(done_m_);
+      done_ = true;
+    }
     done_cv_.notify_all();
     join();
   }
@@ -617,7 +620,7 @@ class Speedometer {
   Duration duration_increment_sum_{}; // (weighted) sum of inter-increment gaps
 
   Time last_increment_time_;
-  ValueType last_progress_;
+  ValueType last_progress_{};
 
  public:
   double speed() {
@@ -1202,7 +1205,6 @@ class CompositeDisplay : public BaseDisplay {
       display->displayer_->out(&front->out());
     }
     displayer_->parent(this);
-    // show();
   }
 
   ~CompositeDisplay() {
