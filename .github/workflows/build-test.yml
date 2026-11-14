@@ -46,6 +46,23 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
+  build-for-cpp-msvc:
+    name: "Compile C++ header with MSVC"
+    timeout-minutes: 5
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+          vsversion: '2022'
+      - name: "Compile with warnings as errors"
+        shell: cmd
+        run: >-
+          cl /nologo /std:c++20 /EHsc /permissive- /utf-8
+          /W4 /WX /I. /c test_package/test_package.cpp
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10
