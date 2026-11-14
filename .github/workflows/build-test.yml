@@ -46,6 +46,30 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
+  build-and-test-for-cpp-msvc:
+    name: "Build and test for C++ with MSVC"
+    timeout-minutes: 5
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: "Build and test"
+        shell: cmd
+        run: |
+          set "BARKEEP_VS_PATH="
+          set "PATH=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer;%PATH%"
+          for /f "usebackq delims=" %%i in (`vswhere -latest -version "[17.0,18.0)" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "BARKEEP_VS_PATH=%%i"
+          if not defined BARKEEP_VS_PATH (
+            echo Visual Studio 2022 C++ tools were not found.
+            exit /b 1
+          )
+          call "%BARKEEP_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          if errorlevel 1 exit /b 1
+          cl /nologo /std:c++20 /EHsc /permissive- /utf-8 ^
+          /W4 /WX /I. test_package/test_package.cpp /Fe:test_package.exe
+          if errorlevel 1 exit /b 1
+          .\test_package.exe
   build-and-test-for-python:
     name: "Build and test for Python"
     timeout-minutes: 10
