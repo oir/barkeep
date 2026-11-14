@@ -26,7 +26,7 @@ jobs:
           - [ubuntu-22.04, musllinux, aarch64]
           - [ubuntu-22.04, musllinux, ppc64le]
           - [ubuntu-22.04, musllinux, s390x]
-          - [macos-14, macosx, arm64]
+          - [macos-15, macosx, arm64]
         version: [311, 312, 313, 314]
     steps:
       - uses: actions/checkout@v4

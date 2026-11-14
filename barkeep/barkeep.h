@@ -289,7 +289,8 @@ class BaseDisplay {
   /// @return Number of `\n` characters in the message.
   long render_message_() const {
     if (not message_.empty()) { out() << message_ << " "; }
-    return std::count(message_.begin(), message_.end(), '\n');
+    return static_cast<long>(
+        std::count(message_.begin(), message_.end(), '\n'));
   }
 
   BaseDisplay(std::shared_ptr<AsyncDisplayer> displayer)
@@ -383,7 +384,9 @@ class AnimationDisplay : public BaseDisplay {
 
   long render_(bool redraw = false, const std::string& end = " ") override {
     long nls = render_message_();
-    if (not redraw) { frame_ = (frame_ + 1) % stills_.size(); }
+    if (not redraw) {
+      frame_ = static_cast<unsigned short>((frame_ + 1) % stills_.size());
+    }
     out() << stills_[frame_] << end;
     return nls; // assuming no newlines in stills
   }
@@ -408,8 +411,8 @@ class AnimationDisplay : public BaseDisplay {
       stills_ = stills_pair.first;
       def_interval_ = Duration(stills_pair.second);
     }
-    frame_ = stills_.size() - 1; // start at the last frame,
-                                 // it will be incremented
+    // Start at the last frame; it will be incremented.
+    frame_ = static_cast<unsigned short>(stills_.size() - 1);
     displayer_->interval(as_duration(cfg.interval) == Duration{0}
                              ? default_interval_(cfg.no_tty)
                              : as_duration(cfg.interval));
@@ -438,7 +441,9 @@ class StatusDisplay : public AnimationDisplay {
       std::lock_guard lock(message_mutex_);
       nls = render_message_();
     }
-    if (not redraw) { frame_ = (frame_ + 1) % stills_.size(); }
+    if (not redraw) {
+      frame_ = static_cast<unsigned short>((frame_ + 1) % stills_.size());
+    }
     out() << stills_[frame_] << end;
     return nls; // assuming no newlines in stills
   }
@@ -766,7 +771,8 @@ class CounterDisplay : public BaseDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -784,13 +790,14 @@ class CounterDisplay : public BaseDisplay {
                                                   reset)   // 8
 
       );
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #endif
     long nls = render_message_();
     render_counts_(speedom_ ? " " : end);
     if (speedom_) { speedom_->render_speed(&out(), speed_unit_, end); }
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
     return nls;
   }
 
@@ -1029,7 +1036,8 @@ class ProgressBarDisplay : public BaseDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -1056,7 +1064,8 @@ class ProgressBarDisplay : public BaseDisplay {
                                                   magenta,  // 9
                                                   cyan,     // 10
                                                   reset));  // 11
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #endif
     auto& out = this->out();
@@ -1079,7 +1088,7 @@ class ProgressBarDisplay : public BaseDisplay {
       out << bar_parts_.speed_right_modifier;
     }
 
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
 
     // assumes no newlines in bar parts
     return nls;
@@ -1170,11 +1179,12 @@ class CompositeDisplay : public BaseDisplay {
     for (auto it = displays_.begin(); it != displays_.end(); it++) {
       if (it != displays_.begin()) {
         out() << delim_;
-        nls += std::count(delim_.begin(), delim_.end(), '\n');
+        nls = static_cast<long>(nls +
+                                std::count(delim_.begin(), delim_.end(), '\n'));
       }
       (*it)->render_(redraw, (it != displays_.end() - 1) ? "" : end);
     }
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
     return nls;
   }
 

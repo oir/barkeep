@@ -9,6 +9,10 @@ subprojects/pybind11*/
 subprojects/Catch2*/
 subprojects/fmt-*/
 subprojects/packagecache/
+subprojects/.wraplock
+
+.cache/
+.vscode/
 
 __pycache__/
 dist/
