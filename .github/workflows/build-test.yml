@@ -54,14 +54,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: false
-      - uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
-          vsversion: '2022'
       - name: "Compile with warnings as errors"
         shell: cmd
-        run: >-
-          cl /nologo /std:c++20 /EHsc /permissive- /utf-8
+        run: |
+          set "BARKEEP_VS_PATH="
+          set "PATH=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer;%PATH%"
+          for /f "usebackq delims=" %%i in (`vswhere -latest -version "[17.0,18.0)" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "BARKEEP_VS_PATH=%%i"
+          if not defined BARKEEP_VS_PATH (
+            echo Visual Studio 2022 C++ tools were not found.
+            exit /b 1
+          )
+          call "%BARKEEP_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
+          if errorlevel 1 exit /b 1
+          cl /nologo /std:c++20 /EHsc /permissive- /utf-8 ^
           /W4 /WX /I. /c test_package/test_package.cpp
   build-and-test-for-python:
     name: "Build and test for Python"
