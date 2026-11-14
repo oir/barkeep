@@ -159,7 +159,7 @@ class AsyncDisplayer {
   std::condition_variable done_cv_;
   std::mutex done_m_;
   std::atomic<bool> done_ = false; ///< if true, display can be stopped
-  std::ptrdiff_t last_num_newlines_ = 0;
+  long last_num_newlines_ = 0;
 
   // configuration
   Duration interval_;   ///< interval to refresh and check if complete
@@ -284,14 +284,14 @@ class BaseDisplay {
   ///               a space to space out the cursor from the content, but for
   ///               composite displays, we don't want extra space between.
   /// @return Number of `\n` characters in the display.
-  virtual std::ptrdiff_t render_(bool redraw = false,
-                                 const std::string& end = " ") = 0;
+  virtual long render_(bool redraw = false, const std::string& end = " ") = 0;
 
   /// Display the message to output stream.
   /// @return Number of `\n` characters in the message.
-  std::ptrdiff_t render_message_() const {
+  long render_message_() const {
     if (not message_.empty()) { out() << message_ << " "; }
-    return std::count(message_.begin(), message_.end(), '\n');
+    return static_cast<long>(
+        std::count(message_.begin(), message_.end(), '\n'));
   }
 
   BaseDisplay(std::shared_ptr<AsyncDisplayer> displayer)
@@ -342,7 +342,7 @@ inline void AsyncDisplayer::display_(bool redraw) {
 
   if (not no_tty_) {
     *out_ << "\r" << clear_line;
-    for (std::ptrdiff_t i = 0; i < last_num_newlines_; i++) {
+    for (long i = 0; i < last_num_newlines_; i++) {
       *out_ << cursor_up << clear_line;
     }
   }
@@ -383,9 +383,8 @@ class AnimationDisplay : public BaseDisplay {
   Strings stills_;
   Duration def_interval_{0.5};
 
-  std::ptrdiff_t render_(bool redraw = false,
-                         const std::string& end = " ") override {
-    std::ptrdiff_t nls = render_message_();
+  long render_(bool redraw = false, const std::string& end = " ") override {
+    long nls = render_message_();
     if (not redraw) { frame_ = (frame_ + 1) % stills_.size(); }
     out() << stills_[frame_] << end;
     return nls; // assuming no newlines in stills
@@ -435,9 +434,8 @@ class StatusDisplay : public AnimationDisplay {
  protected:
   std::mutex message_mutex_;
 
-  std::ptrdiff_t render_(bool redraw = false,
-                         const std::string& end = " ") override {
-    std::ptrdiff_t nls;
+  long render_(bool redraw = false, const std::string& end = " ") override {
+    long nls;
     {
       std::lock_guard lock(message_mutex_);
       nls = render_message_();
@@ -741,8 +739,7 @@ class CounterDisplay : public BaseDisplay {
   }
 
   /// Write the value of progress with the message to the output stream
-  std::ptrdiff_t render_(bool /*redraw*/ = false,
-                         const std::string& end = " ") override {
+  long render_(bool /*redraw*/ = false, const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -771,7 +768,8 @@ class CounterDisplay : public BaseDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -789,13 +787,14 @@ class CounterDisplay : public BaseDisplay {
                                                   reset)   // 8
 
       );
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #endif
-    std::ptrdiff_t nls = render_message_();
+    long nls = render_message_();
     render_counts_(speedom_ ? " " : end);
     if (speedom_) { speedom_->render_speed(&out(), speed_unit_, end); }
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
     return nls;
   }
 
@@ -992,8 +991,7 @@ class ProgressBarDisplay : public BaseDisplay {
   }
 
   /// Run all of the individual render methods to write everything to stream
-  std::ptrdiff_t render_(bool /*redraw*/ = false,
-                         const std::string& end = " ") override {
+  long render_(bool /*redraw*/ = false, const std::string& end = " ") override {
 #if defined(BARKEEP_ENABLE_FMT_FORMAT)
     if (not format_.empty()) {
       using namespace fmt::literals;
@@ -1035,7 +1033,8 @@ class ProgressBarDisplay : public BaseDisplay {
                    "cyan"_a = cyan,
                    "reset"_a = reset);
       }
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #elif defined(BARKEEP_ENABLE_STD_FORMAT)
     if (not format_.empty()) {
@@ -1062,11 +1061,12 @@ class ProgressBarDisplay : public BaseDisplay {
                                                   magenta,  // 9
                                                   cyan,     // 10
                                                   reset));  // 11
-      return std::count(format_.begin(), format_.end(), '\n');
+      return static_cast<long>(
+          std::count(format_.begin(), format_.end(), '\n'));
     }
 #endif
     auto& out = this->out();
-    std::ptrdiff_t nls = render_message_();
+    long nls = render_message_();
 
     out << bar_parts_.percent_left_modifier;
     render_percentage_();
@@ -1085,7 +1085,7 @@ class ProgressBarDisplay : public BaseDisplay {
       out << bar_parts_.speed_right_modifier;
     }
 
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
 
     // assumes no newlines in bar parts
     return nls;
@@ -1171,17 +1171,17 @@ class CompositeDisplay : public BaseDisplay {
   std::vector<std::shared_ptr<BaseDisplay>> displays_;
   ///< child displays to show
 
-  std::ptrdiff_t render_(bool redraw = false,
-                         const std::string& end = " ") override {
-    std::ptrdiff_t nls = render_message_();
+  long render_(bool redraw = false, const std::string& end = " ") override {
+    long nls = render_message_();
     for (auto it = displays_.begin(); it != displays_.end(); it++) {
       if (it != displays_.begin()) {
         out() << delim_;
-        nls += std::count(delim_.begin(), delim_.end(), '\n');
+        nls = static_cast<long>(nls +
+                                std::count(delim_.begin(), delim_.end(), '\n'));
       }
       (*it)->render_(redraw, (it != displays_.end() - 1) ? "" : end);
     }
-    nls += std::count(end.begin(), end.end(), '\n');
+    nls = static_cast<long>(nls + std::count(end.begin(), end.end(), '\n'));
     return nls;
   }
 
