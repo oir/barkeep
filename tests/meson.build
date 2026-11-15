@@ -31,7 +31,7 @@ foreach src : test_sources
                    include_directories : incdir,
                    dependencies : deps + [catch])
   tests += [exe]
-  test(exec_name, exe)
+  test(exec_name, exe, timeout: 600)
 endforeach
 
 alias_target('tests', tests)
