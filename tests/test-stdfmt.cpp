@@ -246,7 +246,8 @@ TEST_CASE("Composite bar-counter", "[composite]") {
 
     { // check bar correctness
       auto bar_part = part.substr(14, 32);
-      long spaces = std::count(bar_part.begin(), bar_part.end(), ' ');
+      long spaces =
+          static_cast<long>(std::count(bar_part.begin(), bar_part.end(), ' '));
       CHECK(spaces <= last_spaces);
       last_spaces = spaces;
       size_t i = 1;
