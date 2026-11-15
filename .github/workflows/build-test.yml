@@ -200,5 +200,6 @@ jobs:
             python/barkeep.cpp \
             test_package/test_package.cpp \
             tests/demo-fmtlib.cpp tests/demo-stdfmt.cpp tests/demo.cpp \
+            tests/test-api-compatibility.cpp \
             tests/test-fmtlib.cpp tests/test-stdfmt.cpp tests/test.cpp \
             tests/testutil.h
