@@ -120,7 +120,7 @@ Demo float_counter("float_counter", "Floating point counter", []() {
                          });
     for (int i = 0; i < 1010; i++) {
       std::this_thread::sleep_for(13ms);
-      work += 0.213;
+      work += 0.213f;
     }
   }
 });
@@ -269,7 +269,6 @@ Demo three_counters_delim(
     "Composite display of three counters with custom delimiter",
     []() {
       static const std::string blue = "\033[34m";
-      static const std::string reset = "\033[0m";
       std::atomic<size_t> squares{0}, cubes{0}, hypercubes{0};
       // clang-format off
       auto counters = bk::Composite(
@@ -316,7 +315,7 @@ Demo three_bars( // ...
     []() {
       std::atomic<size_t> linear{0}, quad{0}, cubic{0};
       // clang-format off
-      auto bars = bk::Composite(
+      auto progress_bars = bk::Composite(
         {bk::ProgressBar(&linear, {
              .total = 100,
              .message = "Linear   ",
@@ -340,19 +339,19 @@ Demo three_bars( // ...
          })},
         "\n");
       // clang-format on
-      bars->show();
+      progress_bars->show();
       for (int i = 0; i < 100; i++) {
         std::this_thread::sleep_for(130ms);
         linear++;
         quad += linear;
         cubic += quad;
       }
-      bars->done();
+      progress_bars->done();
     });
 
 Demo iterable_bar("iterable_bar", "Iterable progress bar", []() {
   std::vector<float> v(300, 0);
-  std::iota(v.begin(), v.end(), 1); // 1, 2, 3, ..., 300
+  std::iota(v.begin(), v.end(), 1.0f); // 1, 2, 3, ..., 300
   float sum = 0;
   for (auto x : bk::IterableBar(v, {.message = "Summing", .interval = .02})) {
     std::this_thread::sleep_for(1.s / x);

@@ -31,7 +31,13 @@ foreach src : test_sources
                    include_directories : incdir,
                    dependencies : deps + [catch])
   tests += [exe]
-  test(exec_name, exe)
+  test(exec_name, exe, timeout: 600)
 endforeach
+
+compatibility = static_library('test-api-compatibility',
+                               'test-api-compatibility.cpp',
+                               include_directories : incdir,
+                               dependencies : threads)
+tests += [compatibility]
 
 alias_target('tests', tests)
