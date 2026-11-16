@@ -1,8 +1,8 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
 #include <iostream>
 #include <type_traits>
-#include <pybind11/operators.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
 
 #ifndef BARKEEP_ENABLE_FMT_FORMAT
 #define BARKEEP_ENABLE_FMT_FORMAT
