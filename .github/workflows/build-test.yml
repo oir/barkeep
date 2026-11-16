@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '16 7 * * 1'
+      timezone: America/New_York
 jobs:
   build-and-test-for-cpp-meson:
     name: "Build and test for C++ with ${{ matrix.compiler }}"
