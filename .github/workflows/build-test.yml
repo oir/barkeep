@@ -24,9 +24,19 @@ jobs:
             cxx: g++-14
             buildtype: release
             coverage: false
+          - compiler: GCC 15
+            os: ubuntu-26.04
+            cxx: g++-15
+            buildtype: release
+            coverage: false
           - compiler: Clang 18
             os: macos-15
             cxx: clang++
+            buildtype: debug
+            coverage: false
+          - compiler: Clang 22
+            os: ubuntu-26.04
+            cxx: clang++-22
             buildtype: debug
             coverage: false
     env:
@@ -78,9 +88,19 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: barkeep.info
   build-and-test-for-cpp-msvc:
-    name: "Build and test for C++ with MSVC"
+    name: "Build and test for C++ with ${{ matrix.compiler }}"
     timeout-minutes: 15
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: MSVC
+            os: windows-2022
+            vs_version: '[17.0,18.0)'
+          - compiler: MSVC (VS 2026)
+            os: windows-2025-vs2026
+            vs_version: '[18.0,19.0)'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,9 +115,9 @@ jobs:
         run: |
           set "BARKEEP_VS_PATH="
           set "PATH=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer;%PATH%"
-          for /f "usebackq delims=" %%i in (`vswhere -latest -version "[17.0,18.0)" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "BARKEEP_VS_PATH=%%i"
+          for /f "usebackq delims=" %%i in (`vswhere -latest -version "${{ matrix.vs_version }}" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "BARKEEP_VS_PATH=%%i"
           if not defined BARKEEP_VS_PATH (
-            echo Visual Studio 2022 C++ tools were not found.
+            echo Requested Visual Studio C++ tools were not found.
             exit /b 1
           )
           call "%BARKEEP_VS_PATH%\Common7\Tools\VsDevCmd.bat" -arch=x64 -host_arch=x64
